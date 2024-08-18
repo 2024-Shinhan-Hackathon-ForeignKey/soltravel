@@ -36,12 +36,12 @@ social:
     kakao:
       grant-type: authorization_code
       grant-type-refresh: refresh_token
-      client-id: ce44932597263b3c038f3e226f3c3328
-      redirect-uri: https://i11d104.p.ssafy.io/user/auth/login/kakao
-      client-secret: VGCitmfgTmn+t2ou+zVxu6OA7TYNSAApWRexee/pjXA=
+      client-id: id
+      redirect-uri: re
+      client-secret: cs
     naver:
       grant-type: authorization_code
       grant-type-refresh: refresh_token
-      client_id: BUvsmsuF11bb6Ac_YdEh
-      redirect-uri: https://i11d104.p.ssafy.io/user/auth/login/naver
-      client_secret: agzrMxlQfB
+      client_id: id
+      redirect-uri: re
+      client_secret: cs
