@@ -1,5 +1,8 @@
 package com.ssafy.soltravel.service.user;
 
+import com.ssafy.soltravel.dto.user.social.KakaoUserInfo;
+import com.ssafy.soltravel.dto.user.social.NaverUserInfo;
+import com.ssafy.soltravel.dto.user.social.OAuth2UserInfo;
 import com.ssafy.soltravel.dto.user.social.PrincipalDetailsDto;
 import com.ssafy.soltravel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,8 +35,21 @@ public class PrincipalOauthUserService extends DefaultOAuth2UserService {
         log.info("{}", userRequest.getAccessToken());
         log.info("loadUser(PrincipalOauthUserService): getAttributes");
         log.info("{}", super.loadUser(userRequest).getAttributes());
+        OAuth2User oAuth2User = super.loadUser(userRequest);
 
         //OAuth2 로그인 & 회원가입
+        OAuth2UserInfo oAuth2UserInfo =
+        switch (userRequest.getClientRegistration().getRegistrationId()) {
+            case "kakao":
+                yield new KakaoUserInfo(oAuth2User.getAttributes());
+            case "naver":
+                yield new NaverUserInfo((Map<String, Object>) oAuth2User.getAttributes().get("response"));
+            default:
+                throw new IllegalStateException("Unexpected value: " + userRequest.getClientRegistration().getRegistrationId());
+        };
+        log.info("{}", oAuth2UserInfo);
+
+
         return new PrincipalDetailsDto();
     }
 }
