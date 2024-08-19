@@ -1,11 +1,17 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import MainPage from "../src/pages/MainPage";
 
 function App() {
   return (
     <div className="App">
-      <h1>hello world!</h1>
+      <BrowserRouter>
+        {/* <Header></Header> */}
+        <Routes>
+          <Route path="/" element={<MainPage />}></Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
