@@ -1,7 +1,10 @@
 package com.ssafy.soltravel.dto.user.social;
 
+import lombok.ToString;
+
 import java.util.Map;
 
+@ToString
 public class NaverUserInfo implements OAuth2UserInfo {
 
     public NaverUserInfo(Map<String, Object> attributes) {

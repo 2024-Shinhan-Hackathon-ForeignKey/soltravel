@@ -1,8 +1,11 @@
 package com.ssafy.soltravel.dto.user.social;
 
+import lombok.ToString;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@ToString
 public class KakaoUserInfo implements OAuth2UserInfo {
     public KakaoUserInfo(Map<String, Object> attributes) {
         this.attributes = attributes;
