@@ -1,7 +1,7 @@
 spring:
   application:
     name: backend
-    
+
   # JPA 설정  
   jpa:
     hibernate:
@@ -30,5 +30,9 @@ logging:
         type: trace
 
 jwt:
-  secret: {JWT_SECRET_KEY}
+  secret: { JWT_SECRET_KEY }
   expiration-time: 108000000
+
+server:
+  front:
+    url: http://localhost:3000
