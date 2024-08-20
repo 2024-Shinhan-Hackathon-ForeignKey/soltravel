@@ -40,7 +40,6 @@ public class SecurityConfig {
             .requestMatchers("/", "/login", "/join").permitAll()
             .anyRequest().authenticated()
         ).formLogin(form -> form
-            .loginPage(FRONT_URL + "/login")
             .defaultSuccessUrl("/", true)
             .permitAll()
         ).logout(logout -> logout
