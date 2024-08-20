@@ -1,11 +1,14 @@
 package com.ssafy.soltravel.service.account;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.soltravel.common.Header;
+import com.ssafy.soltravel.domain.GeneralAccount;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
+import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -16,10 +19,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
+@RequiredArgsConstructor
 public class AccountService {
-
-    private static final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
-    private final WebClient webClient;
 
     @Value("${external.api.key}")
     private String API_KEY;
@@ -30,9 +31,12 @@ public class AccountService {
     @Value("${external.account.uniqueNo}")
     private String ACCOUNT_UNIQUE_NO;
 
-    public AccountService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
-    }
+    private final WebClient webClient;
+    private final ModelMapper modelMapper;
+
+    private final GeneralAccountRepository generalAccountRepository;
+
+    private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
 
     public ResponseEntity<CreateAccountResponseDto> createAccount(Long userId) {
 
@@ -65,14 +69,18 @@ public class AccountService {
                 })
                 .block();
 
-            // ObjectMapper 인스턴스 생성
-            ObjectMapper objectMapper = new ObjectMapper();
-
             // REC 부분을 Object 타입으로 받기
             Object recObject = response.getBody().get("REC");
 
-            // 응답 바디를 맵으로 가져온 후 ResponseDto로 변환
-            CreateAccountResponseDto responseDto = objectMapper.convertValue(recObject, CreateAccountResponseDto.class);
+            ModelMapper modelMapper = new ModelMapper();
+
+            CreateAccountResponseDto responseDto = modelMapper.map(recObject, CreateAccountResponseDto.class);
+
+            // REC 데이터를 GeneralAccount 엔티티로 변환
+            GeneralAccount generalAccount = modelMapper.map(responseDto, GeneralAccount.class);
+            generalAccount.setBalance(0L);
+
+            generalAccountRepository.save(generalAccount);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } catch (WebClientResponseException e) {
@@ -108,14 +116,15 @@ public class AccountService {
                 })
                 .block();
 
-            // ObjectMapper 인스턴스 생성
-            ObjectMapper objectMapper = new ObjectMapper();
-
             // REC 부분을 Object 타입으로 받기
             Object recObject = response.getBody().get("REC");
 
-            // 응답 바디를 맵으로 가져온 후 ResponseDto로 변환
-            DeleteAccountResponseDto responseDto = objectMapper.convertValue(recObject, DeleteAccountResponseDto.class);
+            ModelMapper modelMapper = new ModelMapper();
+
+            // REC 데이터를 GeneralAccount 엔티티로 변환
+            DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
+
+            generalAccountRepository.deleteByAccountNo(accountNo);
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         } catch (WebClientResponseException e) {
