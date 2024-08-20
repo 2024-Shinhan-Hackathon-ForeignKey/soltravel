@@ -42,10 +42,12 @@ public class SecurityConfig {
                 .csrf(CsrfConfigurer::disable)
                 .httpBasic(httpBasicCustomizer -> httpBasicCustomizer.disable())
                 .authorizeHttpRequests(
-                        request -> request.requestMatchers(
-                                "/", "/api/v1/auth/**", "/oauth2/**", "/swagger-ui/**", "/error", "index.html",
-                                "/api/upload", "api/list", "/api/v1/main/**", "/v3/api-docs/**").permitAll()
-                                .anyRequest().authenticated()
+                        request -> request.anyRequest().permitAll()
+//                    requestMatchers(
+//                                "/", "/api/v1/auth/**", "/oauth2/**", "/swagger-ui/**", "/error", "index.html",
+//                                "/api/upload", "api/list", "/api/v1/main/**", "/v3/api-docs/**").permitAll()
+//                                .anyRequest().permitAll()
+//                            .authenticated()
                         ).oauth2Login(
                                 oauth2 -> oauth2
                                         .authorizationEndpoint(endPoiont -> endPoiont.baseUri("/URL"))
