@@ -38,15 +38,14 @@ public class ApiKeyConfig {
             String line;
 
             while((line = reader.readLine()) != null){
-                line = line.trim();
                 if(line.isEmpty()) continue;
+                line = decrypt(line.trim());
 
                 String[] parts = line.split(":", 2);
                 if(parts.length != 2) continue;
 
                 parts[0] = parts[0].trim();
-                parts[1] = decrypt(parts[1].trim());
-
+                parts[1] = parts[1].trim();
                 apiKeys.put(parts[0], parts[1]);
             }
         } catch (IOException e) {
