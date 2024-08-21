@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    servlet:
+      path: /api/v1
+
   application:
     name: backend
 
@@ -20,6 +24,11 @@ spring:
       max-lifetime: 1800000
       auto-commit: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 
   # JPA 설정  
   jpa:
@@ -35,6 +44,8 @@ spring:
 logging:
   level:
     org:
+      springframework:
+        security: DEBUG
       hibernate:
         SQL: debug
         type: trace
