@@ -54,7 +54,7 @@ public class User {
    * 생성 메서드
    */
   public static User createUser(String name, String password, String email, String phone,
-      String address) {
+      String address, String userKey) {
     User user = new User();
     user.name = name;
     user.password = password;
@@ -63,6 +63,8 @@ public class User {
     user.address = address;
     user.registerAt = LocalDate.now();
     user.role = Role.USER;
+    user.isExit = false;
+    user.userKey = userKey;
     return user;
   }
 }

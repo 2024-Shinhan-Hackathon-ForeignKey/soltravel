@@ -6,13 +6,16 @@ import com.ssafy.soltravel.dto.user.UserCreateRequestDto;
 import com.ssafy.soltravel.dto.user.UserDetailDto;
 import com.ssafy.soltravel.dto.user.UserLoginRequestDto;
 import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
+import com.ssafy.soltravel.dto.user.UserSearchRequestDto;
 import com.ssafy.soltravel.dto.user.api.UserCreateRequestBody;
-import com.ssafy.soltravel.dto.user.api.UserSearchRequestBody;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.util.LogUtil;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +24,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -34,6 +38,37 @@ public class UserService implements UserDetailsService {
   private final WebClient webClient;
 
 
+  // 외부 API 요청용 메서드
+  private <T> ResponseEntity<Map<String, Object>> request(
+      String uri,
+      T requestBody, Class<T> bodyClass
+  ) {
+    return webClient.post()
+        .uri(uri)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(Mono.just(requestBody), bodyClass)
+        .retrieve()
+        // 에러 처리
+        .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
+            clientResponse.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .flatMap(body -> {
+                  String responseMessage = body.get("responseMessage").toString();  // 원하는 메시지 추출
+                  return Mono.error(new WebClientResponseException(
+                      clientResponse.statusCode().value(),
+                      responseMessage,  // 예외 메시지로 설정
+                      clientResponse.headers().asHttpHeaders(),
+                      responseMessage.getBytes(),  // 메시지를 바이트 배열로 변환
+                      StandardCharsets.UTF_8 // 인코딩 지정
+                  ));
+                })
+        )
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
+  }
+
+
   //로그인
   public UserLoginResponseDto loginUser(UserLoginRequestDto request) {
     LogUtil.info(request.getCode());
@@ -43,24 +78,33 @@ public class UserService implements UserDetailsService {
         .build();
   }
 
-  //회원가입
+
+  // 회원가입
   public void createUser(UserCreateRequestDto createDto) {
-    User user = convertCreateDtoToUser(createDto);
+
+    // 외부 API 요청용 Body 생성
     UserCreateRequestBody body = UserCreateRequestBody.builder()
         .apiKey(apiKeys.get("API_KEY"))
         .userId(createDto.getEmail())
         .build();
 
-    String response = webClient.post()
-        .uri(API_URI)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(Mono.just(body), UserCreateRequestBody.class)
-        .retrieve()                 // HTTP 요청을 실행하고 응답을 가져옴
-        .bodyToMono(String.class)   // 응답 본문을 String으로 변환
-        .block();                   // 비동기 결과를 동기식으로 처리
+    // 외부 API 요청
+    LogUtil.info("request(create) to API", body);
+    ResponseEntity<Map<String, Object>> response = request(
+        API_URI, body, UserCreateRequestBody.class
+    );
 
-    LogUtil.info("request(user create) to api", response);
+    // 결과를 전달받은 매개변수와 함께 저장
+    String userKey = response.getBody().get("userKey").toString();
+    User user = convertCreateDtoToUserWithUserKey(createDto, userKey);
+    userRepository.save(user);
   }
+
+  // 계정 조회
+  public void searchUser(UserSearchRequestDto searchDto) {
+    List<User> list = userRepository.findAll(searchDto);
+  }
+
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -80,15 +124,17 @@ public class UserService implements UserDetailsService {
   }
 
   // 회원가입 요청 DTO를 유저 엔티티로 변환
-  private User convertCreateDtoToUser(UserCreateRequestDto dto) {
+  private User convertCreateDtoToUserWithUserKey(UserCreateRequestDto dto, String userKey) {
     return User.createUser(
         dto.getName(),
         dto.getPassword(),
         dto.getEmail(),
         dto.getPhone(),
-        dto.getAddress()
+        dto.getAddress(),
+        userKey
     );
   }
+
 
   /*
    *  Test용 메서드
@@ -101,27 +147,9 @@ public class UserService implements UserDetailsService {
             "pass",
             "test@email.com",
             "010-1111-1111",
-            "testAddress"
+            "testAddress",
+            "test"
         ));
     return user;
-  }
-
-  //외부 API에 유저 조회 요청
-  public void requestSearchUser(String email) {
-    UserSearchRequestBody body = UserSearchRequestBody.builder()
-        .apiKey(apiKeys.get("API_KEY"))
-        .userId(email)
-        .build();
-
-    ResponseEntity<Map<String, Object>> response = webClient.post()
-        .uri(API_URI + "/search")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(Mono.just(body), UserCreateRequestBody.class)
-        .retrieve()
-        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-        })
-        .block();
-
-    LogUtil.info("request(user search) to api", response);
   }
 }
