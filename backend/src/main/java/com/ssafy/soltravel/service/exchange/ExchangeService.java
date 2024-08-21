@@ -5,6 +5,8 @@ import com.ssafy.soltravel.domain.ExchangeRate;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateResponseDto;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -45,8 +47,6 @@ public class ExchangeService {
 
         Header header = Header.builder()
                 .apiName(API_NAME)
-                .institutionCode("00100")
-                .fintechAppNo("001")
                 .apiServiceCode(API_NAME)
                 .apiKey(apiKeys.get("API_KEY"))
                 .build();
@@ -76,6 +76,11 @@ public class ExchangeService {
             //DB 업데이트
             updateExchangeRates(responseDtoList);
 
+            //TODO: 자동 환전
+
+
+            //TODO: 알람
+
         } catch (WebClientResponseException e) {
             throw e;
         }
@@ -98,10 +103,11 @@ public class ExchangeService {
             ExchangeRate existingRate = exchangeRateRepository.findByCurrency(dto.getCurrency());
             
             if (existingRate != null) {
+
                 // 데이터가 이미 존재하면 업데이트
-                existingRate.setExchangeRate(dto.getExchangeRate());
-                existingRate.setExchangeMin(dto.getExchangeMin());
-                existingRate.setCreated(dto.getCreated());
+                existingRate.setExchangeRate(getFloatExchangeRate(dto.getExchangeRate()));
+                existingRate.setExchangeMin(Long.parseLong(dto.getExchangeMin()));
+                existingRate.setCreated(getLocalDateTime(dto.getCreated()));
                 exchangeRateRepository.save(existingRate);
             } else {
                 // 데이터가 없으면 새로 삽입
@@ -109,5 +115,17 @@ public class ExchangeService {
                 exchangeRateRepository.save(newRate);
             }
         }
+    }
+
+    public LocalDateTime getLocalDateTime(String str){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("getLocalDateTime:{}",LocalDateTime.parse(str, formatter));
+        return LocalDateTime.parse(str, formatter);
+    }
+
+    public float getFloatExchangeRate(String exchangeRate){
+
+        String exchangeRateStr=exchangeRate.replace(",","");
+        return Float.parseFloat(exchangeRateStr);
     }
 }
