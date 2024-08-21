@@ -76,10 +76,13 @@ public class JwtAutheticationFilter extends OncePerRequestFilter {
 
       // SecurityContextHolder에 SecurityContext 설정
       SecurityContextHolder.setContext(securityContext);
+
     } catch (ExpiredJwtException e) {
       LogUtil.error("Expired JWT token");
+      
     } catch (InvalidTokenException e) {
       LogUtil.error("Invalid JWT token", e.getToken());
+
     } finally {
       filterChain.doFilter(request, response);
     }

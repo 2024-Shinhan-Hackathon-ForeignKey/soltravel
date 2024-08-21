@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -39,11 +40,13 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)           //csrf 비활성화
         .httpBasic(httpBasicCustomizer -> httpBasicCustomizer.disable())
         .authorizeHttpRequests(requests -> requests      //특정 uri만 허용하고 나머지는 인증받아야함
-                .requestMatchers("/api/v1/auth/test", "/test", "/error").permitAll()
+                .requestMatchers(
+                    new AntPathRequestMatcher("/api/v1/auth/test")
+                ).authenticated()
                 .anyRequest().permitAll()
             //.anyRequest().authenticated()
         ).formLogin(form -> form
-            .defaultSuccessUrl("/api/v1", true)
+            .defaultSuccessUrl("/api/v1/auth/test-ok", true)
             .failureUrl("/api/v1/error")
             .permitAll()
         ).logout(logout -> logout
