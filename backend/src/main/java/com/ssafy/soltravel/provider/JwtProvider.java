@@ -2,6 +2,7 @@ package com.ssafy.soltravel.provider;
 
 import com.ssafy.soltravel.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -49,7 +50,7 @@ public class JwtProvider {
   }
 
   // Jwt 유효성 검증 (서명 유효성, 조작 검사, 만료 검사) -> JWT 토큰을 입력받아 검증하고  userId를 반환
-  public Long validateAccessToken(String jwt) throws InvalidTokenException {
+  public Long validateAccessToken(String jwt) throws InvalidTokenException, ExpiredJwtException {
     try {
       Claims claims = Jwts.parserBuilder()  // JWT parser 빌더를 사용하여 JWT parser 생성
           .setSigningKey(getKey())          // 서명 키 설정
@@ -57,6 +58,8 @@ public class JwtProvider {
           .parseClaimsJws(jwt)              // JWT 파싱 및 검증
           .getBody();                       // JWT의 본문(Claims) 추출
       return Long.valueOf(claims.getSubject());
+    } catch (ExpiredJwtException expiredJwtException) {
+      throw expiredJwtException;
     } catch (Exception e) {
       throw new InvalidTokenException(jwt);
     }
