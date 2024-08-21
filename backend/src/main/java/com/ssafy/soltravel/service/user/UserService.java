@@ -3,6 +3,8 @@ package com.ssafy.soltravel.service.user;
 
 import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.dto.user.UserDetailDto;
+import com.ssafy.soltravel.dto.user.UserLoginRequestDto;
+import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
 import com.ssafy.soltravel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
