@@ -1,7 +1,6 @@
 package com.ssafy.soltravel.handler;
 
 import com.ssafy.soltravel.dto.ResponseDto;
-import com.ssafy.soltravel.exception.InvalidTokenException;
 import com.ssafy.soltravel.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +33,5 @@ public class GlobalExceptionHandler {
         String.format("DB에 해당 유저가 없습니다: %d", e.getUserId())
     );
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-  }
-
-  @ExceptionHandler(InvalidTokenException.class)
-  public ResponseEntity<ResponseDto> handleUserNotFoundException(InvalidTokenException e) {
-    ResponseDto errorResponse = new ResponseDto(
-        "UNAUTHORIZED",
-        String.format("유효하지 않은 토큰입니다: %s", e.getToken())
-    );
-    return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
   }
 }
