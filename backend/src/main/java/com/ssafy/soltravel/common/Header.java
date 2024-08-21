@@ -78,6 +78,9 @@ public class Header {
 
         public Header build() {
             LocalDateTime now = LocalDateTime.now();
+
+            this.institutionCode = "00100";
+            this.fintechAppNo = "001";
             this.transmissionDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             this.transmissionTime = now.format(DateTimeFormatter.ofPattern("HHmmss"));
             this.institutionTransactionUniqueNo = generateInstitutionTransactionUniqueNo(now);
