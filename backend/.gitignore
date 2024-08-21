@@ -5,6 +5,14 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+src/main/resources/application-*.yml
+
+src/main/resources/api-key.txt
+
+encrypt.py
+
+.env
+
 ### STS ###
 .apt_generated
 .classpath
