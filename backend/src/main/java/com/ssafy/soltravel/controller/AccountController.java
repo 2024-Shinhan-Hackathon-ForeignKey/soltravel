@@ -60,6 +60,14 @@ public class AccountController {
         return responseEntity;
     }
 
+    @GetMapping("/{accountNo}")
+    public ResponseEntity<AccountDto> getByAccountNo(@PathVariable String accountNo) {
+
+        ResponseEntity<AccountDto> responseEntity = accountService.getByAccountNo(accountNo);
+
+        return responseEntity;
+    }
+
 
     // 편하게 계좌 지우는용 -> 쓰지마세용
     @DeleteMapping("/all")

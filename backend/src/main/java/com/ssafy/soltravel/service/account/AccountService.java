@@ -149,6 +149,46 @@ public class AccountService {
         }
     }
 
+    public ResponseEntity<AccountDto> getByAccountNo(String accountNo) {
+        String API_NAME = "inquireDemandDepositAccount";
+
+        String API_URL = BASE_URL + "/" + API_NAME;
+
+        // 추후에 userId 받아서 userKey 수정
+        // 현재는 유저 구현 안되서 임시로 처리함
+        Header header = Header.builder()
+            .apiName(API_NAME)
+            .apiServiceCode(API_NAME)
+            .apiKey(apiKeys.get("API_KEY"))
+            .userKey(apiKeys.get("USER_KEY"))
+            .build();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("Header", header);
+        body.put("accountNo",accountNo);
+
+        try {
+            // 일반 계좌 DB 저장 로직 유저 완성 시 추가
+            ResponseEntity<Map<String, Object>> response = webClient.post()
+                .uri(API_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .block();
+
+            // REC 부분을 Object 타입으로 받기
+            Map<String,String> recObject = (Map<String, String>) response.getBody().get("REC");
+
+            AccountDto accountDto = modelMapper.map(recObject, AccountDto.class);
+
+            return ResponseEntity.status(HttpStatus.OK).body(accountDto);
+        } catch (WebClientResponseException e) {
+            throw e;
+        }
+    }
+
     public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId) {
         String API_NAME = "inquireDemandDepositAccountList";
         String API_URL = BASE_URL + "/" + API_NAME;

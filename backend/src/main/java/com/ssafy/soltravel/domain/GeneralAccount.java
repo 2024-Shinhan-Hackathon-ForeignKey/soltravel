@@ -46,8 +46,4 @@ public class GeneralAccount {
 
     @OneToOne(mappedBy = "generalAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private ForeignAccount foreignAccount;
-
-    @OneToOne(mappedBy = "generalAccount")
-    private AccountDetail accountDetail;
-
 }
