@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -43,7 +44,10 @@ public class GeneralAccount {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "generalAccount")
+    @OneToOne(mappedBy = "generalAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private ForeignAccount foreignAccount;
+
+    @OneToOne(mappedBy = "generalAccount")
+    private AccountDetail accountDetail;
 
 }
