@@ -33,7 +33,8 @@ public class ExchangeController {
   public ResponseEntity<ExchangeRateResponseDto> getExchangeRate(
       @RequestBody ExchangeRateRequestDto requestDto) {
 
-    return ResponseEntity.ok(exchangeService.getExchangeRate(requestDto.getCurrency()));
+    exchangeService.ScheduledGetExchangeRate();
+    return ResponseEntity.ok().body(exchangeService.getExchangeRate(requestDto.getCurrency()));
   }
 
   /**
@@ -43,7 +44,8 @@ public class ExchangeController {
   public ResponseEntity<?> setExchangeRate(
       @RequestBody ExchangeRateRegisterRequestDto requestDto) {
 
-    return null;
+    exchangeService.setPreferenceRate(requestDto);
+    return ResponseEntity.ok().body("register success");
   }
 
   /**
