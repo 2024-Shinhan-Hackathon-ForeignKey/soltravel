@@ -30,7 +30,7 @@ public class UserController {
   @PostMapping("/search")
   public ResponseEntity<?> searchUser(@RequestBody UserSearchRequestDto searchDto) {
     LogUtil.info("requested", searchDto.toString());
-    userService.searchUser(searchDto);
+    userService.searchAllUser(searchDto);
     return new ResponseEntity<String>("유저 조회", HttpStatus.OK);
   }
 }
