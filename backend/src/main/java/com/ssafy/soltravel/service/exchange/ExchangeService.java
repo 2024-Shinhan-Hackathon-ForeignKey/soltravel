@@ -3,6 +3,8 @@ package com.ssafy.soltravel.service.exchange;
 import com.ssafy.soltravel.common.Header;
 import com.ssafy.soltravel.domain.ExchangeRate;
 import com.ssafy.soltravel.domain.redis.PreferenceRate;
+import com.ssafy.soltravel.dto.exchange.AccountInfoDto;
+import com.ssafy.soltravel.dto.exchange.ExchangeCurrencyDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateResponseDto;
@@ -11,10 +13,8 @@ import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
 import com.ssafy.soltravel.repository.redis.PreferenceRateRepository;
 import com.ssafy.soltravel.service.NotificationService;
-import com.ssafy.soltravel.util.LogUtil;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +31,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +57,9 @@ public class ExchangeService {
     String API_NAME = "exchangeRate";
     String API_URL = BASE_URL + "/" + API_NAME;
 
-    Header header = Header.builder().apiName(API_NAME).apiServiceCode(API_NAME)
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
         .apiKey(apiKeys.get("API_KEY")).build();
 
     Map<String, Object> body = new HashMap<>();
@@ -180,35 +181,54 @@ public class ExchangeService {
     String API_NAME = "updateDemandDepositAccountWithdrawal";
     String API_URL = BASE_URL + "/exchange";
 
-    Header header = Header.builder().apiName(API_NAME).apiServiceCode(API_NAME)
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
         .apiKey(apiKeys.get("API_KEY"))
         .userKey(apiKeys.get("USER_KEY"))
         .build();
 
     Map<String, Object> body = new HashMap<>();
     body.put("Header", header);
+    body.put("accountNo", dto.getAccountNo());
+    body.put("exchangeCurrency", dto.getExchangeCurrency());
+    body.put("exchangeAmount", String.valueOf(dto.getExchangeAmount()));
 
-    try {
-      ResponseEntity<Map<String, Object>> response = webClient.post().uri(API_URL)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(body).retrieve()
-          .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-          }).block();
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body).retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        }).block();
 
-      // REC 부분을 Object 타입으로 받기 -> List<Map<String, Object>>로 변환
-      Object recObject = response.getBody().get("REC");
-      List<Map<String, Object>> recList = (List<Map<String, Object>>) recObject;
+    // REC 부분을 Object 타입으로 받기 -> List<Map<String, Object>>로 변환
+    Object recObject = response.getBody().get("REC");
+    Map<String, Object> recList = (Map<String, Object>) recObject;
 
-      // REC 부분을 Object 타입으로 받기
-      ModelMapper modelMapper = new ModelMapper();
-      ExchangeResponseDto responseDto = modelMapper.map(recObject, ExchangeResponseDto.class);
+    ModelMapper modelMapper = new ModelMapper();
 
-      //TODO: 환전 알림 구현
-      notificationService.notifyMessage(responseDto);
+// recObject를 Map<String, Object>로 변환
+    Map<String, Object> recMap = (Map<String, Object>) recObject;
 
-      return responseDto;
-    } catch (WebClientResponseException e) {
-      throw e;
-    }
+// exchangeCurrency와 accountInfo를 각각 DTO로 변환
+    ExchangeCurrencyDto exchangeCurrencyDto = modelMapper.map(recMap.get("exchangeCurrency"),
+        ExchangeCurrencyDto.class);
+    AccountInfoDto accountInfoDto = modelMapper.map(recMap.get("accountInfo"),
+        AccountInfoDto.class);
+
+// DTO를 ExchangeResponseDto에 설정
+    ExchangeResponseDto responseDto = new ExchangeResponseDto();
+    responseDto.setExchangeCurrencyDto(exchangeCurrencyDto);
+    responseDto.setAccountInfoDto(accountInfoDto);
+
+
+    //TODO: 환전 log 저장
+
+
+    //TODO: 환전 알림 구현
+    notificationService.notifyMessage(responseDto);
+
+    return responseDto;
   }
 
 

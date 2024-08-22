@@ -56,7 +56,7 @@ public class NotificationService {
 
       //알림 전송
       try {
-        String message = String.format("고객님의 모임계좌[%s]에 자동환전이 실행되었습니다.", accountNo);
+        String message = String.format("고객님의 모임계좌[%s]에 환전이 실행되었습니다.", accountNo);
         LogUtil.info(message);
 
         NotificationDto dto = new NotificationDto(accountNo, exchangeResponseDto.getExchangeCurrencyDto()
