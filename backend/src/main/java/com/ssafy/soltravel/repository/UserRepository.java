@@ -48,7 +48,7 @@ public class UserRepository {
     List<User> list = queryFactory
         .selectFrom(qUser)
         .where(
-            quizIdEq(qUser, searchDto.getUserId()),
+            userIdEq(qUser, searchDto.getUserId()),
             userNameLike(qUser, searchDto.getName()),
             userEmailEq(qUser, searchDto.getEmail())
         )
@@ -57,11 +57,11 @@ public class UserRepository {
     return Optional.of(list);
   }
 
-  private BooleanExpression quizIdEq(QUser user, Long userIdCond) {
+  private BooleanExpression userIdEq(QUser user, Long userIdCond) {
     if (userIdCond == null) {
       return null;
     }
-    return user.id.eq(userIdCond);
+    return user.userId.eq(userIdCond);
   }
 
   private BooleanExpression userNameLike(QUser user, String userNameCond) {

@@ -106,16 +106,18 @@ public class UserService implements UserDetailsService {
 
   // 사용자 계정 검색(리스트)
   public List<UserSearchResponseDto> searchAllUser(UserSearchRequestDto searchDto) {
-    List<User> list = userRepository.findAll(searchDto)
-        .orElseThrow(() -> new UserNotFoundException(searchDto));
+    List<User> list = userRepository.findAll(searchDto).orElseThrow(
+        () -> new UserNotFoundException(searchDto)
+    );
 
     return list.stream().map(this::convertUserToSearchResponseDto).collect(Collectors.toList());
   }
 
   // 사용자 계정 검색(단건, userId)
-  public UserSearchResponseDto searchOneUser(UserSearchRequestDto searchDto) {
-    User user = userRepository.findByUserId(searchDto.getUserId())
-        .orElseThrow(() -> new UserNotFoundException(searchDto.getUserId()));
+  public UserSearchResponseDto searchOneUser(Long userId) {
+    User user = userRepository.findByUserId(userId).orElseThrow(
+        () -> new UserNotFoundException(userId)
+    );
 
     return convertUserToSearchResponseDto(user);
   }
