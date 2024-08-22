@@ -13,8 +13,12 @@ import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
 import com.ssafy.soltravel.repository.redis.PreferenceRateRepository;
 import com.ssafy.soltravel.service.NotificationService;
+import com.ssafy.soltravel.service.account.AccountService;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -47,6 +52,7 @@ public class ExchangeService {
   private final ExchangeRateRepository exchangeRateRepository;
   private final PreferenceRateRepository preferenceRateRepository;
   private final NotificationService notificationService;
+  private final AccountService accountService;
 
   /**
    * 실시간 환율 받아오는 메서드 매시 0분, 10분, 20분, 30분, 40분, 50분에 data 가져온다
@@ -142,15 +148,16 @@ public class ExchangeService {
             //환전 실행
             ExchangeRequestDto exchangeRequestDto = new ExchangeRequestDto();
             exchangeRequestDto.setExchangeCurrency(dto.getCurrency());
-            //TODO: accountRepository에서 id를 통해 계좌번호 얻어올 것.
-//            exchangeRequestDto.setAccountNo();
+            //TODO: preferenceRateRepository id를 통해 계좌번호 얻어올 것.
+//            accountService.
+
+
             //TODO: 얼마를 환전할 것인지 설정할 것.
-//            exchangeRequestDto.setExchangeAmount();
+//            exchangeRequestDto.setExchangeAmount(String.valueOf(3000));
             executeExchange(exchangeRequestDto);
           }
         }
       }
-
     }
   }
 
@@ -220,7 +227,7 @@ public class ExchangeService {
     ExchangeResponseDto responseDto = new ExchangeResponseDto();
     responseDto.setExchangeCurrencyDto(exchangeCurrencyDto);
     responseDto.setAccountInfoDto(accountInfoDto);
-
+    responseDto.setExecuted_at(RFC1123toLocalDateTime(response.getHeaders().getFirst(HttpHeaders.DATE)));
 
     //TODO: 환전 log 저장
 
@@ -248,5 +255,16 @@ public class ExchangeService {
 
   public String makeId(String currency, double rate) {
     return String.format("%s(%.2f)", currency, rate);
+  }
+  public LocalDateTime RFC1123toLocalDateTime(String str) throws DateTimeParseException {
+    // RFC 1123 형식의 Date 문자열을 파싱
+    DateTimeFormatter rfc1123Formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
+    ZonedDateTime zonedDateTime = ZonedDateTime.parse(str, rfc1123Formatter);
+
+    // 한국 시간대 (Asia/Seoul)로 변환
+    ZonedDateTime seoulZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+
+    // ZonedDateTime을 LocalDateTime으로 변환하여 반환
+    return seoulZonedDateTime.toLocalDateTime();
   }
 }
