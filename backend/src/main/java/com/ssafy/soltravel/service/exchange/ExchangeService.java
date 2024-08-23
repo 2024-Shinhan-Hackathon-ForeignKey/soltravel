@@ -149,11 +149,11 @@ public class ExchangeService {
             ExchangeRequestDto exchangeRequestDto = new ExchangeRequestDto();
             exchangeRequestDto.setExchangeCurrency(dto.getCurrency());
             //TODO: preferenceRateRepository id를 통해 계좌번호 얻어올 것.
-//            accountService.
+            exchangeRequestDto.setAccountNo("0883473075115544");
 
 
             //TODO: 얼마를 환전할 것인지 설정할 것.
-//            exchangeRequestDto.setExchangeAmount(String.valueOf(3000));
+            exchangeRequestDto.setExchangeAmount("3000");
             executeExchange(exchangeRequestDto);
           }
         }
@@ -199,7 +199,8 @@ public class ExchangeService {
     body.put("Header", header);
     body.put("accountNo", dto.getAccountNo());
     body.put("exchangeCurrency", dto.getExchangeCurrency());
-    body.put("exchangeAmount", String.valueOf(dto.getExchangeAmount()));
+//    body.put("exchangeAmount", String.valueOf(dto.getExchangeAmount()));
+    body.put("exchangeAmount", "3000");
 
     ResponseEntity<Map<String, Object>> response = webClient.post()
         .uri(API_URL)
@@ -226,13 +227,14 @@ public class ExchangeService {
 // DTO를 ExchangeResponseDto에 설정
     ExchangeResponseDto responseDto = new ExchangeResponseDto();
     responseDto.setExchangeCurrencyDto(exchangeCurrencyDto);
+    accountInfoDto.setAccountId(dto.getAccountId());
     responseDto.setAccountInfoDto(accountInfoDto);
     responseDto.setExecuted_at(RFC1123toLocalDateTime(response.getHeaders().getFirst(HttpHeaders.DATE)));
 
     //TODO: 환전 log 저장
 
 
-    //TODO: 환전 알림 구현
+    //TODO: 환전 알림 구현, accountId 넘길것.
     notificationService.notifyMessage(responseDto);
 
     return responseDto;
