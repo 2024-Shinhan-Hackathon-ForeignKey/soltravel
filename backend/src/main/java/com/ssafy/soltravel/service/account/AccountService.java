@@ -21,6 +21,7 @@ import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.util.LogUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -52,7 +55,8 @@ public class AccountService {
 
     private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
 
-    public CreateAccountResponseDto createGeneralAccount(Long userId,
+    public CreateAccountResponseDto createGeneralAccount(
+        Long userId,
         CreateAccountRequestDto requestDto) {
 
         User user = userRepository.findByUserId(userId)
@@ -176,11 +180,24 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<AccountDto> getByAccountNo(String accountNo) {
+    public ResponseEntity<AccountDto> getByAccountNo(String accountNo, boolean isForeign) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) authentication.getPrincipal();
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
+        LogUtil.info("userKey", user.getUserKey());
+        LogUtil.info("accountNo", accountNo);
 
         String API_NAME = "inquireDemandDepositAccount";
-
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "inquireForeignCurrencyDemandDepositAccount";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         // 추후에 userId 받아서 userKey 수정
         // 현재는 유저 구현 안되서 임시로 처리함
@@ -188,7 +205,7 @@ public class AccountService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
