@@ -1,6 +1,5 @@
 package com.ssafy.soltravel.controller;
 
-import com.ssafy.soltravel.domain.Participant;
 import com.ssafy.soltravel.dto.ResponseDto;
 import com.ssafy.soltravel.dto.account.AccountDto;
 import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
@@ -32,7 +31,6 @@ public class AccountController {
     private final AccountService accountService;
 
     // ========= 계좌 CRUD =========
-
     // 계좌 생성 (모임통장의 경우 외화통장도 자동 생성)
     @PostMapping("/{userId}")
     public ResponseEntity<CreateAccountResponseDto> createAccount(
@@ -56,7 +54,7 @@ public class AccountController {
     @DeleteMapping("/{accountNo}")
     public ResponseEntity<DeleteAccountResponseDto> deleteAccount(@PathVariable String accountNo) {
 
-        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo);
+        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, false);
 
         return responseEntity;
     }
@@ -70,7 +68,6 @@ public class AccountController {
     }
 
     // 외화통장 CRUD
-
     @GetMapping("/foreign/{userId}/all")
     public ResponseEntity<List<AccountDto>> getAllForeignByUserId(@PathVariable Long userId) {
 
@@ -90,12 +87,10 @@ public class AccountController {
     @DeleteMapping("/foreign/{accountNo}")
     public ResponseEntity<DeleteAccountResponseDto> deleteForeignAccount(@PathVariable String accountNo) {
 
-        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo);
+        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, true);
 
         return responseEntity;
     }
-
-
 
     // ========= 참가자 CRUD =========
     @PostMapping("/{accountId}/participants")
@@ -120,13 +115,14 @@ public class AccountController {
     }
 
     /**
-     *모임통장 참여자 조회 :: test용 입니다.
+     * 모임통장 참여자 조회 :: test용 입니다.
      */
     @GetMapping("/participants/{accountId}")
     public ResponseEntity<List<Long>> getParticipantsByAccountNo(@PathVariable Long accountId) {
 
         return ResponseEntity.ok().body(accountService.findUserIdsByGeneralAccountId(accountId));
     }
+
     // 편하게 계좌 지우는용 -> 쓰지마세용
     @DeleteMapping("/all")
     public void deleteAll() {
