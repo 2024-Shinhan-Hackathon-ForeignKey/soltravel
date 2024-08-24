@@ -27,8 +27,9 @@ public class AuthController {
     return ResponseEntity.ok().body(response);
   }
 
-  @PostMapping("/phone/verify/send")
-  public ResponseEntity<?> sendSMSVerification(@RequestBody AuthSMSVerifyRequestDto verifyRequestDto) {
+  @PostMapping("/verify/phone/send")
+  public ResponseEntity<?> sendSMSVerification(
+      @RequestBody AuthSMSVerifyRequestDto verifyRequestDto) {
     LogUtil.info("requested", verifyRequestDto.toString());
     authService.sendSMSForVerification(verifyRequestDto);
     return ResponseEntity.ok().body("인증 문자 전송 성공");
