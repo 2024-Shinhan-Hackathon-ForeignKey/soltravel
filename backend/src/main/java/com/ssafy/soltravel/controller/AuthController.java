@@ -31,8 +31,7 @@ public class AuthController {
   public ResponseEntity<?> sendSMSVerification(
       @RequestBody AuthSMSVerifyRequestDto verifyRequestDto) {
     LogUtil.info("requested", verifyRequestDto.toString());
-    authService.sendSMSForVerification(verifyRequestDto);
-    return ResponseEntity.ok().body("인증 문자 전송 성공");
+    return ResponseEntity.ok().body(authService.sendSMSForVerification(verifyRequestDto));
   }
 
   @GetMapping("/test")

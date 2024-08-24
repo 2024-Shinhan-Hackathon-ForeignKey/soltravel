@@ -4,6 +4,7 @@ package com.ssafy.soltravel.service.user;
 import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.domain.redis.RedisPhone;
 import com.ssafy.soltravel.dto.auth.AuthSMSVerifyRequestDto;
+import com.ssafy.soltravel.dto.auth.AuthSMSVerifyResponseDto;
 import com.ssafy.soltravel.dto.user.UserLoginRequestDto;
 import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
 import com.ssafy.soltravel.exception.InvalidCredentialsException;
@@ -48,7 +49,6 @@ public class AuthService {
   public UserLoginResponseDto login(UserLoginRequestDto loginRequestDto) {
     String email = loginRequestDto.getEmail();
     String encryptedPwd = PasswordEncoder.encrypt(email, loginRequestDto.getPassword());
-    LogUtil.info("Encrypted Password", encryptedPwd);
 
     User user = userRepository.findByEmailAndPwd(email, encryptedPwd).orElseThrow(
         () -> new InvalidCredentialsException(loginRequestDto.getEmail())
@@ -61,7 +61,7 @@ public class AuthService {
   /*
    * 휴대폰 인증
    */
-  public void sendSMSForVerification(AuthSMSVerifyRequestDto request) {
+  public AuthSMSVerifyResponseDto sendSMSForVerification(AuthSMSVerifyRequestDto request) {
 
     // 메세지 기본 설정(from, to)
     Message message = new Message();
@@ -80,6 +80,10 @@ public class AuthService {
     // 결과 저장
     phoneRepository.save(new RedisPhone(request.getPhone(), authCode));
     LogUtil.info("SMS Sent Successfully", response);
+    return AuthSMSVerifyResponseDto.builder()
+        .phone(request.getPhone())
+        .statusMessage(response.getStatusMessage())
+        .build();
   }
 
   public String makeRandomAuthCode() {
