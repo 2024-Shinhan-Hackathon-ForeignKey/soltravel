@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.dto.auth.AuthSMSVerifyRequestDto;
 import com.ssafy.soltravel.dto.user.UserLoginRequestDto;
 import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
 import com.ssafy.soltravel.service.user.AuthService;
@@ -25,7 +26,14 @@ public class AuthController {
     UserLoginResponseDto response = authService.login(loginRequestDto);
     return ResponseEntity.ok().body(response);
   }
-  
+
+  @PostMapping("/phone/verify/send")
+  public ResponseEntity<?> sendSMSVerification(@RequestBody AuthSMSVerifyRequestDto verifyRequestDto) {
+    LogUtil.info("requested", verifyRequestDto.toString());
+    authService.sendSMSForVerification(verifyRequestDto);
+    return ResponseEntity.ok().body("인증 문자 전송 성공");
+  }
+
   @GetMapping("/test")
   public String test() {
     return "test";
