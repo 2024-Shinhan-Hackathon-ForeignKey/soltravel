@@ -3,11 +3,15 @@ package com.ssafy.soltravel.service.user;
 
 import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.domain.redis.RedisPhone;
-import com.ssafy.soltravel.dto.auth.AuthSMSVerifyRequestDto;
-import com.ssafy.soltravel.dto.auth.AuthSMSVerifyResponseDto;
+import com.ssafy.soltravel.dto.auth.AuthSMSSendRequestDto;
+import com.ssafy.soltravel.dto.auth.AuthSMSSendResponseDto;
+import com.ssafy.soltravel.dto.auth.AuthSMSVerificationRequestDto;
+import com.ssafy.soltravel.dto.auth.AuthSMSVerificationResponseDto;
 import com.ssafy.soltravel.dto.user.UserLoginRequestDto;
 import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
+import com.ssafy.soltravel.exception.InvalidAuthCodeException;
 import com.ssafy.soltravel.exception.InvalidCredentialsException;
+import com.ssafy.soltravel.exception.PhoneNotFoundException;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.repository.redis.PhoneRepository;
 import com.ssafy.soltravel.util.LogUtil;
@@ -61,7 +65,7 @@ public class AuthService {
   /*
    * 휴대폰 인증
    */
-  public AuthSMSVerifyResponseDto sendSMSForVerification(AuthSMSVerifyRequestDto request) {
+  public AuthSMSSendResponseDto sendSMSForVerification(AuthSMSSendRequestDto request) {
 
     // 메세지 기본 설정(from, to)
     Message message = new Message();
@@ -80,7 +84,7 @@ public class AuthService {
     // 결과 저장
     phoneRepository.save(new RedisPhone(request.getPhone(), authCode));
     LogUtil.info("SMS Sent Successfully", response);
-    return AuthSMSVerifyResponseDto.builder()
+    return AuthSMSSendResponseDto.builder()
         .phone(request.getPhone())
         .statusMessage(response.getStatusMessage())
         .build();
@@ -100,4 +104,18 @@ public class AuthService {
     return randomNumber.toString();
   }
 
+  public AuthSMSVerificationResponseDto verifySMSAuthCode(AuthSMSVerificationRequestDto request) {
+
+    RedisPhone user = phoneRepository.findById(request.getPhone())
+        .orElseThrow(() -> new PhoneNotFoundException(request.getPhone()));
+
+    if (request.getAuthCode().equals(user.getAuthCode())) {
+      return AuthSMSVerificationResponseDto.builder()
+          .phone(request.getPhone())
+          .statusMessage("인증에 성공했습니다.")
+          .build();
+    } else {
+      throw new InvalidAuthCodeException(request.getPhone(), request.getAuthCode());
+    }
+  }
 }
