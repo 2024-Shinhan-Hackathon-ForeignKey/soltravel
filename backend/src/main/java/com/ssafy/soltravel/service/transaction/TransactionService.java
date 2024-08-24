@@ -182,4 +182,84 @@ public class TransactionService {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
+    /**
+     * 외화 계좌에 입금하는 메서드
+     */
+    public DepositResponseDto postForeignDeposit(String accountNo, TransactionRequestDto requestDto) {
+
+        String API_NAME = "updateForeignCurrencyDemandDepositAccountDeposit";
+        String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+
+        Header header = Header.builder()
+            .apiName(API_NAME)
+            .apiServiceCode(API_NAME)
+            .apiKey(apiKeys.get("API_KEY"))
+            .userKey(apiKeys.get("USER_KEY"))
+            .build();
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("Header", header);
+        body.put("accountNo", accountNo);
+        body.put("transactionBalance", requestDto.getTransactionBalance());
+        body.put("transactionSummary", requestDto.getTransactionSummary());
+
+        ResponseEntity<Map<String, Object>> response = webClient.post()
+            .uri(API_URL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+            })
+            .block();
+
+        Object recObject = response.getBody().get("REC");
+
+        DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
+
+        return depositResponseDto;
+
+    }
+    /**
+     * 외화 통장 거래 내역 조회
+     */
+    public List<TransactionHistoryDto> getForeignHistoryByAccountNo(String accountNo, TransactionHistoryRequestDto requestDto) {
+
+        String API_NAME = "inquireForeignCurrencyTransactionHistoryList";
+        String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+
+        Header header = Header.builder()
+            .apiName(API_NAME)
+            .apiServiceCode(API_NAME)
+            .apiKey(apiKeys.get("API_KEY"))
+            .userKey(apiKeys.get("USER_KEY"))
+            .build();
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("Header", header);
+        body.put("accountNo", accountNo);
+        body.put("startDate", requestDto.getStartDate());
+        body.put("endDate", requestDto.getEndDate());
+        body.put("transactionType", requestDto.getTransactionType());
+        body.put("orderByType", requestDto.getOrderByType());
+
+        ResponseEntity<Map<String, Object>> response = webClient.post()
+            .uri(API_URL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+            })
+            .block();
+
+        Map<String, Object> recObject = (Map<String, Object>) response.getBody().get("REC");
+        List<Object> recList = (List<Object>) recObject.get("list");
+
+        List<TransactionHistoryDto> responseDto = recList.stream()
+            .map(value -> modelMapper.map(value, TransactionHistoryDto.class))
+            .collect(Collectors.toList());
+
+        return responseDto;
+    }
 }

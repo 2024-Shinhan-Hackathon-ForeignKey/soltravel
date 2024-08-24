@@ -70,5 +70,27 @@ public class TransactionController {
         return response;
     }
 
+    /**
+     * 외화 계좌 입금
+     */
+    @PostMapping("/foreign/{accountNo}/deposit")
+    public ResponseEntity<DepositResponseDto> postForeignAccountDeposit(
+        @PathVariable String accountNo,
+        @RequestBody TransactionRequestDto requestDto
+    ) {
+        return ResponseEntity.ok().body(transactionService.postForeignDeposit(accountNo, requestDto));
+    }
 
+    /**
+     * 외화 계좌 거래 내역 조회
+     * getForeignHistoryByAccountNo
+     */
+    @GetMapping("/foreign/{accountNo}/history")
+    public ResponseEntity<List<TransactionHistoryDto>> getForeignHistoryByAccountNo(
+        @PathVariable String accountNo,
+        @RequestBody TransactionHistoryRequestDto requestDto
+    ) {
+
+        return ResponseEntity.ok().body(transactionService.getForeignHistoryByAccountNo(accountNo, requestDto));
+    }
 }
