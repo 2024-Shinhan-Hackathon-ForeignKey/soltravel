@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.dto.participants;
 
 
+import com.ssafy.soltravel.dto.user.UserProfileResponseDto;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ public class ParticipantDto {
 
     private Long participantId;
 
-    private Long userId;
+    private UserProfileResponseDto userInfo;
 
     private boolean isMaster;
 

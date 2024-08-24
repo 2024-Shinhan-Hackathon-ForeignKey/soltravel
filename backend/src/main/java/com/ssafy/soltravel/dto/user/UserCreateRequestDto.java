@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserCreateRequestDto {
 
-  private String name;
-  private String email;
-  private String password;
-  private String phone;
-  private String address;
+    private String name;
+    private String email;
+    private String password;
+    private String phone;
+    private String address;
 
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate birth;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birth;
 }
