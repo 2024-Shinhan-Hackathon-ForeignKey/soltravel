@@ -21,7 +21,6 @@ import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.repository.UserRepository;
-import com.ssafy.soltravel.util.LogUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,8 +129,7 @@ public class AccountService {
         return responseDto;
     }
 
-    public ForeignAccount createForeignAccount(User user, CreateAccountRequestDto requestDto,
-        Long accountId) {
+    public ForeignAccount createForeignAccount(User user, CreateAccountRequestDto requestDto, Long accountId) {
 
         String API_NAME = "createForeignCurrencyDemandDepositAccount";
 
@@ -188,9 +186,6 @@ public class AccountService {
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        LogUtil.info("userKey", user.getUserKey());
-        LogUtil.info("accountNo", accountNo);
-
         String API_NAME = "inquireDemandDepositAccount";
         String API_URL = BASE_URL + "/" + API_NAME;
 
@@ -234,15 +229,24 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId) {
+    public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId, boolean isForeign) {
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "inquireDemandDepositAccountList";
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "inquireForeignCurrencyDemandDepositAccountList";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         Header header = Header.builder()
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -303,8 +307,7 @@ public class AccountService {
             ModelMapper modelMapper = new ModelMapper();
 
             // REC 데이터를 GeneralAccount 엔티티로 변환
-            DeleteAccountResponseDto responseDto = modelMapper.map(recObject,
-                DeleteAccountResponseDto.class);
+            DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
 
             generalAccountRepository.deleteByAccountNo(accountNo);
 

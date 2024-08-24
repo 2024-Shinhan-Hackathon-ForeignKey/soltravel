@@ -46,7 +46,7 @@ public class AccountController {
     @GetMapping("/{userId}/all")
     public ResponseEntity<List<AccountDto>> getAllByUserId(@PathVariable Long userId) {
 
-        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId);
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, false);
 
         return responseEntity;
     }
@@ -70,6 +70,13 @@ public class AccountController {
 
     // 외화통장 CRUD
 
+    @GetMapping("/foreign/{userId}/all")
+    public ResponseEntity<List<AccountDto>> getAllForeignByUserId(@PathVariable Long userId) {
+
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, true);
+
+        return responseEntity;
+    }
 
     @GetMapping("/foreign/{accountNo}")
     public ResponseEntity<AccountDto> getForeignByAccountNo(@PathVariable String accountNo) {
