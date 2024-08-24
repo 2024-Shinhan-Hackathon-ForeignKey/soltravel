@@ -21,6 +21,8 @@ import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.util.LogUtil;
+import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +33,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -180,8 +180,7 @@ public class AccountService {
 
     public ResponseEntity<AccountDto> getByAccountNo(String accountNo, boolean isForeign) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtil.getCurrentUserId();
 
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -275,10 +274,22 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(String accountNo) {
+    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(String accountNo, boolean isForeign) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        LogUtil.info("userId", userId);
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
         String API_NAME = "deleteDemandDepositAccount";
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "deleteForeignCurrecnyDemandDepositAccount";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         Header header = Header.builder()
             .apiName(API_NAME)
@@ -289,7 +300,7 @@ public class AccountService {
 
         Map<String, Object> body = new HashMap<>();
         body.put("Header", header);
-        body.put("accountNo", String.valueOf(accountNo));
+        body.put("accountNo", accountNo);
 
         try {
             ResponseEntity<Map<String, Object>> response = webClient.post()
@@ -357,14 +368,14 @@ public class AccountService {
     public List<Long> findUserIdsByGeneralAccountId(Long accountId) {
 
         return participantRepository.findUserIdsByGeneralAccountId(accountId);
-  }
+    }
 
-  public Long getBalanceByAccountId(Long accountId){
-    return generalAccountRepository.findBalanceByAccountId(accountId);
-  }
+    public Long getBalanceByAccountId(Long accountId) {
+        return generalAccountRepository.findBalanceByAccountId(accountId);
+    }
 
-  public ForeignAccount getForeignAccount(long accountId) {
+    public ForeignAccount getForeignAccount(long accountId) {
 
-    return foreignAccountRepository.findById(accountId).get();
-  }
+        return foreignAccountRepository.findById(accountId).get();
+    }
 }
