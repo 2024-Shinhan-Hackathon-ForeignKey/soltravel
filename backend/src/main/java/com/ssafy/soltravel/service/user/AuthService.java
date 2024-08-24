@@ -8,11 +8,15 @@ import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
 import com.ssafy.soltravel.exception.InvalidCredentialsException;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.util.LogUtil;
-import com.ssafy.soltravel.util.NCPUtil;
 import com.ssafy.soltravel.util.PasswordEncoder;
-import java.sql.Timestamp;
+import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,8 +25,18 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final TokenService tokenService;
+  private DefaultMessageService messageService;
   private final Map<String, String> apiKeys;
-  private final NCPUtil ncpUtil;
+  private final String SERVICE_PHONE_NUM = "01062966409";
+
+  @PostConstruct
+  public void init() {
+    this.messageService = NurigoApp.INSTANCE.initialize(
+        apiKeys.get("SMS_API_KEY"),
+        apiKeys.get("SMS_SECRET_KEY"),
+        "https://api.coolsms.co.kr"
+    );
+  }
 
   public UserLoginResponseDto login(UserLoginRequestDto loginRequestDto) {
     String email = loginRequestDto.getEmail();
@@ -39,10 +53,14 @@ public class AuthService {
 
   public void sendSMSForVerification(AuthSMSVerifyRequestDto request) {
 
-    // 헤더 설정
-    Timestamp now = new Timestamp(System.currentTimeMillis());
-    String accessKey = apiKeys.get("NCP_ACCESS_KEY");
-    String secretKey = apiKeys.get("NCP_SECRET_KEY");
+    Message message = new Message();
+    message.setFrom(SERVICE_PHONE_NUM);
+    message.setTo(request.getPhone());
+    message.setText("한글 45자 이하");
 
+    SingleMessageSentResponse response = messageService.sendOne(
+        new SingleMessageSendingRequest(message));
+
+    LogUtil.info("SMS Sent Successfully", response);
   }
 }
