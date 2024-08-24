@@ -66,7 +66,7 @@ public class NotificationService {
           LogUtil.info(message);
 
           NotificationDto dto = new NotificationDto(exchangeResponseDto.getAccountInfoDto().getAccountId(),accountNo, exchangeResponseDto.getExchangeCurrencyDto()
-              .getExchangeRate(), message);
+              .getExchangeRate().toString(), message);
           sseEmitterReceiver.send(SseEmitter.event().name("Notification").data(dto));
         } catch (Exception e) {
           emitters.remove(userId);

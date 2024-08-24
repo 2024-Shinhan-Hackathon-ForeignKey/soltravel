@@ -8,5 +8,6 @@ public class ExchangeRequestDto {
   private long accountId;
   private String accountNo;
   private String exchangeCurrency;
-  private String exchangeAmount;
+  private long exchangeAmount;
+  private Double exchangeRate;
 }
