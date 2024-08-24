@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthSMSVerifyRequestDto {
+public class AuthSMSSendResponseDto {
 
-  String phone;
+  private String phone;
+  String statusMessage;
 }
