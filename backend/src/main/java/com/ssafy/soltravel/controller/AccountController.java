@@ -6,6 +6,7 @@ import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
+import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,16 @@ public class AccountController {
     ) {
 
         ResponseEntity<ResponseDto> response = accountService.addParticipant(accountId, requestDto);
+
+        return response;
+    }
+
+    @GetMapping("/{accountId}/participants")
+    public ResponseEntity<ParticipantListResponseDto> getParticipant(
+        @PathVariable Long accountId
+    ) {
+
+        ResponseEntity<ParticipantListResponseDto> response = accountService.getParticipants(accountId);
 
         return response;
     }

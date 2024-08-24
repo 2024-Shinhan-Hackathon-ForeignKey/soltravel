@@ -1,7 +1,6 @@
 package com.ssafy.soltravel.domain;
 
 import com.ssafy.soltravel.domain.Enum.AccountType;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -13,10 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,12 +50,6 @@ public class GeneralAccount {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "generalAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Participant> participants;
-
-    @OneToOne(mappedBy = "generalAccount")
-    private ForeignAccount foreignAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
