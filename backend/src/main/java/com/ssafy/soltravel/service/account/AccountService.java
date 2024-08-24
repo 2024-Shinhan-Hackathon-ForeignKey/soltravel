@@ -357,5 +357,14 @@ public class AccountService {
     public List<Long> findUserIdsByGeneralAccountId(Long accountId) {
 
         return participantRepository.findUserIdsByGeneralAccountId(accountId);
-    }
+  }
+
+  public Long getBalanceByAccountId(Long accountId){
+    return generalAccountRepository.findBalanceByAccountId(accountId);
+  }
+
+  public ForeignAccount getForeignAccount(long accountId) {
+
+    return foreignAccountRepository.findById(accountId).get();
+  }
 }
