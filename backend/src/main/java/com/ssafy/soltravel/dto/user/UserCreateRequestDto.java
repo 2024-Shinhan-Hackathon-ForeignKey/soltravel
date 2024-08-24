@@ -35,6 +35,6 @@ public class UserCreateRequestDto {
   @NotBlank
   private String address;
 
-  @JsonFormat(pattern = "yyyy-MM-dd")
-  private LocalDate birth;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birth;
 }
