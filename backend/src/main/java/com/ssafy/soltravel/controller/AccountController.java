@@ -8,6 +8,13 @@ import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+@Tag(name = "Account API", description = "계좌 관련 API")
 @Transactional
 @RestController
 @RequiredArgsConstructor
@@ -32,8 +40,16 @@ public class AccountController {
 
     // ========= 계좌 CRUD =========
     // 계좌 생성 (모임통장의 경우 외화통장도 자동 생성)
+
+    @Operation(
+        summary = "계좌 생성", description = "일반 계좌(INDIVISUAL / GROUP) 선택하여 생성(외화코드필수X), 만약 그룹 계좌인경우 자동 외화 통장 생성(외화코드필수)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "계좌 생성 성공", content = @Content(schema = @Schema(implementation = CreateAccountResponseDto.class))),
+    })
     @PostMapping("/{userId}")
     public ResponseEntity<CreateAccountResponseDto> createAccount(
+        @Parameter(description = "사용자의 userId", example = "1")
         @PathVariable Long userId,
         @RequestBody CreateAccountRequestDto dto
     ) {
@@ -42,6 +58,13 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(generalAccount);
     }
 
+    @Operation(
+        summary = "사용자의 모든 계좌 조회",
+        description = "특정 사용자의 모든 일반 계좌를 조회하는 API."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
+    })
     @GetMapping("/{userId}/all")
     public ResponseEntity<List<AccountDto>> getAllByUserId(@PathVariable Long userId) {
 
@@ -50,15 +73,10 @@ public class AccountController {
         return responseEntity;
     }
 
-    // 일반 통장 CRUD
-    @DeleteMapping("/{accountNo}")
-    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(@PathVariable String accountNo) {
-
-        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, false);
-
-        return responseEntity;
-    }
-
+    @Operation(summary = "특정 계좌 조회", description = "계좌 번호를 사용하여 일반 계좌를 조회하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
+    })
     @GetMapping("/{accountNo}")
     public ResponseEntity<AccountDto> getByAccountNo(@PathVariable String accountNo) {
 
@@ -67,7 +85,27 @@ public class AccountController {
         return responseEntity;
     }
 
+    // 일반 통장 CRUD
+    @Operation(summary = "일반 계좌 삭제", description = "일반 계좌를 삭제하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "계좌 삭제 성공", content = @Content(schema = @Schema(implementation = DeleteAccountResponseDto.class))),
+    })
+    @DeleteMapping("/{accountNo}")
+    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(@PathVariable String accountNo) {
+
+        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, false);
+
+        return responseEntity;
+    }
+
     // 외화통장 CRUD
+
+    @Operation(summary = "사용자의 모든 외환 계좌 조회", description = "특정 사용자의 모든 외환 계좌를 조회하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
+        @ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @GetMapping("/foreign/{userId}/all")
     public ResponseEntity<List<AccountDto>> getAllForeignByUserId(@PathVariable Long userId) {
 
@@ -76,6 +114,12 @@ public class AccountController {
         return responseEntity;
     }
 
+    @Operation(summary = "외환 계좌 조회", description = "계좌 번호를 사용하여 외환 계좌를 조회하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
+        @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @GetMapping("/foreign/{accountNo}")
     public ResponseEntity<AccountDto> getForeignByAccountNo(@PathVariable String accountNo) {
 
@@ -84,6 +128,12 @@ public class AccountController {
         return responseEntity;
     }
 
+    @Operation(summary = "외환 계좌 삭제", description = "외환 계좌를 삭제하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "계좌 삭제 성공", content = @Content(schema = @Schema(implementation = DeleteAccountResponseDto.class))),
+        @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @DeleteMapping("/foreign/{accountNo}")
     public ResponseEntity<DeleteAccountResponseDto> deleteForeignAccount(@PathVariable String accountNo) {
 
@@ -93,8 +143,12 @@ public class AccountController {
     }
 
     // ========= 참가자 CRUD =========
+    @Operation(summary = "참가자 추가", description = "특정 계좌에 새로운 참가자를 추가하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "참가자 추가 성공", content = @Content(schema = @Schema(implementation = ResponseDto.class))),
+    })
     @PostMapping("/{accountId}/participants")
-    public ResponseEntity<ResponseDto> addParticipant(
+    public ResponseEntity<ResponseDto> postParticipant(
         @PathVariable Long accountId,
         @RequestBody AddParticipantRequestDto requestDto
     ) {
@@ -104,6 +158,10 @@ public class AccountController {
         return response;
     }
 
+    @Operation(summary = "참가자 조회", description = "특정 계좌의 모든 참여자를 조회하는 API.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = ParticipantListResponseDto.class))),
+    })
     @GetMapping("/{accountId}/participants")
     public ResponseEntity<ParticipantListResponseDto> getParticipant(
         @PathVariable Long accountId
@@ -114,14 +172,20 @@ public class AccountController {
         return response;
     }
 
-    /**
-     * 모임통장 참여자 조회 :: test용 입니다.
-     */
-    @GetMapping("/participants/{accountId}")
-    public ResponseEntity<List<Long>> getParticipantsByAccountNo(@PathVariable Long accountId) {
-
-        return ResponseEntity.ok().body(accountService.findUserIdsByGeneralAccountId(accountId));
-    }
+//    /**
+//     * 모임통장 참여자 조회 :: test용 입니다.
+//     */
+//    @Operation(summary = "모임통장 참여자 조회", description = "모임통장의 모든 참여자를 조회하는 API.")
+//    @ApiResponses(value = {
+//        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
+//        @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
+//        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+//    })
+//    @GetMapping("/participants/{accountId}")
+//    public ResponseEntity<List<Long>> getParticipantsByAccountNo(@PathVariable Long accountId) {
+//
+//        return ResponseEntity.ok().body(accountService.findUserIdsByGeneralAccountId(accountId));
+//    }
 
     // 편하게 계좌 지우는용 -> 쓰지마세용
     @DeleteMapping("/all")
