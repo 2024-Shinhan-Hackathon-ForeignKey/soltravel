@@ -1,11 +1,18 @@
 package com.ssafy.soltravel.dto.exchange;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountInfoDto {
 
   private String accountNo;
-  private Double amount;
-  private Double balance;
+  private Long accountId;
+  private double amount;
+  private long balance;
 }

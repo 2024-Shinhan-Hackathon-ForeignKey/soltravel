@@ -12,12 +12,17 @@ import com.ssafy.soltravel.dto.account.CreateAccountDto;
 import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
+import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
+import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
 import com.ssafy.soltravel.mapper.AccountMapper;
+import com.ssafy.soltravel.mapper.ParticipantMapper;
 import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.util.LogUtil;
+import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +54,9 @@ public class AccountService {
 
     private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
 
-    public CreateAccountResponseDto createGeneralAccount(Long userId, CreateAccountRequestDto requestDto) {
+    public CreateAccountResponseDto createGeneralAccount(
+        Long userId,
+        CreateAccountRequestDto requestDto) {
 
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -101,7 +108,8 @@ public class AccountService {
         if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
             // foreingAccount 생성 & 저장
-            ForeignAccount foreignAccount = createForeignAccount(user, requestDto, generalAccount.getId());
+            ForeignAccount foreignAccount = createForeignAccount(user, requestDto,
+                generalAccount.getId());
 
             Participant participant = Participant.builder()
                 .isMaster(true)
@@ -158,7 +166,8 @@ public class AccountService {
             GeneralAccount generalAccount = generalAccountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException());
 
-            ForeignAccount foreignAccount = AccountMapper.toForeignAccountEntitiy(recObject, generalAccount,
+            ForeignAccount foreignAccount = AccountMapper.toForeignAccountEntitiy(recObject,
+                generalAccount,
                 requestDto);
 
             foreignAccountRepository.save(foreignAccount);
@@ -169,11 +178,20 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<AccountDto> getByAccountNo(String accountNo) {
+    public ResponseEntity<AccountDto> getByAccountNo(String accountNo, boolean isForeign) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
         String API_NAME = "inquireDemandDepositAccount";
-
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "inquireForeignCurrencyDemandDepositAccount";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         // 추후에 userId 받아서 userKey 수정
         // 현재는 유저 구현 안되서 임시로 처리함
@@ -181,7 +199,7 @@ public class AccountService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -210,15 +228,24 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId) {
+    public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId, boolean isForeign) {
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "inquireDemandDepositAccountList";
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "inquireForeignCurrencyDemandDepositAccountList";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         Header header = Header.builder()
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -247,21 +274,33 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(String accountNo) {
+    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(String accountNo, boolean isForeign) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+
+        LogUtil.info("userId", userId);
+
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
         String API_NAME = "deleteDemandDepositAccount";
         String API_URL = BASE_URL + "/" + API_NAME;
+
+        if (isForeign) {
+            API_NAME = "deleteForeignCurrencyDemandDepositAccount";
+            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+        }
 
         Header header = Header.builder()
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
         body.put("Header", header);
-        body.put("accountNo", String.valueOf(accountNo));
+        body.put("accountNo", accountNo);
 
         try {
             ResponseEntity<Map<String, Object>> response = webClient.post()
@@ -281,7 +320,11 @@ public class AccountService {
             // REC 데이터를 GeneralAccount 엔티티로 변환
             DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
 
-            generalAccountRepository.deleteByAccountNo(accountNo);
+            if (isForeign) {
+                foreignAccountRepository.deleteByAccountNo(accountNo);
+            } else {
+                generalAccountRepository.deleteByAccountNo(accountNo);
+            }
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         } catch (WebClientResponseException e) {
@@ -289,13 +332,15 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<ResponseDto> addParticipant(Long accountId, AddParticipantRequestDto requestDto) {
+    public ResponseEntity<ResponseDto> addParticipant(Long accountId,
+        AddParticipantRequestDto requestDto) {
 
         GeneralAccount generalAccount = generalAccountRepository.findById(accountId).orElseThrow(
             () -> new IllegalArgumentException("The generalAccountId does not exist: " + accountId));
 
         User user = userRepository.findByUserId(requestDto.getParticipantId()).orElseThrow(
-            () -> new IllegalArgumentException("The participantId does not exist: " + requestDto.getParticipantId()));
+            () -> new IllegalArgumentException(
+                "The participantId does not exist: " + requestDto.getParticipantId()));
 
         Participant participant = Participant.builder()
             .isMaster(false)
@@ -308,4 +353,33 @@ public class AccountService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 
+    public ResponseEntity<ParticipantListResponseDto> getParticipants(Long accountId) {
+
+        List<Participant> participants = participantRepository.findAllByGeneralAccountId(accountId);
+
+        List<ParticipantDto> participantDtoList = participants.stream()
+            .map(ParticipantMapper::toDto)
+            .collect(Collectors.toList());
+
+        ParticipantListResponseDto responseDto = ParticipantListResponseDto.builder()
+            .accountId(accountId)
+            .participants(participantDtoList)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    public List<Long> findUserIdsByGeneralAccountId(Long accountId) {
+
+        return participantRepository.findUserIdsByGeneralAccountId(accountId);
+    }
+
+    public Long getBalanceByAccountId(Long accountId) {
+        return generalAccountRepository.findBalanceByAccountId(accountId);
+    }
+
+    public ForeignAccount getForeignAccount(long accountId) {
+
+        return foreignAccountRepository.findById(accountId).get();
+    }
 }

@@ -2,19 +2,29 @@ package com.ssafy.soltravel.service.exchange;
 
 import com.ssafy.soltravel.common.Header;
 import com.ssafy.soltravel.domain.ExchangeRate;
+import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.domain.redis.PreferenceRate;
+import com.ssafy.soltravel.dto.exchange.Account;
+import com.ssafy.soltravel.dto.exchange.AccountInfoDto;
+import com.ssafy.soltravel.dto.exchange.ExchangeCurrencyDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateResponseDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
+import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
+import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
 import com.ssafy.soltravel.repository.redis.PreferenceRateRepository;
 import com.ssafy.soltravel.service.NotificationService;
+import com.ssafy.soltravel.service.account.AccountService;
+import com.ssafy.soltravel.service.transaction.TransactionService;
 import com.ssafy.soltravel.util.LogUtil;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +41,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +57,8 @@ public class ExchangeService {
   private final ExchangeRateRepository exchangeRateRepository;
   private final PreferenceRateRepository preferenceRateRepository;
   private final NotificationService notificationService;
+  private final AccountService accountService;
+  private final TransactionService transactionService;
 
   /**
    * 실시간 환율 받아오는 메서드 매시 0분, 10분, 20분, 30분, 40분, 50분에 data 가져온다
@@ -58,7 +69,9 @@ public class ExchangeService {
     String API_NAME = "exchangeRate";
     String API_URL = BASE_URL + "/" + API_NAME;
 
-    Header header = Header.builder().apiName(API_NAME).apiServiceCode(API_NAME)
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
         .apiKey(apiKeys.get("API_KEY")).build();
 
     Map<String, Object> body = new HashMap<>();
@@ -115,7 +128,6 @@ public class ExchangeService {
 
       double updatedRate = getDoubleExchangeRate(dto.getExchangeRate());
 
-      //변동된 환율을 DB에 저장
       rate = rate.toBuilder()
           .exchangeRate(updatedRate)
           .exchangeMin(Double.parseDouble(dto.getExchangeMin()))
@@ -123,6 +135,7 @@ public class ExchangeService {
           .build();
       exchangeRateRepository.save(rate);
 
+      LogUtil.info(rate.toString());
       /**
        * 환율이 변동되었다 -> 자동 환전
        */
@@ -133,30 +146,29 @@ public class ExchangeService {
 
         if (exchangeOpt.isPresent()) {
           PreferenceRate preferenceRate = exchangeOpt.get();
-          log.info("{}의 환율이 달라졌어요", dto.getCurrency());
 
-          for (long accountId : preferenceRate.getAccounts()) {
-            log.info("{} 통장의 환전을 시작합니다.", accountId);
+          for (Account account : preferenceRate.getAccounts()) {
+            //TODO: 현재 계좌 잔액에서 가져와야합니다.(Line:156)
+            ExchangeRequestDto exchangeRequestDto = ExchangeRequestDto.builder()
+                .exchangeCurrency(dto.getCurrency())
+                .accountId(account.getAccountId())
+                .accountNo(account.getAccountNo())
+                .exchangeAmount(3000L)//현재 계좌 잔액에서 가져와서 ㅇㅇ
+                .exchangeRate(updatedRate)
+                .build();
 
-            //환전 실행
-            ExchangeRequestDto exchangeRequestDto = new ExchangeRequestDto();
-            exchangeRequestDto.setExchangeCurrency(dto.getCurrency());
-            //TODO: accountRepository에서 id를 통해 계좌번호 얻어올 것.
-//            exchangeRequestDto.setAccountNo();
-            //TODO: 얼마를 환전할 것인지 설정할 것.
-//            exchangeRequestDto.setExchangeAmount();
+            LogUtil.info(exchangeRequestDto.toString());
             executeExchange(exchangeRequestDto);
           }
         }
       }
-
     }
   }
 
   /**
    * 환전 선호 금액 설정
    */
-  public void setPreferenceRate(ExchangeRateRegisterRequestDto dto) {
+  public void setPreferenceRate(String accountNo, ExchangeRateRegisterRequestDto dto) {
 
     String id = makeId(dto.getCurrency(), dto.getExchangeRate());
     Optional<PreferenceRate> exchangeOpt = preferenceRateRepository.findById(id);
@@ -168,7 +180,7 @@ public class ExchangeService {
       preference = new PreferenceRate(id, new HashSet<>());
     }
 
-    preference.getAccounts().add(dto.getGeneralAccountId());
+    preference.getAccounts().add(new Account(dto.getGeneralAccountId(), accountNo));
     preferenceRateRepository.save(preference);
   }
 
@@ -177,41 +189,61 @@ public class ExchangeService {
    */
   public ExchangeResponseDto executeExchange(ExchangeRequestDto dto) {
 
-    String API_NAME = "updateDemandDepositAccountWithdrawal";
-    String API_URL = BASE_URL + "/exchange";
+    dto.setExchangeRate(
+        exchangeRateRepository.findByCurrency(dto.getExchangeCurrency()).getExchangeRate());
 
-    Header header = Header.builder().apiName(API_NAME).apiServiceCode(API_NAME)
-        .apiKey(apiKeys.get("API_KEY"))
-        .userKey(apiKeys.get("USER_KEY"))
+    /**
+     * 원화 -> 달러
+     */
+    double amount = convertKrwToUsdWithoutFee(dto.getExchangeAmount(), dto.getExchangeRate());
+
+    TransactionRequestDto withdrawal = new TransactionRequestDto();
+    withdrawal.setTransactionBalance(dto.getExchangeAmount());//원화
+    withdrawal.setTransactionSummary("환전 출금");
+    transactionService.postAccountWithdrawal(dto.getAccountNo(), withdrawal);
+
+    ForeignAccount foreignAccount = accountService.getForeignAccount(dto.getAccountId());
+    ForeignTransactionRequestDto deposit = new ForeignTransactionRequestDto();
+    deposit.setTransactionBalance(amount);//외화임
+    deposit.setTransactionSummary("환전 입금");
+    transactionService.postForeignDeposit(foreignAccount.getAccountNo(), deposit);
+
+    ExchangeCurrencyDto exchangeCurrencyDto = ExchangeCurrencyDto.builder()
+        .currency(dto.getExchangeCurrency())
+        .exchangeRate(dto.getExchangeRate())//환율
+        .amount(dto.getExchangeAmount())//원화
         .build();
 
-    Map<String, Object> body = new HashMap<>();
-    body.put("Header", header);
+    long balance = accountService.getBalanceByAccountId(dto.getAccountId());
 
-    try {
-      ResponseEntity<Map<String, Object>> response = webClient.post().uri(API_URL)
-          .contentType(MediaType.APPLICATION_JSON).bodyValue(body).retrieve()
-          .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-          }).block();
+    AccountInfoDto accountInfoDto = AccountInfoDto.builder()
+        .accountId(dto.getAccountId())
+        .accountNo(dto.getAccountNo())
+        .amount(amount)//변경된 금액
+        .balance(balance - dto.getExchangeAmount())//원래 계좌 잔액에서 amount뺀것.
+        .build();
 
-      // REC 부분을 Object 타입으로 받기 -> List<Map<String, Object>>로 변환
-      Object recObject = response.getBody().get("REC");
-      List<Map<String, Object>> recList = (List<Map<String, Object>>) recObject;
+    ExchangeResponseDto responseDto = new ExchangeResponseDto();
+    responseDto.setExchangeCurrencyDto(exchangeCurrencyDto);
+    responseDto.setAccountInfoDto(accountInfoDto);
+    responseDto.setExecuted_at(LocalDateTime.now());
 
-      // REC 부분을 Object 타입으로 받기
-      ModelMapper modelMapper = new ModelMapper();
-      ExchangeResponseDto responseDto = modelMapper.map(recObject, ExchangeResponseDto.class);
+    notificationService.notifyMessage(responseDto);
 
-      //TODO: 환전 알림 구현
-      notificationService.notifyMessage(responseDto);
-
-      return responseDto;
-    } catch (WebClientResponseException e) {
-      throw e;
-    }
+    return responseDto;
   }
 
+  /**
+   * 환전된 금액 반환하는 메서드
+   */
+  public double convertKrwToUsdWithoutFee(long krwAmount, double exchangeRate) {
+    if (exchangeRate <= 0) {
+      throw new IllegalArgumentException("환율은 0보다 커야 합니다.");
+    }
 
+    double usdAmount = krwAmount / exchangeRate;
+    return Math.round(usdAmount * 100.0) / 100.0; // 소수점 두 자리까지 반올림
+  }
   /**
    * 아래부터는 형 변환 메서드 모음
    */

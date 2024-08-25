@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.controller;
 
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
+import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
@@ -70,5 +71,27 @@ public class TransactionController {
         return response;
     }
 
+    /**
+     * 외화 계좌 입금
+     */
+    @PostMapping("/foreign/{accountNo}/deposit")
+    public ResponseEntity<DepositResponseDto> postForeignAccountDeposit(
+        @PathVariable String accountNo,
+        @RequestBody ForeignTransactionRequestDto requestDto
+    ) {
+        return ResponseEntity.ok().body(transactionService.postForeignDeposit(accountNo, requestDto));
+    }
 
+    /**
+     * 외화 계좌 거래 내역 조회
+     * getForeignHistoryByAccountNo
+     */
+    @GetMapping("/foreign/{accountNo}/history")
+    public ResponseEntity<List<TransactionHistoryDto>> getForeignHistoryByAccountNo(
+        @PathVariable String accountNo,
+        @RequestBody TransactionHistoryRequestDto requestDto
+    ) {
+
+        return ResponseEntity.ok().body(transactionService.getForeignHistoryByAccountNo(accountNo, requestDto));
+    }
 }

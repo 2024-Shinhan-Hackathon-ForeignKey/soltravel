@@ -6,6 +6,7 @@ import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
+import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,7 @@ public class AccountController {
     private final AccountService accountService;
 
     // ========= 계좌 CRUD =========
-
-    // 계좌 생성
+    // 계좌 생성 (모임통장의 경우 외화통장도 자동 생성)
     @PostMapping("/{userId}")
     public ResponseEntity<CreateAccountResponseDto> createAccount(
         @PathVariable Long userId,
@@ -45,15 +45,16 @@ public class AccountController {
     @GetMapping("/{userId}/all")
     public ResponseEntity<List<AccountDto>> getAllByUserId(@PathVariable Long userId) {
 
-        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId);
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, false);
 
         return responseEntity;
     }
 
+    // 일반 통장 CRUD
     @DeleteMapping("/{accountNo}")
     public ResponseEntity<DeleteAccountResponseDto> deleteAccount(@PathVariable String accountNo) {
 
-        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo);
+        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, false);
 
         return responseEntity;
     }
@@ -61,7 +62,32 @@ public class AccountController {
     @GetMapping("/{accountNo}")
     public ResponseEntity<AccountDto> getByAccountNo(@PathVariable String accountNo) {
 
-        ResponseEntity<AccountDto> responseEntity = accountService.getByAccountNo(accountNo);
+        ResponseEntity<AccountDto> responseEntity = accountService.getByAccountNo(accountNo, false);
+
+        return responseEntity;
+    }
+
+    // 외화통장 CRUD
+    @GetMapping("/foreign/{userId}/all")
+    public ResponseEntity<List<AccountDto>> getAllForeignByUserId(@PathVariable Long userId) {
+
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, true);
+
+        return responseEntity;
+    }
+
+    @GetMapping("/foreign/{accountNo}")
+    public ResponseEntity<AccountDto> getForeignByAccountNo(@PathVariable String accountNo) {
+
+        ResponseEntity<AccountDto> responseEntity = accountService.getByAccountNo(accountNo, true);
+
+        return responseEntity;
+    }
+
+    @DeleteMapping("/foreign/{accountNo}")
+    public ResponseEntity<DeleteAccountResponseDto> deleteForeignAccount(@PathVariable String accountNo) {
+
+        ResponseEntity<DeleteAccountResponseDto> responseEntity = accountService.deleteAccount(accountNo, true);
 
         return responseEntity;
     }
@@ -76,6 +102,25 @@ public class AccountController {
         ResponseEntity<ResponseDto> response = accountService.addParticipant(accountId, requestDto);
 
         return response;
+    }
+
+    @GetMapping("/{accountId}/participants")
+    public ResponseEntity<ParticipantListResponseDto> getParticipant(
+        @PathVariable Long accountId
+    ) {
+
+        ResponseEntity<ParticipantListResponseDto> response = accountService.getParticipants(accountId);
+
+        return response;
+    }
+
+    /**
+     * 모임통장 참여자 조회 :: test용 입니다.
+     */
+    @GetMapping("/participants/{accountId}")
+    public ResponseEntity<List<Long>> getParticipantsByAccountNo(@PathVariable Long accountId) {
+
+        return ResponseEntity.ok().body(accountService.findUserIdsByGeneralAccountId(accountId));
     }
 
     // 편하게 계좌 지우는용 -> 쓰지마세용
