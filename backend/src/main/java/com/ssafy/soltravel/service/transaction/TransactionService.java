@@ -2,6 +2,7 @@ package com.ssafy.soltravel.service.transaction;
 
 import com.ssafy.soltravel.common.Header;
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
+import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
@@ -185,7 +186,7 @@ public class TransactionService {
     /**
      * 외화 계좌에 입금하는 메서드
      */
-    public DepositResponseDto postForeignDeposit(String accountNo, TransactionRequestDto requestDto) {
+    public DepositResponseDto postForeignDeposit(String accountNo, ForeignTransactionRequestDto requestDto) {
 
         String API_NAME = "updateForeignCurrencyDemandDepositAccountDeposit";
         String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
