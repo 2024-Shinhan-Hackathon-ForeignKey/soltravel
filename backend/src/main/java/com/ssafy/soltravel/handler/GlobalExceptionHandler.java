@@ -51,9 +51,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ResponseDto> handleInvalidAuthCodeException(
       InvalidAuthCodeException e) {
     ResponseDto errorResponse = new ResponseDto(
-        "UNAUTHORIZED",
+        "BAD REQUEST",
         e.getMessage()
     );
-    return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 }
