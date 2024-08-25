@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.controller;
 
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
+import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
@@ -76,7 +77,7 @@ public class TransactionController {
     @PostMapping("/foreign/{accountNo}/deposit")
     public ResponseEntity<DepositResponseDto> postForeignAccountDeposit(
         @PathVariable String accountNo,
-        @RequestBody TransactionRequestDto requestDto
+        @RequestBody ForeignTransactionRequestDto requestDto
     ) {
         return ResponseEntity.ok().body(transactionService.postForeignDeposit(accountNo, requestDto));
     }

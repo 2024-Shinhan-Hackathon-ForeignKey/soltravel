@@ -1,12 +1,17 @@
 package com.ssafy.soltravel.service.transaction;
 
 import com.ssafy.soltravel.common.Header;
+import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
+import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
 import com.ssafy.soltravel.dto.transaction.response.DepositResponseDto;
 import com.ssafy.soltravel.dto.transaction.response.TransferHistoryResponseDto;
+import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.util.LogUtil;
+import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +34,15 @@ public class TransactionService {
     private final Map<String, String> apiKeys;
     private final WebClient webClient;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
     private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
 
     public ResponseEntity<DepositResponseDto> postAccountDeposit(String accountNo, TransactionRequestDto requestDto) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
         String API_NAME = "updateDemandDepositAccountDeposit";
         String API_URL = BASE_URL + "/" + API_NAME;
@@ -41,7 +51,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -69,6 +79,10 @@ public class TransactionService {
 
     public ResponseEntity<DepositResponseDto> postAccountWithdrawal(String accountNo, TransactionRequestDto requestDto) {
 
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "updateDemandDepositAccountWithdrawal";
         String API_URL = BASE_URL + "/" + API_NAME;
 
@@ -76,7 +90,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -105,6 +119,10 @@ public class TransactionService {
 
     public ResponseEntity<List<TransferHistoryResponseDto>> postAccountTransfer(String accountNo, TransferRequestDto requestDto) {
 
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "updateDemandDepositAccountTransfer";
         String API_URL = BASE_URL + "/" + API_NAME;
 
@@ -112,7 +130,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -144,6 +162,10 @@ public class TransactionService {
 
     public ResponseEntity<List<TransactionHistoryDto>> getHistoryByAccountNo(String accountNo, TransactionHistoryRequestDto requestDto) {
 
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "inquireTransactionHistoryList";
         String API_URL = BASE_URL + "/" + API_NAME;
 
@@ -151,7 +173,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -185,7 +207,11 @@ public class TransactionService {
     /**
      * 외화 계좌에 입금하는 메서드
      */
-    public DepositResponseDto postForeignDeposit(String accountNo, TransactionRequestDto requestDto) {
+    public DepositResponseDto postForeignDeposit(String accountNo, ForeignTransactionRequestDto requestDto) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
         String API_NAME = "updateForeignCurrencyDemandDepositAccountDeposit";
         String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
@@ -194,7 +220,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -225,6 +251,10 @@ public class TransactionService {
      */
     public List<TransactionHistoryDto> getForeignHistoryByAccountNo(String accountNo, TransactionHistoryRequestDto requestDto) {
 
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
         String API_NAME = "inquireForeignCurrencyTransactionHistoryList";
         String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
 
@@ -232,7 +262,7 @@ public class TransactionService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();

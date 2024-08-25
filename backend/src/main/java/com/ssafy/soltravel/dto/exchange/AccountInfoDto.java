@@ -13,6 +13,6 @@ public class AccountInfoDto {
 
   private String accountNo;
   private Long accountId;
-  private long amount;
+  private double amount;
   private long balance;
 }

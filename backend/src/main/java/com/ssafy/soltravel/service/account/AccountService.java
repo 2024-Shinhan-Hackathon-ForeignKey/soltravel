@@ -287,7 +287,7 @@ public class AccountService {
         String API_URL = BASE_URL + "/" + API_NAME;
 
         if (isForeign) {
-            API_NAME = "deleteForeignCurrecnyDemandDepositAccount";
+            API_NAME = "deleteForeignCurrencyDemandDepositAccount";
             API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
         }
 
@@ -295,7 +295,7 @@ public class AccountService {
             .apiName(API_NAME)
             .apiServiceCode(API_NAME)
             .apiKey(apiKeys.get("API_KEY"))
-            .userKey(apiKeys.get("USER_KEY"))
+            .userKey(user.getUserKey())
             .build();
 
         Map<String, Object> body = new HashMap<>();
@@ -320,7 +320,11 @@ public class AccountService {
             // REC 데이터를 GeneralAccount 엔티티로 변환
             DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
 
-            generalAccountRepository.deleteByAccountNo(accountNo);
+            if (isForeign) {
+                foreignAccountRepository.deleteByAccountNo(accountNo);
+            } else {
+                generalAccountRepository.deleteByAccountNo(accountNo);
+            }
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         } catch (WebClientResponseException e) {
