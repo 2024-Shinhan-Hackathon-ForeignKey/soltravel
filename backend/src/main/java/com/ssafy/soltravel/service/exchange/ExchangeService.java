@@ -14,6 +14,7 @@ import com.ssafy.soltravel.dto.exchange.ExchangeRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
 import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
+import com.ssafy.soltravel.exception.InvalidAmountException;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
 import com.ssafy.soltravel.repository.redis.PreferenceRateRepository;
 import com.ssafy.soltravel.service.NotificationService;
@@ -21,10 +22,7 @@ import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.service.transaction.TransactionService;
 import com.ssafy.soltravel.util.LogUtil;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -153,7 +151,7 @@ public class ExchangeService {
                 .exchangeCurrency(dto.getCurrency())
                 .accountId(account.getAccountId())
                 .accountNo(account.getAccountNo())
-                .exchangeAmount(3000L)//현재 계좌 잔액에서 가져와서 ㅇㅇ
+                .exchangeAmount(3000L)//TODO:이 곳 입니다.
                 .exchangeRate(updatedRate)
                 .build();
 
@@ -189,6 +187,10 @@ public class ExchangeService {
    */
   public ExchangeResponseDto executeExchange(ExchangeRequestDto dto) {
 
+    long krw=dto.getExchangeAmount();
+    if (dto.getExchangeAmount() % 10 != 0)
+      dto.setExchangeAmount(krw - krw % 10);
+
     dto.setExchangeRate(
         exchangeRateRepository.findByCurrency(dto.getExchangeCurrency()).getExchangeRate());
 
@@ -196,6 +198,12 @@ public class ExchangeService {
      * 원화 -> 달러
      */
     double amount = convertKrwToUsdWithoutFee(dto.getExchangeAmount(), dto.getExchangeRate());
+
+    // 2. 최소 환전 금액 설정
+    double minimumAmount = getMinimumAmount(dto.getExchangeCurrency());
+    if (amount < minimumAmount) {
+      throw new InvalidAmountException(minimumAmount, dto.getExchangeCurrency());
+    }
 
     TransactionRequestDto withdrawal = new TransactionRequestDto();
     withdrawal.setTransactionBalance(dto.getExchangeAmount());//원화
@@ -244,6 +252,21 @@ public class ExchangeService {
     double usdAmount = krwAmount / exchangeRate;
     return Math.round(usdAmount * 100.0) / 100.0; // 소수점 두 자리까지 반올림
   }
+
+  /**
+   * 최소 환전 금액을 반환하는 메서드
+   */
+  private double getMinimumAmount(String currency) {
+    switch (currency) {
+      case "USD":
+        return 100;
+      case "JPY":
+        return 100;
+      default:
+        throw new IllegalArgumentException("지원하지 않는 통화 유형입니다: " + currency);
+    }
+  }
+
   /**
    * 아래부터는 형 변환 메서드 모음
    */
