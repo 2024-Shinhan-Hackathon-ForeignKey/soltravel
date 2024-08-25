@@ -8,6 +8,9 @@ import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
 import com.ssafy.soltravel.dto.transaction.response.DepositResponseDto;
 import com.ssafy.soltravel.dto.transaction.response.TransferHistoryResponseDto;
 import com.ssafy.soltravel.service.transaction.TransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transaction")
+@Tag(name = "Transaction API", description = "거래 관련 API")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -75,7 +79,9 @@ public class TransactionController {
      * 외화 계좌 입금
      */
     @PostMapping("/foreign/{accountNo}/deposit")
+    @Operation(summary = "외화 계좌 입금", description = "외화 계좌에 입금합니다.")
     public ResponseEntity<DepositResponseDto> postForeignAccountDeposit(
+        @Parameter(description = "사용자의 계좌 번호", example = "0887850232491646")
         @PathVariable String accountNo,
         @RequestBody ForeignTransactionRequestDto requestDto
     ) {
@@ -87,7 +93,9 @@ public class TransactionController {
      * getForeignHistoryByAccountNo
      */
     @GetMapping("/foreign/{accountNo}/history")
+    @Operation(summary = "외화 계좌 거래 내역 조회", description = "외화 계좌의 거래 내역을 조회합니다.")
     public ResponseEntity<List<TransactionHistoryDto>> getForeignHistoryByAccountNo(
+        @Parameter(description = "사용자의 계좌 번호", example = "0887850232491646")
         @PathVariable String accountNo,
         @RequestBody TransactionHistoryRequestDto requestDto
     ) {
