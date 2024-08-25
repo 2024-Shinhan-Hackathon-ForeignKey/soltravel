@@ -10,6 +10,10 @@ import com.ssafy.soltravel.dto.transaction.response.TransferHistoryResponseDto;
 import com.ssafy.soltravel.service.transaction.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +25,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Transaction API", description = "거래 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transaction")
-@Tag(name = "Transaction API", description = "거래 관련 API")
 public class TransactionController {
 
     private final TransactionService transactionService;
 
-    // 계좌 입금
+    @Operation(summary = "계좌 입금", description = "지정된 계좌에 입금합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "입금 성공", content = @Content(schema = @Schema(implementation = DepositResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @PostMapping("/{accountNo}/deposit")
     public ResponseEntity<DepositResponseDto> postAccountDeposit(
         @PathVariable String accountNo,
@@ -40,7 +49,12 @@ public class TransactionController {
         return response;
     }
 
-    // 계좌 출금
+    @Operation(summary = "계좌 출금", description = "지정된 계좌에서 출금합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "출금 성공", content = @Content(schema = @Schema(implementation = DepositResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @PostMapping("/{accountNo}/withdraw")
     public ResponseEntity<DepositResponseDto> postAccountWithdrawal(
         @PathVariable String accountNo,
@@ -51,26 +65,39 @@ public class TransactionController {
         return response;
     }
 
-    // 계좌 이체
+    @Operation(summary = "계좌 이체", description = "지정된 계좌에서 다른 계좌로 이체합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "이체 성공", content = @Content(schema = @Schema(implementation = TransferHistoryResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @PostMapping("/{accountNo}/transfer")
     public ResponseEntity<List<TransferHistoryResponseDto>> postAccountTransfer(
         @PathVariable String accountNo,
         @RequestBody TransferRequestDto requestDto
     ) {
-        ResponseEntity<List<TransferHistoryResponseDto>> response = transactionService.postAccountTransfer(accountNo, requestDto);
+        ResponseEntity<List<TransferHistoryResponseDto>> response = transactionService.postAccountTransfer(accountNo,
+            requestDto);
 
         return response;
     }
 
 
     // 거래 내역 조회
+    @Operation(summary = "거래 내역 조회", description = "지정된 계좌의 거래 내역을 조회합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = TransactionHistoryDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
     @GetMapping("/{accountNo}/history")
     public ResponseEntity<List<TransactionHistoryDto>> getHistoryByAccountNo(
         @PathVariable String accountNo,
         @RequestBody TransactionHistoryRequestDto requestDto
     ) {
 
-        ResponseEntity<List<TransactionHistoryDto>> response = transactionService.getHistoryByAccountNo(accountNo, requestDto);
+        ResponseEntity<List<TransactionHistoryDto>> response = transactionService.getHistoryByAccountNo(accountNo,
+            requestDto);
 
         return response;
     }
@@ -89,8 +116,7 @@ public class TransactionController {
     }
 
     /**
-     * 외화 계좌 거래 내역 조회
-     * getForeignHistoryByAccountNo
+     * 외화 계좌 거래 내역 조회 getForeignHistoryByAccountNo
      */
     @GetMapping("/foreign/{accountNo}/history")
     @Operation(summary = "외화 계좌 거래 내역 조회", description = "외화 계좌의 거래 내역을 조회합니다.")
