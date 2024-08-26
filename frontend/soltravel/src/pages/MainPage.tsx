@@ -1,8 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import { IoIosArrowForward } from "react-icons/io";
 import { PiAirplaneTiltFill } from "react-icons/pi";
 
 const MainPage = () => {
+  const navigate = useNavigate();
+
   const userDetail = [
     {
       userId: 1,
@@ -40,12 +43,22 @@ const MainPage = () => {
               <img className="w-20" src="/assets/bankBookIcon.png" alt="올인원모임통장" />
             </div>
           </div>
-          <button className="h-10 rounded-md bg-[#0046FF] font-bold text-white text-sm">신청하기</button>{" "}
+          <button
+            className="h-10 rounded-md bg-[#0046FF] font-bold text-white text-sm"
+            onClick={() => {
+              navigate("/accountcreate");
+            }}>
+            신청하기
+          </button>{" "}
         </div>
 
         {/* 입출금 통장 있을 시 표시 */}
         {userDetail[0].userSavingAccount && (
-          <div className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
+          <div
+            onClick={() => {
+              navigate("/myaccount");
+            }}
+            className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
             <div className="flex flex-col space-y-3">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
@@ -67,7 +80,11 @@ const MainPage = () => {
 
         {/* 모임 통장 있을 시 표시 */}
         {userDetail[0].usermeetingAccount && (
-          <div className="w-full py-5 px-5 flex flex-col rounded-xl bg-[rgb(186,203,238)] shadow-md">
+          <div
+            onClick={() => {
+              navigate("/generalaccount");
+            }}
+            className="w-full py-5 px-5 flex flex-col rounded-xl bg-[rgb(186,203,238)] shadow-md">
             <div className="flex flex-col space-y-3">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
@@ -88,7 +105,12 @@ const MainPage = () => {
                 <button className="h-8 w-14 rounded-3xl bg-[#a4b6db] font-bold text-zinc-700 text-sm">이체</button>
               </div>
               <hr className="bg-[#0e1b38]" />
-              <div className="flex justify-between items-center">
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/foreignaccount");
+                }}
+                className="flex justify-between items-center">
                 <p className="text-sm font-bold">트래블월렛</p>
                 {/* 트래블박스 가입했을 시 */}
                 {userDetail[0].usermeetingAccount.travelBox ? (
@@ -140,7 +162,14 @@ const MainPage = () => {
               <p className="text-lg font-semibold">1,488.99</p>
             </div>
           </div>
-          <button className="h-10 rounded-md bg-[#EAEAEA] font-bold text-sm">환전신청</button>{" "}
+          <button
+            onClick={(e) => {
+              navigate("/exchange");
+              e.stopPropagation();
+            }}
+            className="h-10 rounded-md bg-[#EAEAEA] font-bold text-sm">
+            환전신청
+          </button>{" "}
         </div>
 
         {/* 가계부 */}
@@ -163,7 +192,11 @@ const MainPage = () => {
 
         {/* 환전, 카드 신청 */}
         <div className="w-full grid grid-cols-2 gap-5">
-          <div className="w-full h-40 p-5 rounded-xl bg-white shadow-md flex flex-col justify-between items-start space-y-8">
+          <div
+            onClick={() => {
+              navigate("/exchange");
+            }}
+            className="w-full h-40 p-5 rounded-xl bg-white shadow-md flex flex-col justify-between items-start space-y-8">
             <img className="w-12" src="/assets/exchangeMoneyIcon.png" alt="환전아이콘" />
             <div>
               <p className="font-bold">수수료 없는</p>
