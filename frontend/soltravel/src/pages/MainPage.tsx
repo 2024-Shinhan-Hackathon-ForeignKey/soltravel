@@ -89,7 +89,7 @@ const MainPage = () => {
               </div>
               <hr className="bg-[#0e1b38]" />
               <div className="flex justify-between items-center">
-                <p className="text-sm font-bold">트래블박스</p>
+                <p className="text-sm font-bold">트래블월렛</p>
                 {/* 트래블박스 가입했을 시 */}
                 {userDetail[0].usermeetingAccount.travelBox ? (
                   <div className="flex items-center">
@@ -107,7 +107,7 @@ const MainPage = () => {
         )}
 
         {/* 환율 표시 */}
-        <div className="w-full p-6 flex flex-col rounded-xl bg-white shadow-md">
+        <div className="w-full p-6 flex flex-col space-y-2 rounded-xl bg-white shadow-md">
           <div className="flex items-center space-x-1">
             <p className="text-md font-bold flex justify-start">환율</p>
             <IoIosArrowForward className="text-[#565656]" />
@@ -115,22 +115,24 @@ const MainPage = () => {
           <div className="flex justify-end">
             <p className="text-sm text-zinc-400">매매기준율 2024.08.22 17:20:00</p>
           </div>
-          <div className="flex justify-between">
-            <div className="p-3 flex flex-col justify-center space-y-2">
+          <div className="flex justify-between items-center">
+            <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
               <div className="flex justify-center items-center space-x-1">
                 <img className="w-6 h-5 rounded-sm" src="/assets/flag/flagOfTheUnitedStates.png" alt="미국" />
                 <p>USD</p>
               </div>
               <p className="text-lg font-semibold">1,335.90</p>
             </div>
-            <div className="p-3 flex flex-col justify-center space-y-2">
+            <div className="w-[0.8px] h-14 bg-gray-300"></div>
+            <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
               <div className="flex justify-center items-center space-x-1">
                 <img className="w-6 h-5 rounded-sm border" src="/assets/flag/flagOfJapan.png" alt="미국" />
                 <p>JPY</p>
               </div>
               <p className="text-lg font-semibold">918.65</p>
             </div>
-            <div className="p-3 flex flex-col justify-center space-y-2">
+            <div className="w-[0.8px] h-14 bg-gray-300"></div>
+            <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
               <div className="flex justify-center items-center space-x-1">
                 <img className="w-6 h-5 rounded-sm" src="/assets/flag/flagOfEurope.png" alt="미국" />
                 <p>EUR</p>
