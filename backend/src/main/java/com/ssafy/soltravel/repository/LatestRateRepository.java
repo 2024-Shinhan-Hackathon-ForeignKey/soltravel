@@ -9,10 +9,11 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface LatestRateRepository extends CrudRepository<LatestRate, Long> {
 
-  @Query("SELECT lr FROM LatestRate lr WHERE lr.currency.currencyCode = :currency AND lr.postAt BETWEEN :startDt AND :endDt")
+  @Query("SELECT lr FROM LatestRate lr WHERE lr.currency.currencyCode = :currency AND lr.postAt BETWEEN :startDt AND :endDt ORDER BY lr.postAt ASC")
   List<LatestRate> findLatestRatesByCurrencyAndDateRange(
       @Param("currency") String currency,
       @Param("startDt") LocalDate startDt,
       @Param("endDt") LocalDate endDt
   );
+
 }
