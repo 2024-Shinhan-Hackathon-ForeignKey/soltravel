@@ -59,3 +59,13 @@ jwt:
 server:
   front:
     url: http://localhost:3000
+
+# S3 설정
+cloud:
+  aws:
+    s3:
+      bucket: my-s3-mingyu
+    stack:
+      auto: false
+    region:
+      static: ap-southeast-2
