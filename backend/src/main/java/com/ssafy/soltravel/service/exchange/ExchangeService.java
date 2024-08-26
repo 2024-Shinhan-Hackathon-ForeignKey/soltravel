@@ -95,6 +95,18 @@ public class ExchangeService {
   /**
    * 현재 환율 조회
    */
+  public List<ExchangeRate> getExchangeRateAll() {
+
+    List<ExchangeRate> rateEntity = exchangeRateRepository.findAll();
+
+    LogUtil.info(rateEntity.toString());
+    return rateEntity;
+  }
+
+
+  /**
+   * 현재 환율 조회
+   */
   public ExchangeRateResponseDto getExchangeRate(String currency) {
 
     ExchangeRateResponseDto responseDto = new ExchangeRateResponseDto();

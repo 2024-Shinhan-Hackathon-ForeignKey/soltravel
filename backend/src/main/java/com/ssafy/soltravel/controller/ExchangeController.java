@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.domain.ExchangeRate;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateResponseDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRequestDto;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,20 @@ public class ExchangeController {
   private final ExchangeService exchangeService;
 
   /**
+   * 실시간 전체 환율 조회
+   */
+  @GetMapping
+  @Operation(summary = "전체 환율 조회", description = "전체 통화의 실시간 환율을 조회합니다.", responses = {
+      @ApiResponse(responseCode = "200", description = "성공적으로 환율을 조회했습니다.", content = @Content(schema = @Schema(implementation = ExchangeRateResponseDto.class))),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.", content = @Content),
+      @ApiResponse(responseCode = "404", description = "요청한 통화를 찾을 수 없습니다.", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
+  public ResponseEntity<List<ExchangeRate>> getExchangeRateAll() {
+
+    return ResponseEntity.ok().body(exchangeService.getExchangeRateAll());
+  }
+
+  /**
    * 실시간 환율 조회
    */
   @GetMapping("/{currency}")
@@ -41,6 +57,7 @@ public class ExchangeController {
       @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
   public ResponseEntity<ExchangeRateResponseDto> getExchangeRate(
       @Parameter(description = "조회할 통화의 코드", example = "USD") @PathVariable String currency) {
+
     exchangeService.ScheduledGetExchangeRate();
     return ResponseEntity.ok().body(exchangeService.getExchangeRate(currency));
   }
