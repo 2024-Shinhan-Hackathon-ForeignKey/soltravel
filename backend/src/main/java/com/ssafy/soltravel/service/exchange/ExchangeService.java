@@ -12,17 +12,21 @@ import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRateResponseDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeRequestDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
+import com.ssafy.soltravel.domain.LatestRate;
 import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.exception.InvalidAmountException;
 import com.ssafy.soltravel.repository.ExchangeRateRepository;
+import com.ssafy.soltravel.repository.LatestRateRepository;
 import com.ssafy.soltravel.repository.redis.PreferenceRateRepository;
 import com.ssafy.soltravel.service.NotificationService;
 import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.service.transaction.TransactionService;
 import com.ssafy.soltravel.util.LogUtil;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +61,7 @@ public class ExchangeService {
   private final NotificationService notificationService;
   private final AccountService accountService;
   private final TransactionService transactionService;
+  private final LatestRateRepository latestRateRepository;
 
   /**
    * 실시간 환율 받아오는 메서드 매시 0분, 10분, 20분, 30분, 40분, 50분에 data 가져온다
@@ -93,6 +98,18 @@ public class ExchangeService {
   }
 
   /**
+   * 현재 환율 전체 조회
+   */
+  public List<ExchangeRate> getExchangeRateAll() {
+
+    List<ExchangeRate> rateEntity = exchangeRateRepository.findAll();
+
+    LogUtil.info(rateEntity.toString());
+    return rateEntity;
+  }
+
+
+  /**
    * 현재 환율 조회
    */
   public ExchangeRateResponseDto getExchangeRate(String currency) {
@@ -104,6 +121,14 @@ public class ExchangeService {
     responseDto.setExchangeRate(rateEntity.getExchangeRate());
     responseDto.setExchangeMin(rateEntity.getExchangeMin());
     return responseDto;
+  }
+
+  /**
+   * 최근 환율 조회
+   */
+  public List<LatestRate> getLatestExchangeRate(String currency) {
+
+    return latestRateRepository.findLatestRatesByCurrencyId(currency);
   }
 
   /**
@@ -183,7 +208,7 @@ public class ExchangeService {
   }
 
   /**
-   * 환전 api 호출
+   * 환전
    */
   public ExchangeResponseDto executeExchange(ExchangeRequestDto dto) {
 
