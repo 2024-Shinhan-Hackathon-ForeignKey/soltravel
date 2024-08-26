@@ -1,5 +1,7 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.dto.auth.AuthReissueRequestDto;
+import com.ssafy.soltravel.dto.auth.AuthReissueResponseDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSSendRequestDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSSendResponseDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSVerificationRequestDto;
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -77,11 +80,29 @@ public class AuthController {
         return ResponseEntity.ok().body(authService.verifySMSAuthCode(verifyRequestDto));
     }
 
-    @Operation(hidden = true)
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
+
+  @Operation(summary = "토큰 재발급", description = "RefreshToken을 이용하여 AccessToken을 재발급합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "재발급 성공", content = @Content(schema = @Schema(implementation = String.class))),
+      @ApiResponse(responseCode = "401", description = "잘못된 refresh token", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+  })
+  @PostMapping("/reissue")
+  public ResponseEntity<?> reissue(@RequestBody AuthReissueRequestDto reissueRequestDto){
+
+    LogUtil.info("requested", reissueRequestDto.toString());
+    AuthReissueResponseDto response = authService.reissueRefreshToken(reissueRequestDto);
+    return ResponseEntity.ok().body(response);
+  }
+
+
+
+
+  @Operation(hidden = true)
+  @GetMapping("/test")
+  public String test() {
+    return "test";
+  }
 
     @Operation(hidden = true)
     @GetMapping("/test-ok")
