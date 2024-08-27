@@ -1,4 +1,4 @@
-package com.ssafy.soltravel.service.settlement;
+package com.ssafy.soltravel.dto.settlement;
 
 import lombok.Data;
 

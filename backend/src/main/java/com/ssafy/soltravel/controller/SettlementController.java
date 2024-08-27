@@ -1,7 +1,7 @@
 package com.ssafy.soltravel.controller;
 
 import com.ssafy.soltravel.dto.settlement.SettlementRequestDto;
-import com.ssafy.soltravel.service.settlement.SettlementResponseDto;
+import com.ssafy.soltravel.dto.settlement.SettlementResponseDto;
 import com.ssafy.soltravel.service.settlement.SettlementService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,10 @@ public class SettlementController {
   private final SettlementService settlementService;
 
   @PostMapping
-  public ResponseEntity<SettlementResponseDto> executeSettlement(
+  public ResponseEntity<?> executeSettlement(
       @RequestBody SettlementRequestDto settlementRequestDto) {
 
-    return ResponseEntity.ok().body(settlementService.executeSettlement(settlementRequestDto));
+    settlementService.executeSettlement(settlementRequestDto);
+    return ResponseEntity.ok().body("정산 완료.");
   }
 }

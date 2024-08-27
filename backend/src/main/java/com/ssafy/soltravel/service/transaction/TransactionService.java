@@ -299,7 +299,54 @@ public class TransactionService {
         foreignAccountRepository.save(foreignAccount);
 
         return depositResponseDto;
+    }
 
+    /**
+     * 외화 계좌에서 출금하는 메서드
+     */
+    public DepositResponseDto postForeignWithdrawal(String accountNo, ForeignTransactionRequestDto requestDto) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
+        ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(accountNo)
+            .orElseThrow(() -> new IllegalArgumentException("The AccountNo Does Not Exist" + accountNo));
+
+        String API_NAME = "updateForeignCurrencyDemandDepositAccountWithdrawal";
+        String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+
+        Header header = Header.builder()
+            .apiName(API_NAME)
+            .apiServiceCode(API_NAME)
+            .apiKey(apiKeys.get("API_KEY"))
+            .userKey(user.getUserKey())
+            .build();
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("Header", header);
+        body.put("accountNo", accountNo);
+        body.put("transactionBalance", requestDto.getTransactionBalance());
+        body.put("transactionSummary", requestDto.getTransactionSummary());
+
+        ResponseEntity<Map<String, Object>> response = webClient.post()
+            .uri(API_URL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(body)
+            .retrieve()
+            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+            })
+            .block();
+
+        Object recObject = response.getBody().get("REC");
+
+        DepositResponseDto responseDto = modelMapper.map(recObject, DepositResponseDto.class);
+
+        Double currentBalance = foreignAccount.getBalance();
+        foreignAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
+
+        return responseDto;
     }
 
     /**
