@@ -286,14 +286,14 @@ VALUES ('2024-08-26', 1484.51, 1469.97, 1499.05, 1455.12, 1513.90, 1502.32, 2),
 
 
 /*회원*/
--- INSERT INTO `user` (name, email, password, phone, address, `birth`, register_at, user_key, role,
---                     is_exit, user_id)
--- VALUES ('허동원', 'heo_dongwon@naver.com', 'm6vlLh5lSx3MsTIxFKIszA==', '010-1234-4321',
---         '주주주주주주소소소소소213', '1999-11-21', now(), '6f132339-f774-42ba-87da-9fec50e9582e', 'USER',
---         false, NULL),
---        ('허동원', 'ehddnjs6409@naver.com', 'Xf589bvvSuZEVPgX4gI7dA==', '010-1234-4321',
---         '주주주주주주소소소소소213', '1999-11-21', now(), 'b408b67b-d002-4326-8fed-fcb5c63e6bdc', 'USER',
---         false, NULL),
---        ('이진주', '2pearl522@google.com', '8C7GFbiyFdjJOqum84Gtmg==', '010-1234-3214', '주소주소주주주소',
---         '1999-01-13', '2024-08-22 22:54:39.646021', 'b935b9e0-f252-4e7e-bcd0-8aeb5cac3116', 'USER',
---         0, 1);
+INSERT INTO `user` (name, email, password, phone, address, `birth`, register_at, user_key, role,
+                    is_exit, user_id)
+VALUES ('허동원', 'heo_dongwon@naver.com', 'm6vlLh5lSx3MsTIxFKIszA==', '010-1234-4321',
+        '주주주주주주소소소소소213', '1999-11-21', now(), '6f132339-f774-42ba-87da-9fec50e9582e', 'USER',
+        false, NULL),
+       ('허동원', 'ehddnjs6409@naver.com', 'Xf589bvvSuZEVPgX4gI7dA==', '010-1234-4321',
+        '주주주주주주소소소소소213', '1999-11-21', now(), 'b408b67b-d002-4326-8fed-fcb5c63e6bdc', 'USER',
+        false, NULL),
+       ('이진주', '2pearl522@google.com', '8C7GFbiyFdjJOqum84Gtmg==', '010-1234-3214', '주소주소주주주소',
+        '1999-01-13', '2024-08-22 22:54:39.646021', 'b935b9e0-f252-4e7e-bcd0-8aeb5cac3116', 'USER',
+        0, 1);
