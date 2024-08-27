@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { RiHome5Line } from "react-icons/ri";
-import { IoPeople } from "react-icons/io5";
+import { MdCurrencyExchange } from "react-icons/md";
 import { MdOutlineEventNote } from "react-icons/md";
-import { BsThreeDots } from "react-icons/bs";
+import { RiWechatLine } from "react-icons/ri";
 
 const Footer = () => {
   const [currentMenu, setCurrentMenu] = useState("홈");
@@ -12,7 +12,7 @@ const Footer = () => {
   };
 
   const handleMenuExchange = () => {
-    setCurrentMenu("모임통장");
+    setCurrentMenu("환전");
   };
 
   const handleMenuAccountDiary = () => {
@@ -20,7 +20,7 @@ const Footer = () => {
   };
 
   const handleMenuConversation = () => {
-    setCurrentMenu("전체");
+    setCurrentMenu("회화");
   };
 
   return (
@@ -32,10 +32,10 @@ const Footer = () => {
         <p className="text-sm font-medium">홈</p>
       </button>
       <button
-        className={`flex flex-col items-center ${currentMenu === "모임통장" ? "" : "text-[#9E9E9E]"} duration-200`}
+        className={`flex flex-col items-center ${currentMenu === "환전" ? "" : "text-[#9E9E9E]"} duration-200`}
         onClick={() => handleMenuExchange()}>
-        <IoPeople className="text-2xl" />
-        <p className="text-sm font-medium">모임통장</p>
+        <MdCurrencyExchange className="text-2xl" />
+        <p className="text-sm font-medium">환전</p>
       </button>
       <button
         className={`flex flex-col items-center ${currentMenu === "가계부" ? "" : "text-[#9E9E9E]"} duration-200`}
@@ -44,10 +44,10 @@ const Footer = () => {
         <p className="text-sm font-medium">가계부</p>
       </button>
       <button
-        className={`flex flex-col items-center ${currentMenu === "전체" ? "" : "text-[#9E9E9E]"} duration-200`}
+        className={`flex flex-col items-center ${currentMenu === "회화" ? "" : "text-[#9E9E9E]"} duration-200`}
         onClick={() => handleMenuConversation()}>
-        <BsThreeDots className="text-2xl" />
-        <p className="text-sm font-medium">전체</p>
+        <RiWechatLine className="text-2xl" />
+        <p className="text-sm font-medium">회화</p>
       </button>
     </div>
   );
