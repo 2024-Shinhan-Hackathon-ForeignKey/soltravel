@@ -74,6 +74,8 @@ public class AccountService {
             .userKey(user.getUserKey())
             .build();
 
+        LogUtil.info("HEADER:", header.toString());
+
         body.put("Header", header);
         body.put("accountTypeUniqueNo", apiKeys.get("ACCOUNT_UNIQUE_NO"));
 
