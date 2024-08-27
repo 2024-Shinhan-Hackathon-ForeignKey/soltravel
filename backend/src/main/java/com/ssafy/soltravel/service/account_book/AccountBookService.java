@@ -16,11 +16,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class AccountBookService {
 
   private final AwsFileService fileService;
+  private final ClovaOcrService ocrService;
 
   public ReceiptUploadResponseDto uploadReceipt(MultipartFile file) throws IOException {
+    
+    // userId로 파일 저장(S3)
     Long userId = SecurityUtil.getCurrentUserId();
     String uploadUrl = fileService.savePhoto(file, userId);
     LogUtil.info("upload", uploadUrl);
+
+    // Clova OCR 사용
+    ocrService.execute(file);
     return ReceiptUploadResponseDto.builder()
         .message("영수증 사진 업로드 완료")
         .uploadUrl(uploadUrl)
