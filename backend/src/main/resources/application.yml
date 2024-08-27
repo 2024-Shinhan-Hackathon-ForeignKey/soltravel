@@ -43,6 +43,15 @@ spring:
         format_sql: true
         default_batch_fetch_size: 100 #fetch join 후 지연로딩하는 entity을 in 절로 미리 영속성 컨텍스트에 저장
 
+  # Multipart File 설정
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
 # Log 출력 설정
 logging:
   level:
