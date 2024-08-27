@@ -263,7 +263,7 @@ public class ExchangeService {
     responseDto.setAccountInfoDto(accountInfoDto);
     responseDto.setExecuted_at(LocalDateTime.now());
 
-    notificationService.notifyMessage(responseDto);
+    notificationService.notifyExchangeMessage(responseDto);
 
     return responseDto;
   }
