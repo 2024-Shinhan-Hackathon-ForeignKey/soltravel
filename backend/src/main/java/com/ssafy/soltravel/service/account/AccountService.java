@@ -10,11 +10,13 @@ import com.ssafy.soltravel.dto.ResponseDto;
 import com.ssafy.soltravel.dto.account.AccountDto;
 import com.ssafy.soltravel.dto.account.CreateAccountDto;
 import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
+import com.ssafy.soltravel.dto.account.request.DeleteAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
+import com.ssafy.soltravel.exception.RefundAccountNotFoundException;
 import com.ssafy.soltravel.mapper.AccountMapper;
 import com.ssafy.soltravel.mapper.ParticipantMapper;
 import com.ssafy.soltravel.repository.ForeignAccountRepository;
@@ -56,7 +58,8 @@ public class AccountService {
 
     public CreateAccountResponseDto createGeneralAccount(
         Long userId,
-        CreateAccountRequestDto requestDto) {
+        CreateAccountRequestDto requestDto
+    ) {
 
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -74,8 +77,15 @@ public class AccountService {
             .userKey(user.getUserKey())
             .build();
 
+        LogUtil.info("header", header.toString());
+
         body.put("Header", header);
-        body.put("accountTypeUniqueNo", apiKeys.get("ACCOUNT_UNIQUE_NO"));
+
+        if (requestDto.getAccountType().equals(AccountType.INDIVIDUAL)) {
+            body.put("accountTypeUniqueNo", apiKeys.get("INDIVIDUAL_ACCOUNT_UNIQUE_NO"));
+        } else {
+            body.put("accountTypeUniqueNo", apiKeys.get("ACCOUNT_UNIQUE_NO"));
+        }
 
         // 일반 계좌 DB 저장 로직 유저 완성 시 추가
         ResponseEntity<Map<String, Object>> response = webClient.post()
@@ -274,11 +284,13 @@ public class AccountService {
         }
     }
 
-    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(String accountNo, boolean isForeign) {
+    public ResponseEntity<DeleteAccountResponseDto> deleteAccount(
+        String accountNo,
+        boolean isForeign,
+        DeleteAccountRequestDto dto
+    ) {
 
         Long userId = SecurityUtil.getCurrentUserId();
-
-        LogUtil.info("userId", userId);
 
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -286,9 +298,43 @@ public class AccountService {
         String API_NAME = "deleteDemandDepositAccount";
         String API_URL = BASE_URL + "/" + API_NAME;
 
+        boolean isRefund = false;
+
         if (isForeign) {
             API_NAME = "deleteForeignCurrencyDemandDepositAccount";
             API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+
+            ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(accountNo)
+                .orElseThrow(() -> new IllegalArgumentException(
+                    "The foreignAccountNo does not exist: " + accountNo)
+                );
+
+            if (foreignAccount.getBalance() != 0) {
+                isRefund = true;
+                if (dto == null) {
+                    LogUtil.info("RefundAccountNotFoundException");
+                    throw new RefundAccountNotFoundException();
+                } else if (dto.getRefundAccountNo() == null || dto.getRefundAccountNo().isBlank()) {
+                    LogUtil.info("RefundAccountNotFoundException");
+                    throw new RefundAccountNotFoundException();
+                }
+            }
+        } else {
+            GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
+                .orElseThrow(() -> new IllegalArgumentException("The generalAccountNo does not exist: " + accountNo));
+
+            LogUtil.info("generalAccount: " + generalAccount.getBalance());
+            LogUtil.info("generalAccount == 0: ", generalAccount.getBalance() != 0);
+
+            // 잔액이 남아 있으면
+            if (generalAccount.getBalance() != 0) {
+                isRefund = true;
+                if (dto == null) {
+                    throw new RefundAccountNotFoundException();
+                } else if (dto.getRefundAccountNo() == null || dto.getRefundAccountNo().isBlank()) {
+                    throw new RefundAccountNotFoundException();
+                }
+            }
         }
 
         Header header = Header.builder()
@@ -301,6 +347,10 @@ public class AccountService {
         Map<String, Object> body = new HashMap<>();
         body.put("Header", header);
         body.put("accountNo", accountNo);
+
+        if (isRefund) {
+            body.put("refundAccountNo", dto.getRefundAccountNo());
+        }
 
         try {
             ResponseEntity<Map<String, Object>> response = webClient.post()
