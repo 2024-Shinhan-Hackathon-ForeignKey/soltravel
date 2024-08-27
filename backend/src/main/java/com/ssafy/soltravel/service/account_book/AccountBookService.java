@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.service.account_book;
 
+import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
 import com.ssafy.soltravel.service.AwsFileService;
 import com.ssafy.soltravel.util.LogUtil;
@@ -18,15 +19,21 @@ public class AccountBookService {
   private final AwsFileService fileService;
   private final ClovaOcrService ocrService;
 
-  public ReceiptUploadResponseDto uploadReceipt(MultipartFile file) throws IOException {
+  public ReceiptUploadResponseDto uploadReceipt(ReceiptUploadRequestDto requestDto) 
+      throws IOException {
+    
+    // 필요 변수 정의
+    MultipartFile file = requestDto.getFile();
+    Long userId = SecurityUtil.getCurrentUserId();
     
     // userId로 파일 저장(S3)
-    Long userId = SecurityUtil.getCurrentUserId();
     String uploadUrl = fileService.savePhoto(file, userId);
     LogUtil.info("upload", uploadUrl);
-
+    
     // Clova OCR 사용
-    ocrService.execute(file);
+    ocrService.execute(requestDto, uploadUrl);
+    
+    //TODO: 챗 지피티한테 파싱 시키기
     return ReceiptUploadResponseDto.builder()
         .message("영수증 사진 업로드 완료")
         .uploadUrl(uploadUrl)

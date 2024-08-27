@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.service.account_book;
 
 import com.ssafy.soltravel.dto.account_book.NCPClovaRequestBody;
+import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.util.LogUtil;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
@@ -38,10 +39,16 @@ public class ClovaOcrService {
         .build();
   }
 
-  public void execute(MultipartFile file) throws IOException {
+  public void execute(ReceiptUploadRequestDto requestDto, String url) throws IOException {
 
     // 요청 바디 생성
-    NCPClovaRequestBody requestBody = new NCPClovaRequestBody();
+    NCPClovaRequestBody requestBody = createRequestBody(
+        requestDto.getFile(),
+        url,
+        requestDto.getFormat(),
+        requestDto.getFile().getName(),
+        requestDto.getLang()
+    );
 
     // 요청
     ResponseEntity<Map<String, Object>> response = webClient.post()
@@ -53,10 +60,10 @@ public class ClovaOcrService {
 
         // 에러 처리
         .onStatus(HttpStatusCode::is4xxClientError, clientResponse ->
-            clientResponse.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-                })
+            clientResponse.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                 .flatMap(body -> {
-                  String responseMessage = body.get("responseMessage").toString();  // 원하는 메시지 추출
+                  LogUtil.error("Clova API Error", body);
+                  String responseMessage = body.get("message").toString();  // 원하는 메시지 추출
                   return Mono.error(new WebClientResponseException(
                       clientResponse.statusCode().value(),
                       responseMessage,                          // 예외 메시지 설정
@@ -75,10 +82,11 @@ public class ClovaOcrService {
     LogUtil.info("NCP OCR complete", response);
   }
 
-  private NCPClovaRequestBody getRequestBody(String format, String url, MultipartFile file, String name)
-      throws IOException {
+  private NCPClovaRequestBody createRequestBody(MultipartFile file, String url,
+      String format, String name, String lang) throws IOException {
+
     NCPClovaRequestBody body = new NCPClovaRequestBody();
-    body.addImage(format, url, encodeToBase64(file), name);
+    body.addImage(encodeToBase64(file), url, format, name, lang);
     return body;
   }
 

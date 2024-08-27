@@ -1,6 +1,6 @@
 package com.ssafy.soltravel.controller;
 
-import com.ssafy.soltravel.dto.ResponseDto;
+import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
 import com.ssafy.soltravel.service.account_book.AccountBookService;
 import com.ssafy.soltravel.util.LogUtil;
@@ -13,12 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/account-book")
@@ -28,7 +26,6 @@ public class AccountBookController {
 
   private final AccountBookService accountBookService;
 
-
   @Operation(summary = "영수증 업로드", description = "png만 가능(임시)")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "업로드 완료", content = @Content(schema = @Schema(implementation = ReceiptUploadResponseDto.class))),
@@ -36,10 +33,10 @@ public class AccountBookController {
       @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
   })
   @PostMapping("/upload/receipt")
-  public ResponseEntity<?> uploadReceipt(@RequestParam("file") MultipartFile file) throws IOException {
+  public ResponseEntity<?> uploadReceipt(@ModelAttribute ReceiptUploadRequestDto requestDto) throws IOException {
 
-    LogUtil.info("requested", file.getName());
-    ReceiptUploadResponseDto response = accountBookService.uploadReceipt(file);
+    LogUtil.info("requested", requestDto.toString());
+    ReceiptUploadResponseDto response = accountBookService.uploadReceipt(requestDto);
     return ResponseEntity.ok().body(response);
   }
 

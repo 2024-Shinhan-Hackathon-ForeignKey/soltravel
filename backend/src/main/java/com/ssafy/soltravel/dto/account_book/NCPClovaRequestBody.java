@@ -23,7 +23,7 @@ public class NCPClovaRequestBody {
   private String version = "v2";
   private String requestId = UUID.randomUUID().toString();
   private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-  private String lang = "ja";
+  private String lang;
   private List<Image> images = new ArrayList<>();
 
   /**
@@ -34,8 +34,9 @@ public class NCPClovaRequestBody {
    * @param data 이미지 데이터 (Base64 인코딩된 문자열 등)
    * @param name 이미지 이름
    */
-  public void addImage(String format, String url, String data, String name) {
+  public void addImage(String data, String url, String format, String name, String lang) {
     Image image = new Image(format, url, data, name);
+    this.lang = lang;
     this.images.add(image);
   }
 
