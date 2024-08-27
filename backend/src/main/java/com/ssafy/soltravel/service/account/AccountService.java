@@ -102,7 +102,7 @@ public class AccountService {
 
         // generalAccount 생성 & 저장
         GeneralAccount generalAccount = modelMapper.map(recObject, GeneralAccount.class);
-        generalAccount.setBalance(0L);
+        generalAccount.setBalance(0.0);
         generalAccount.setUser(user);
         generalAccount.setAccountType(requestDto.getAccountType());
 
@@ -298,7 +298,7 @@ public class AccountService {
         String API_NAME = "deleteDemandDepositAccount";
         String API_URL = BASE_URL + "/" + API_NAME;
 
-        boolean isRefund = false;
+        Double refundAmount = 0.0;
 
         if (isForeign) {
             API_NAME = "deleteForeignCurrencyDemandDepositAccount";
@@ -309,8 +309,9 @@ public class AccountService {
                     "The foreignAccountNo does not exist: " + accountNo)
                 );
 
-            if (foreignAccount.getBalance() != 0) {
-                isRefund = true;
+            refundAmount = foreignAccount.getBalance();
+
+            if (refundAmount > 0) {
                 if (dto == null) {
                     LogUtil.info("RefundAccountNotFoundException");
                     throw new RefundAccountNotFoundException();
@@ -323,12 +324,13 @@ public class AccountService {
             GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
                 .orElseThrow(() -> new IllegalArgumentException("The generalAccountNo does not exist: " + accountNo));
 
-            LogUtil.info("generalAccount: " + generalAccount.getBalance());
-            LogUtil.info("generalAccount == 0: ", generalAccount.getBalance() != 0);
+            refundAmount = generalAccount.getBalance();
+
+            LogUtil.info("refundAmount: ", refundAmount);
+            LogUtil.info("refundAmount > 0: ", refundAmount > 0);
 
             // 잔액이 남아 있으면
-            if (generalAccount.getBalance() != 0) {
-                isRefund = true;
+            if (refundAmount > 0) {
                 if (dto == null) {
                     throw new RefundAccountNotFoundException();
                 } else if (dto.getRefundAccountNo() == null || dto.getRefundAccountNo().isBlank()) {
@@ -348,7 +350,7 @@ public class AccountService {
         body.put("Header", header);
         body.put("accountNo", accountNo);
 
-        if (isRefund) {
+        if (refundAmount > 0) {
             body.put("refundAccountNo", dto.getRefundAccountNo());
         }
 
@@ -375,6 +377,11 @@ public class AccountService {
             } else {
                 generalAccountRepository.deleteByAccountNo(accountNo);
             }
+
+            GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
+                .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
+
+            generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         } catch (WebClientResponseException e) {

@@ -83,7 +83,7 @@ public class TransactionService {
 
         DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
 
-        Long currentBalance = generalAccount.getBalance();
+        Double currentBalance = generalAccount.getBalance();
 
         generalAccount.setBalance(currentBalance + requestDto.getTransactionBalance());
 
@@ -135,7 +135,7 @@ public class TransactionService {
 
         DepositResponseDto responseDto = modelMapper.map(recObject, DepositResponseDto.class);
 
-        Long currentBalance = generalAccount.getBalance();
+        Double currentBalance = generalAccount.getBalance();
         generalAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);

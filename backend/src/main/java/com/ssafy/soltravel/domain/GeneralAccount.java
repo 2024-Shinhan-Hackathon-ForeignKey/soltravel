@@ -43,7 +43,7 @@ public class GeneralAccount {
 
     private String accountNo;
 
-    private Long balance;
+    private Double balance;
 
     private int countryId;
 
