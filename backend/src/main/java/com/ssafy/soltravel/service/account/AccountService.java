@@ -77,8 +77,6 @@ public class AccountService {
             .userKey(user.getUserKey())
             .build();
 
-        LogUtil.info("header", header.toString());
-
         body.put("Header", header);
 
         if (requestDto.getAccountType().equals(AccountType.INDIVIDUAL)) {
