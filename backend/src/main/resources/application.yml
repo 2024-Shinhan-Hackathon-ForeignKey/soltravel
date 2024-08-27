@@ -24,6 +24,9 @@ spring:
       max-lifetime: 1800000
       auto-commit: true
 
+  sql:
+    init:
+      mode: always
   data:
     redis:
       host: redis
