@@ -27,7 +27,7 @@ public class AccountBookService {
     Long userId = SecurityUtil.getCurrentUserId();
     
     // userId로 파일 저장(S3)
-    String uploadUrl = fileService.savePhoto(file, userId);
+    String uploadUrl = fileService.saveReciept(file, userId);
     LogUtil.info("upload", uploadUrl);
     
     // Clova OCR 사용
