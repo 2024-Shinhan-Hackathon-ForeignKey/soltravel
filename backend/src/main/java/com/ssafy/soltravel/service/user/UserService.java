@@ -115,11 +115,9 @@ public class UserService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//    User user = userRepository.findByEmail(email).orElseThrow(
-//        () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
-//    );
-
-    User user = userRepository.findByEmail(email).orElse(createTestUserIfNotExists());
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
+    );
 
     return UserDetailDto.builder()
         .id(user.getUserId())
