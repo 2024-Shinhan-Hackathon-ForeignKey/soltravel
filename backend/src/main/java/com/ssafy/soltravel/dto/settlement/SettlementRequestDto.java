@@ -6,4 +6,5 @@ import lombok.Data;
 public class SettlementRequestDto {
 
   private long accountId;
+  private String accountNo;
 }
