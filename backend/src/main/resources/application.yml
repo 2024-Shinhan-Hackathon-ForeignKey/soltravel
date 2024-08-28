@@ -13,7 +13,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql:3306/soltravel?serverTimezone=Asia/Seoul&useUniCode=yes&characterEncoding=UTF-8
     username: root
-    password: 1234
+    password: thfxmfpqmf225!@
     hikari:
       pool-name: hikari-pool
       maximum-pool-size: 50
