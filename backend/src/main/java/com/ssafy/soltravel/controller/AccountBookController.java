@@ -32,7 +32,7 @@ public class AccountBookController {
       @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
       @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
   })
-  @PostMapping("/upload/receipt")
+  @PostMapping(value = "/upload/receipt", consumes = "multipart/form-data")
   public ResponseEntity<?> uploadReceipt(@ModelAttribute ReceiptUploadRequestDto requestDto) throws IOException {
 
     LogUtil.info("requested", requestDto.toString());
