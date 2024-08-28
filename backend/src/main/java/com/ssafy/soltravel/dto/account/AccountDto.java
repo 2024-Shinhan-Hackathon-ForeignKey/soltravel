@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.dto.account;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ssafy.soltravel.domain.Enum.AccountType;
 import com.ssafy.soltravel.dto.currency.CurrencyDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountDto {
 
     @Schema(description = "계좌 ID", example = "1")
@@ -33,11 +35,14 @@ public class AccountDto {
     @Schema(description = "그룹 이름", example = "SolTravel 모임 통장")
     private String groupName;
 
+    @Schema(description = "아이콘 이름", example = "airPlane")
+    private String iconName;
+
     @Schema(description = "여행 시작 일자", example = "20240830")
-    private String travelStartDate;
+    private LocalDate travelStartDate;
 
     @Schema(description = "여행 종료 일자", example = "20240902")
-    private String travelEndDate;
+    private LocalDate travelEndDate;
 
     @Schema(description = "통화 정보")
     private CurrencyDto currency;
