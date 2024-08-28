@@ -33,7 +33,7 @@ public class GPTService {
     requestBody.put("model", "gpt-4o"); // 사용할 모델
     requestBody.put("response_format", Map.of("type", "json_object"));
     requestBody.put("messages", List.of(basePrompt, Map.of("role", "user", "content", prompt))); // 'messages' 필드 사용
-    requestBody.put("max_tokens", 100); // 최대 토큰 수 설정
+    requestBody.put("max_tokens", 2048); // 최대 토큰 수 설정
 
     LogUtil.info(requestBody.toString());
 
