@@ -43,7 +43,17 @@ public class GeneralAccount {
 
     private String accountNo;
 
+    private String accountName;
+
+    private String accountPassword;
+
     private Double balance;
+
+    private String groupName;
+
+    private String travelStartDate;
+
+    private String travelEndDate;
 
     private int countryId;
 
