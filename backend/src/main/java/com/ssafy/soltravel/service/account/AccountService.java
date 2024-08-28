@@ -103,9 +103,15 @@ public class AccountService {
         GeneralAccount generalAccount = modelMapper.map(recObject, GeneralAccount.class);
         generalAccount.setBalance(0.0);
         generalAccount.setUser(user);
-        generalAccount.setAccountName(requestDto.getAccountName());
+        generalAccount.setGroupName(requestDto.getGroupName());
         generalAccount.setAccountType(requestDto.getAccountType());
         generalAccount.setAccountPassword(requestDto.getAccountPassword());
+
+        if(generalAccount.getAccountType().equals(AccountType.INDIVIDUAL)) {
+            generalAccount.setAccountName("신한은행 일반 개인통장");
+        }else{
+            generalAccount.setAccountName("신한은행 일반 모임통장");
+        }
 
         GeneralAccount savedAccount = generalAccountRepository.save(generalAccount);
 

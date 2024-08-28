@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.dto.account.AccountDetailDto;
 import com.ssafy.soltravel.dto.account.AccountDto;
 import com.ssafy.soltravel.dto.account.request.DeleteAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
@@ -38,25 +39,25 @@ public class ForeignAccountController {
     @Operation(summary = "사용자의 모든 외환 계좌 조회", description = "특정 사용자의 모든 외환 계좌를 조회하는 API.")
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200", description = "조회 성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccountDto.class)))
+            responseCode = "200", description = "조회 성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccountDetailDto.class)))
         ),
         @ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/{userId}/all")
-    public ResponseEntity<List<AccountDto>> getAllForeignByUserId(
+    public ResponseEntity<List<AccountDetailDto>> getAllForeignByUserId(
         @Parameter(description = "사용자의 userId", example = "1")
         @PathVariable Long userId
     ) {
 
-        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, true);
+        ResponseEntity<List<AccountDetailDto>> responseEntity = accountService.getAllByUserId(userId, true);
 
         return responseEntity;
     }
 
     @Operation(summary = "외환 계좌 조회", description = "계좌 번호를 사용하여 외환 계좌를 조회하는 API.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDetailDto.class))),
         @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
