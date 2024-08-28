@@ -43,6 +43,12 @@ public class GeneralAccount {
 
     private String accountNo;
 
+    private String accountName;
+
+    private String accountPassword;
+
+    private String groupName;
+
     private Double balance;
 
     private int countryId;

@@ -21,8 +21,13 @@ public class AccountMapper {
             .id(generalAccount.getId())
             .bankCode(generalAccount.getBankCode())
             .accountPassword(generalAccount.getAccountPassword())
+            .accountName(generalAccount.getAccountName())
+            .accountType(generalAccount.getAccountType())
             .accountNo(generalAccount.getAccountNo())
+            .groupName(generalAccount.getGroupName())
             .currency(currencyDto)
+            .createdAt(String.valueOf(generalAccount.getCreatedAt()))
+            .updatedAt(String.valueOf(generalAccount.getUpdatedAt()))
             .build();
 
         return accountDto;
@@ -38,11 +43,14 @@ public class AccountMapper {
         AccountDto accountDto = AccountDto.builder()
             .id(foreignAccount.getId())
             .bankCode(foreignAccount.getBankCode())
-            .accountName(foreignAccount.getAccountName())
             .accountPassword(foreignAccount.getAccountPassword())
+            .accountName("신한은행 외화 모임통장")
             .accountType(AccountType.GROUP)
             .accountNo(foreignAccount.getAccountNo())
+            .groupName(foreignAccount.getGroupName())
             .currency(currencyDto)
+            .createdAt(String.valueOf(foreignAccount.getCreatedAt()))
+            .updatedAt(String.valueOf(foreignAccount.getUpdatedAt()))
             .build();
 
         return accountDto;

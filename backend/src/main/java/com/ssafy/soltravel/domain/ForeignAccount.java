@@ -42,6 +42,8 @@ public class ForeignAccount {
 
     private String accountNo;
 
+    private String groupName;
+
     private Double balance;
 
     @CreatedDate
