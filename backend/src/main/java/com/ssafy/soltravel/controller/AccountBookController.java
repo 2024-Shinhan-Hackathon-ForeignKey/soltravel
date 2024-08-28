@@ -1,5 +1,7 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.dto.ResponseDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistodySaveRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,6 +42,13 @@ public class AccountBookController {
     LogUtil.info("requested", requestDto.toString());
     ReceiptAnalysisDto response = accountBookService.uploadReceipt(requestDto);
     return ResponseEntity.ok().body(response);
+  }
+
+  @PostMapping("/save/history")
+  public ResponseEntity<?> saveAccountHistory(@RequestBody AccountHistodySaveRequestDto requestDto) {
+    LogUtil.info("requested", requestDto.toString());
+    accountBookService.saveAccountHistory(requestDto);
+    return ResponseEntity.ok().body(new ResponseDto());
   }
 
 }

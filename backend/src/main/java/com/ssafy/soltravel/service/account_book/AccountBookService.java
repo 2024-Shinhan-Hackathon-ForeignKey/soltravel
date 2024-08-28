@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.service.account_book;
 
 import com.google.gson.Gson;
+import com.ssafy.soltravel.dto.account_book.AccountHistodySaveRequestDto;
 import com.ssafy.soltravel.dto.account_book.ItemAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
@@ -27,6 +28,9 @@ public class AccountBookService {
   private final ClovaOcrService ocrService;
   private final GPTService gptService;
 
+  /*
+  * 영수증 업로드 &
+  */
   public ReceiptAnalysisDto uploadReceipt(ReceiptUploadRequestDto requestDto)
       throws IOException {
 
@@ -47,8 +51,16 @@ public class AccountBookService {
     return convertJSONToItemAnalysisDto(receiptInfoString);
   }
 
+  /*
+  * 영수증 정보로 가계부 등록
+  */
+  public void saveAccountHistory(AccountHistodySaveRequestDto requestDto) {
+
+  }
+
   private ReceiptAnalysisDto convertJSONToItemAnalysisDto(String json) {
     Gson gson = new Gson();
     return gson.fromJson(json, ReceiptAnalysisDto.class);
   }
+
 }
