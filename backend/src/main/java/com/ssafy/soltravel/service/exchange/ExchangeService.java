@@ -117,9 +117,9 @@ public class ExchangeService {
   public ExchangeRateResponseDto getExchangeRate(String currency) {
 
     ExchangeRateResponseDto responseDto = new ExchangeRateResponseDto();
-    ExchangeRate rateEntity = exchangeRateRepository.findByCurrency(currency);
+    ExchangeRate rateEntity = exchangeRateRepository.findByCurrencyCode(currency);
 
-    responseDto.setCurrency(currency);
+    responseDto.setCurrencyCode(currency);
     responseDto.setExchangeRate(rateEntity.getExchangeRate());
     responseDto.setExchangeMin(rateEntity.getExchangeMin());
     return responseDto;
@@ -130,7 +130,7 @@ public class ExchangeService {
    */
   public List<LatestRate> getLatestExchangeRate(LatestRateRequestDto requestDto) {
 
-    return latestRateRepository.findLatestRatesByCurrencyAndDateRange(requestDto.getCurrency(),requestDto.getStartDate(),requestDto.getEndDate());
+    return latestRateRepository.findLatestRatesByCurrencyAndDateRange(requestDto.getCurrencyCode(),requestDto.getStartDate(),requestDto.getEndDate());
   }
 
   /**
@@ -139,7 +139,7 @@ public class ExchangeService {
   public void updateExchangeRates(List<ExchangeRateDto> dtoList) {
     for (ExchangeRateDto dto : dtoList) {
 
-      ExchangeRate rate = exchangeRateRepository.findByCurrency(dto.getCurrency());
+      ExchangeRate rate = exchangeRateRepository.findByCurrencyCode(dto.getCurrency());
       double prevRate = -1D;
 
       if (rate != null) {
@@ -147,7 +147,7 @@ public class ExchangeService {
         prevRate = rate.getExchangeRate();
       } else {
         rate = ExchangeRate.builder()
-            .currency(dto.getCurrency())
+            .currencyCode(dto.getCurrency())
             .build();
       }
 
@@ -175,7 +175,7 @@ public class ExchangeService {
 
             GeneralAccount generalAccount=generalAccountRepository.findById(account.getAccountId()).orElseThrow();
             ExchangeRequestDto exchangeRequestDto = ExchangeRequestDto.builder()
-                .exchangeCurrency(dto.getCurrency())
+                .currencyCode(dto.getCurrency())
                 .accountId(account.getAccountId())
                 .accountNo(account.getAccountNo())
                 .exchangeAmount(Math.round(generalAccount.getBalance()))
@@ -195,7 +195,7 @@ public class ExchangeService {
    */
   public void setPreferenceRate(String accountNo, ExchangeRateRegisterRequestDto dto) {
 
-    String id = makeId(dto.getCurrency(), dto.getExchangeRate());
+    String id = makeId(dto.getCurrencyCode(), dto.getExchangeRate());
     Optional<PreferenceRate> exchangeOpt = preferenceRateRepository.findById(id);
 
     PreferenceRate preference;
@@ -219,7 +219,7 @@ public class ExchangeService {
       dto.setExchangeAmount(krw - krw % 10);
 
     dto.setExchangeRate(
-        exchangeRateRepository.findByCurrency(dto.getExchangeCurrency()).getExchangeRate());
+        exchangeRateRepository.findByCurrencyCode(dto.getCurrencyCode()).getExchangeRate());
 
     /**
      * 원화 -> 달러
@@ -227,9 +227,9 @@ public class ExchangeService {
     double amount = convertKrwToUsdWithoutFee(dto.getExchangeAmount(), dto.getExchangeRate());
 
     // 2. 최소 환전 금액 설정
-    double minimumAmount = getMinimumAmount(dto.getExchangeCurrency());
+    double minimumAmount = getMinimumAmount(dto.getCurrencyCode());
     if (amount < minimumAmount) {
-      throw new InvalidAmountException(minimumAmount, dto.getExchangeCurrency());
+      throw new InvalidAmountException(minimumAmount, dto.getCurrencyCode());
     }
 
     TransactionRequestDto withdrawal = new TransactionRequestDto();
@@ -244,7 +244,7 @@ public class ExchangeService {
     transactionService.postForeignDeposit(foreignAccount.getAccountNo(), deposit);
 
     ExchangeCurrencyDto exchangeCurrencyDto = ExchangeCurrencyDto.builder()
-        .currency(dto.getExchangeCurrency())
+        .currencyCode(dto.getCurrencyCode())
         .exchangeRate(dto.getExchangeRate())//환율
         .amount(dto.getExchangeAmount())//원화
         .build();
