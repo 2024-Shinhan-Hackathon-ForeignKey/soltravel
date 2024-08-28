@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,7 +73,7 @@ public class ExchangeController {
       @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.", content = @Content),
       @ApiResponse(responseCode = "500", description = "환전 금액이 부족합니다.", content = @Content)})
   public ResponseEntity<ExchangeResponseDto> exchange(@RequestBody ExchangeRequestDto requestDto) {
-    return ResponseEntity.ok().body(exchangeService.executeExchange(requestDto));
+    return ResponseEntity.ok().body(exchangeService.executeKRWTOUSDExchange(requestDto));
   }
 
   /**
