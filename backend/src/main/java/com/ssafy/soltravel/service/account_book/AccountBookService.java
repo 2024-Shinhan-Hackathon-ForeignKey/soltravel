@@ -7,6 +7,7 @@ import com.ssafy.soltravel.service.GPTService;
 import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,19 +39,16 @@ public class AccountBookService {
     ResponseEntity<Map<String, Object>> response = ocrService.execute(requestDto, uploadUrl);
 
     //챗 지피티한테 파싱 시키고 결과 반환하기
-    String question = createQuestion(response.getBody());
-    String reseponse = gptService.askChatGPT(question);
-    LogUtil.info("reseponse", reseponse);
+    String Sresponse = gptService.askChatGPT(response.getBody().toString());
+
+    LogUtil.info("reseponse", Sresponse);
+
 
     // 결과 반환
     return ReceiptUploadResponseDto.builder()
         .message("영수증 사진 업로드 완료")
         .uploadUrl(uploadUrl)
         .build();
-  }
-
-  private String createQuestion(Map<String, Object> map) {
-    return String.format("%s From this data, organize the store name, each item's name and price, and the total price into a JSON format.", map);
   }
 
 }
