@@ -12,16 +12,19 @@ import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.account.request.DeleteAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
+import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
 import com.ssafy.soltravel.exception.RefundAccountNotFoundException;
 import com.ssafy.soltravel.mapper.AccountMapper;
 import com.ssafy.soltravel.mapper.ParticipantMapper;
+import com.ssafy.soltravel.repository.ExchangeRateRepository;
 import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.service.exchange.ExchangeService;
 import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
@@ -52,6 +55,7 @@ public class AccountService {
     private final ParticipantRepository participantRepository;
     private final GeneralAccountRepository generalAccountRepository;
     private final ForeignAccountRepository foreignAccountRepository;
+    private final AccountExchangeService accountExchangeService;
 
     private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
 
@@ -95,25 +99,19 @@ public class AccountService {
             .block();
 
         // REC 부분을 Object 타입으로 받기
-        Object recObject = response.getBody().get("REC");
+        Map<String, String> recObject = (Map<String, String>) response.getBody().get("REC");
 
         // generalAccount 생성 & 저장
-        GeneralAccount generalAccount = modelMapper.map(recObject, GeneralAccount.class);
-        generalAccount.setBalance(0.0);
-        generalAccount.setUser(user);
-        generalAccount.setAccountType(requestDto.getAccountType());
-        generalAccount.setAccountPassword(requestDto.getAccountPassword());
-
-        if(generalAccount.getAccountType().equals(AccountType.INDIVIDUAL)) {
-            generalAccount.setAccountName("신한은행 일반 개인통장");
-        }else{
-            generalAccount.setTravelStartDate(requestDto.getTravelStartDate());
-            generalAccount.setTravelStartDate(requestDto.getTravelEndDate());
-            generalAccount.setGroupName(requestDto.getGroupName());
-            generalAccount.setAccountName("신한은행 일반 모임통장");
-        }
+        GeneralAccount generalAccount = AccountMapper.toGeneralAccountEntitiy(recObject, user, requestDto);
 
         GeneralAccount savedAccount = generalAccountRepository.save(generalAccount);
+
+        ExchangeRateRegisterRequestDto exchangeRateRegisterRequestDto = new ExchangeRateRegisterRequestDto();
+        exchangeRateRegisterRequestDto.setGeneralAccountId(savedAccount.getId());
+        exchangeRateRegisterRequestDto.setExchangeRate(requestDto.getExchangeRate());
+        exchangeRateRegisterRequestDto.setCurrencyCode(requestDto.getCurrencyCode());
+
+        accountExchangeService.setPreferenceRate(generalAccount.getAccountNo(), exchangeRateRegisterRequestDto);
 
         CreateAccountResponseDto responseDto = new CreateAccountResponseDto();
 
@@ -125,8 +123,7 @@ public class AccountService {
         if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
             // foreingAccount 생성 & 저장
-            ForeignAccount foreignAccount = createForeignAccount(user, requestDto,
-                generalAccount.getId());
+            ForeignAccount foreignAccount = createForeignAccount(user, requestDto,generalAccount.getId());
 
             Participant participant = Participant.builder()
                 .isMaster(true)
@@ -462,4 +459,7 @@ public class AccountService {
 
         return foreignAccountRepository.findById(accountId).get();
     }
+
+
+
 }
