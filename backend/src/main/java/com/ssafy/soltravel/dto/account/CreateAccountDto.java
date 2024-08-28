@@ -8,6 +8,8 @@ import lombok.Data;
 @Builder
 public class CreateAccountDto {
 
+    private Long id;
+
     private int bankCode;
 
     private String accountNo;

@@ -20,6 +20,12 @@ public interface GeneralAccountRepository extends JpaRepository<GeneralAccount, 
 //        "WHERE ga.accountNo = :accountNo")
 //    User findUserByAccountNo(@Param("accountNo") String accountNo);
 
+
+    @Query("SELECT g.id FROM GeneralAccount g " +
+        "JOIN g.foreignAccount f " +
+        "WHERE g.accountNo = :accountNo OR f.accountNo = :accountNo")
+    Long findAccountIdsByAccountNo(@Param("accountNo") String accountNo);
+
     Optional<GeneralAccount> findByAccountNo(String accountNo);
 
     @Query("SELECT ga.balance FROM GeneralAccount ga WHERE ga.id = :accountId")

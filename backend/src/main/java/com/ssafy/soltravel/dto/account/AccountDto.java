@@ -6,6 +6,9 @@ import lombok.Data;
 @Data
 public class AccountDto {
 
+    @Schema(description = "계좌 ID", example = "1")
+    private Long id;
+
     @Schema(description = "은행 코드", example = "088")
     private String bankCode;
 
