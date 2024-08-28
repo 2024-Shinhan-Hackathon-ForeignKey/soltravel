@@ -6,10 +6,11 @@ import SignUp from "./pages/user/SignUp";
 import MyPage from "./pages/user/MyPage";
 import UserUpdate from "./pages/user/UserUpdate";
 import MeetingAccountList from "./pages/account/MeetingAccountList";
+import MeetingAccountDetail from "./pages/account/MeetingAccountDetail";
 import MyAccount from "./pages/viewaccount/MyAccount";
 import GeneralAccount from "./pages/viewaccount/GeneralAccount";
 import ForeignAccount from "./pages/viewaccount/ForeignAccount";
-import ViewAccount from "./pages/viewaccount/ViewAccount";
+import ViewAccount from "./pages/viewaccount/Account";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import AccountCreate from "./pages/account/AccountCreate";
@@ -19,12 +20,15 @@ import SelectAccount from "./pages/exchange/SelectAccount";
 import SettleStart from "./pages/settle/SettleStart";
 import Settlement from "./pages/settle/Settlement";
 import SettleExchange from "./pages/settle/SettleExchange";
+import Detail from "./pages/viewaccount/Detail";
+import GroupAccountPage from "./pages/viewaccount/ViewAccount";
 
 function App() {
   return (
     <div className="h-full">
       <BrowserRouter>
         <Routes>
+          {/* 페이지에 Header와 Footer가 모두 포함된 경로 */}
           <Route
             path="/*"
             element={
@@ -34,11 +38,24 @@ function App() {
                   <Route path="/" element={<MainPage />} />
                   <Route path="/meetingaccountlist" element={<MeetingAccountList />} />
                   <Route path="/exchangerate" element={<ExchangeRate />} />
+                  <Route path="/account/:userId" element={<GroupAccountPage />} />
                 </Routes>
                 <Footer />
               </>
             }
           />
+
+          {/* 페이지에 Footer만 포함된 경로 */}
+          <Route
+            path="/meetingaccount/:id"
+            element={
+              <>
+                <MeetingAccountDetail />
+                <Footer />
+              </>
+            }
+          />
+
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mypage" element={<MyPage />} />
@@ -53,6 +70,8 @@ function App() {
           <Route path="/settlestart" element={<SettleStart />}></Route>
           <Route path="/settlement" element={<Settlement />}></Route>
           <Route path="/settleexchange" element={<SettleExchange />}></Route>
+          <Route path="/detail" element={<Detail />}></Route>
+          <Route path="/test" element={<Detail />}></Route>
         </Routes>
       </BrowserRouter>
     </div>
