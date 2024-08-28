@@ -39,7 +39,7 @@ public class GeneralAccountController {
     // ========= 계좌 CRUD =========
     // 계좌 생성 (모임통장의 경우 외화통장도 자동 생성)
     @Operation(
-        summary = "계좌 생성", description = "일반 계좌(INDIVIDUAL / GROUP) 선택하여 생성(외화코드필수X), 만약 그룹 계좌인경우 자동 외화 통장 생성(외화코드필수)"
+        summary = "계좌 생성", description = "일반 계좌(INDIVIDUAL / GROUP) 선택하여 생성. (accountType / accountPassword는 필수), 나머지 값은 모임계좌일경우만 필수."
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "계좌 생성 성공", content = @Content(schema = @Schema(implementation = CreateAccountResponseDto.class))),
