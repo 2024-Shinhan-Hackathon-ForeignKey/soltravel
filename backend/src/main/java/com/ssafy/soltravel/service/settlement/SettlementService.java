@@ -82,8 +82,7 @@ public class SettlementService {
       transactionRequestDto.setTransactionBalance(amountPerPerson);
       transactionRequestDto.setTransactionSummary("정산 입금");
 
-      //TODO: 참여자 개인 계좌넣어야함
-//      transactionService.postAccountDeposit(.getAccountNo(),transactionRequestDto);
+      transactionService.postAccountDeposit(participant.getPersonalAccount().getAccountNo(),transactionRequestDto);
 
       //알림 전송
       SettlementResponseDto responseDto = new SettlementResponseDto();
