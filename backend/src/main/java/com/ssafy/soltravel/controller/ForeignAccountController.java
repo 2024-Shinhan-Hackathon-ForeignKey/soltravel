@@ -45,12 +45,12 @@ public class ForeignAccountController {
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/{userId}/all")
-    public ResponseEntity<List<AccountDetailDto>> getAllForeignByUserId(
+    public ResponseEntity<List<AccountDto>> getAllForeignByUserId(
         @Parameter(description = "사용자의 userId", example = "1")
         @PathVariable Long userId
     ) {
 
-        ResponseEntity<List<AccountDetailDto>> responseEntity = accountService.getAllByUserId(userId, true);
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, true);
 
         return responseEntity;
     }

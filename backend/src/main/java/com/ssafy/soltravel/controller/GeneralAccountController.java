@@ -39,7 +39,7 @@ public class GeneralAccountController {
     // ========= 계좌 CRUD =========
     // 계좌 생성 (모임통장의 경우 외화통장도 자동 생성)
     @Operation(
-        summary = "계좌 생성", description = "일반 계좌(INDIVISUAL / GROUP) 선택하여 생성(외화코드필수X), 만약 그룹 계좌인경우 자동 외화 통장 생성(외화코드필수)"
+        summary = "계좌 생성", description = "일반 계좌(INDIVIDUAL / GROUP) 선택하여 생성(외화코드필수X), 만약 그룹 계좌인경우 자동 외화 통장 생성(외화코드필수)"
     )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "계좌 생성 성공", content = @Content(schema = @Schema(implementation = CreateAccountResponseDto.class))),
@@ -67,12 +67,12 @@ public class GeneralAccountController {
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/{userId}/all")
-    public ResponseEntity<List<AccountDetailDto>> getAllByUserId(
+    public ResponseEntity<List<AccountDto>> getAllByUserId(
         @Parameter(description = "사용자의 userId", example = "1")
         @PathVariable Long userId
     ) {
 
-        ResponseEntity<List<AccountDetailDto>> responseEntity = accountService.getAllByUserId(userId, false);
+        ResponseEntity<List<AccountDto>> responseEntity = accountService.getAllByUserId(userId, false);
 
         return responseEntity;
     }

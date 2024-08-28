@@ -7,13 +7,11 @@ import com.ssafy.soltravel.domain.GeneralAccount;
 import com.ssafy.soltravel.domain.Participant;
 import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.dto.ResponseDto;
-import com.ssafy.soltravel.dto.account.AccountDetailDto;
 import com.ssafy.soltravel.dto.account.AccountDto;
 import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.account.request.DeleteAccountRequestDto;
 import com.ssafy.soltravel.dto.account.response.CreateAccountResponseDto;
 import com.ssafy.soltravel.dto.account.response.DeleteAccountResponseDto;
-import com.ssafy.soltravel.dto.exchange.Account;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
@@ -103,13 +101,13 @@ public class AccountService {
         GeneralAccount generalAccount = modelMapper.map(recObject, GeneralAccount.class);
         generalAccount.setBalance(0.0);
         generalAccount.setUser(user);
-        generalAccount.setGroupName(requestDto.getGroupName());
         generalAccount.setAccountType(requestDto.getAccountType());
         generalAccount.setAccountPassword(requestDto.getAccountPassword());
 
         if(generalAccount.getAccountType().equals(AccountType.INDIVIDUAL)) {
             generalAccount.setAccountName("신한은행 일반 개인통장");
         }else{
+            generalAccount.setGroupName(requestDto.getGroupName());
             generalAccount.setAccountName("신한은행 일반 모임통장");
         }
 
@@ -222,50 +220,29 @@ public class AccountService {
             return ResponseEntity.status(HttpStatus.OK).body(accountDto);
     }
 
-    public ResponseEntity<List<AccountDetailDto>> getAllByUserId(Long userId, boolean isForeign) {
+    /*
+     * 유저 계좌 전체 조회(기본정보)
+     */
+    public ResponseEntity<List<AccountDto>> getAllByUserId(Long userId, boolean isForeign) {
 
         User user = userRepository.findByUserId(userId)
             .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        String API_NAME = "inquireDemandDepositAccountList";
-        String API_URL = BASE_URL + "/" + API_NAME;
+        List<AccountDto> accountDtos = null;
+
 
         if (isForeign) {
-            API_NAME = "inquireForeignCurrencyDemandDepositAccountList";
-            API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+            List<ForeignAccount> foreignAccounts = foreignAccountRepository.findAllByUserId(userId);
+
+            accountDtos = foreignAccounts.stream().map(AccountMapper::toCreateAccountDto).collect(Collectors.toList());
+
+        }else{
+            List<GeneralAccount> generalAccounts = generalAccountRepository.findAllByUser_userId(userId);
+
+            accountDtos = generalAccounts.stream().map(AccountMapper::toCreateAccountDto).collect(Collectors.toList());
         }
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("Header", header);
-
-        try {
-            ResponseEntity<Map<String, Object>> response = webClient.post()
-                .uri(API_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-                })
-                .block();
-
-            // REC 부분을 Object 타입으로 받기
-            List<Object> recObject = (List<Object>) response.getBody().get("REC");
-
-            List<AccountDetailDto> responseDto = recObject.stream()
-                .map(value -> modelMapper.map(value, AccountDetailDto.class))
-                .collect(Collectors.toList());
-
-            return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-        } catch (Exception e) {
-            throw e;
-        }
+            return ResponseEntity.status(HttpStatus.OK).body(accountDtos);
     }
 
 
