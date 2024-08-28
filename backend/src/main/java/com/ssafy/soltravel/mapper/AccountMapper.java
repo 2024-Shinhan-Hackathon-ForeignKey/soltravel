@@ -12,11 +12,12 @@ import org.modelmapper.ModelMapper;
 
 public class AccountMapper {
 
-    public static CreateAccountDto toCreateAccountDto(GeneralAccount generalAccount){
+    public static CreateAccountDto toCreateAccountDto(GeneralAccount generalAccount) {
 
         CurrencyDto currencyDto = new CurrencyDto("KRW", "원화");
 
         CreateAccountDto accountDto = CreateAccountDto.builder()
+            .id(generalAccount.getId())
             .bankCode(generalAccount.getBankCode())
             .accountNo(generalAccount.getAccountNo())
             .currency(currencyDto)
@@ -25,7 +26,7 @@ public class AccountMapper {
         return accountDto;
     }
 
-    public static CreateAccountDto toCreateAccountDto(ForeignAccount foreignAccount){
+    public static CreateAccountDto toCreateAccountDto(ForeignAccount foreignAccount) {
 
         CurrencyDto currencyDto = new CurrencyDto(
             foreignAccount.getCurrency().getCurrencyCode(),
@@ -33,6 +34,7 @@ public class AccountMapper {
         );
 
         CreateAccountDto accountDto = CreateAccountDto.builder()
+            .id(foreignAccount.getId())
             .bankCode(foreignAccount.getBankCode())
             .accountNo(foreignAccount.getAccountNo())
             .currency(currencyDto)
@@ -42,10 +44,10 @@ public class AccountMapper {
     }
 
     public static ForeignAccount toForeignAccountEntitiy(
-        Map<String,String> recObject,
+        Map<String, String> recObject,
         GeneralAccount generalAccount,
         CreateAccountRequestDto requestDto
-    ){
+    ) {
         ModelMapper modelMapper = new ModelMapper();
 
         CurrencyType currencyType = CurrencyType.fromCode(requestDto.getCurrencyCode());
@@ -58,7 +60,7 @@ public class AccountMapper {
         ForeignAccount foreignAccount = ForeignAccount.builder()
             .bankCode(Integer.parseInt(recObject.get("bankCode")))
             .accountNo(recObject.get("accountNo"))
-            .balance(0L)
+            .balance(0.0)
             .generalAccount(generalAccount)
             .currency(currency)
             .build();

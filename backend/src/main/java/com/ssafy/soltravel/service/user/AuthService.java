@@ -3,6 +3,8 @@ package com.ssafy.soltravel.service.user;
 
 import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.domain.redis.RedisPhone;
+import com.ssafy.soltravel.dto.auth.AuthReissueRequestDto;
+import com.ssafy.soltravel.dto.auth.AuthReissueResponseDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSSendRequestDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSSendResponseDto;
 import com.ssafy.soltravel.dto.auth.AuthSMSVerificationRequestDto;
@@ -12,6 +14,8 @@ import com.ssafy.soltravel.dto.user.UserLoginResponseDto;
 import com.ssafy.soltravel.exception.InvalidAuthCodeException;
 import com.ssafy.soltravel.exception.InvalidCredentialsException;
 import com.ssafy.soltravel.exception.PhoneNotFoundException;
+import com.ssafy.soltravel.exception.UserNotFoundException;
+import com.ssafy.soltravel.mapper.AuthMapper;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.repository.redis.PhoneRepository;
 import com.ssafy.soltravel.util.LogUtil;
@@ -26,8 +30,10 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -63,7 +69,7 @@ public class AuthService {
   }
 
   /*
-   * 휴대폰 인증
+   * 인증 문자 발송
    */
   public AuthSMSSendResponseDto sendSMSForVerification(AuthSMSSendRequestDto request) {
 
@@ -90,6 +96,9 @@ public class AuthService {
         .build();
   }
 
+  /*
+  * 랜덤 인증 코드 생성
+  */
   public String makeRandomAuthCode() {
     Random r1 = new Random();
     Random r2 = new Random();
@@ -104,10 +113,14 @@ public class AuthService {
     return randomNumber.toString();
   }
 
+  /*
+  * 인증 코드 확인(일치 여부)
+  */
   public AuthSMSVerificationResponseDto verifySMSAuthCode(AuthSMSVerificationRequestDto request) {
 
-    RedisPhone user = phoneRepository.findById(request.getPhone())
-        .orElseThrow(() -> new PhoneNotFoundException(request.getPhone()));
+    RedisPhone user = phoneRepository.findById(request.getPhone()).orElseThrow(
+        () -> new PhoneNotFoundException(request.getPhone())
+    );
 
     if (request.getAuthCode().equals(user.getAuthCode())) {
       return AuthSMSVerificationResponseDto.builder()
@@ -117,5 +130,23 @@ public class AuthService {
     } else {
       throw new InvalidAuthCodeException(request.getPhone(), request.getAuthCode());
     }
+  }
+
+  /*
+  * refresh 토큰 재발급
+  */
+  public AuthReissueResponseDto reissueRefreshToken(AuthReissueRequestDto request) {
+
+    // refresh 토큰 파싱
+    Long userId = tokenService.getUserIdFromRefreshToken(request.getRefreshToken());
+
+    // 유저 조회
+    userRepository.findByUserId(userId).orElseThrow(
+        () -> new UserNotFoundException(userId)
+    );
+
+    // 토큰 재발급 및 응답
+    UserLoginResponseDto loginDto = tokenService.saveRefreshToken(userId);
+    return AuthMapper.convertLoginToReissueDto(loginDto);
   }
 }
