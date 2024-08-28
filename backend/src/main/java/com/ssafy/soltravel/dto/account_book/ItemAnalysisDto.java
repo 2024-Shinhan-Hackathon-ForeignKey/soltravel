@@ -13,4 +13,5 @@ public class ItemAnalysisDto {
 
   private String item;
   private double price;
+  private int quantity;
 }
