@@ -39,7 +39,7 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @PostMapping("/join")
+    @PostMapping(value="/join", consumes = "multipart/form-data")
     public ResponseEntity<ResponseDto> createUser(@ModelAttribute UserCreateRequestDto joinDto)
         throws IOException {
 
@@ -54,7 +54,7 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
-    @PostMapping("/join/test")
+    @PostMapping(value="/join/test", consumes = "multipart/form-data")
     public ResponseEntity<ResponseDto> createUserWithoutAPI(@ModelAttribute UserCreateRequestDto joinDto)
         throws IOException {
 
