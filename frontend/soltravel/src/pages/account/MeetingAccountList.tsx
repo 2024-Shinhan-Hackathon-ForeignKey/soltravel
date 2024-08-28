@@ -1,34 +1,9 @@
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 import MeetingAccount from "../../components/account/MeetingAccount";
 
 const MeetingAccountList = () => {
-  const meetingAccountList = [
-    {
-      MeetingAccountName: "모히또에서 몰디브 한 잔하는 모임",
-      MeetingAccountIcon: "PiAirplaneTiltFill",
-      normalMeetingAccount: {
-        accountNumber: "217-879928-13289",
-        accountMoney: "3,481,900",
-      },
-      foreignMeetingAccount: {
-        accountNumber: "212-123428-13289",
-        accountMoney: "113,890",
-        currencyType: "￥",
-      },
-    },
-    {
-      MeetingAccountName: "신암고 1-3반 동창회",
-      MeetingAccountIcon: "IoSchool",
-      normalMeetingAccount: {
-        accountNumber: "217-874218-12289",
-        accountMoney: "481,900",
-      },
-      foreignMeetingAccount: {
-        accountNumber: "212-123902-09281",
-        accountMoney: "390",
-        currencyType: "$",
-      },
-    },
-  ];
+  const meetingAccountList = useSelector((state: RootState) => state.account.meetingAccountList);
 
   return (
     <div className="w-full h-full pb-16 bg-[#EFEFF5]">
@@ -44,7 +19,6 @@ const MeetingAccountList = () => {
               총 <span className="text-blue-500">{meetingAccountList.length}</span>개
             </p>
           </div>
-
           {/* 모임 통장 있을 시 표시 */}
           {meetingAccountList.length > 0 ? (
             meetingAccountList.map((account, index) => <MeetingAccount account={account} />)
