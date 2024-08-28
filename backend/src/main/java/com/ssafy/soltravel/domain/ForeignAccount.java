@@ -36,6 +36,10 @@ public class ForeignAccount {
 
     private int bankCode;
 
+    private String accountName;
+
+    private String accountPassword;
+
     private String accountNo;
 
     private Double balance;

@@ -1,7 +1,7 @@
 package com.ssafy.soltravel.dto.account.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.ssafy.soltravel.dto.account.CreateAccountDto;
+import com.ssafy.soltravel.dto.account.AccountDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -12,16 +12,16 @@ public class CreateAccountResponseDto {
 
     @Schema(
         description = "일반 계좌 정보",
-        implementation = CreateAccountDto.class,
+        implementation = AccountDto.class,
         example = "{\"accountNo\": \"0881234567890\", \"balance\": 10000, \"currency\": \"KRW\"}"
     )
-    private CreateAccountDto generalAccount;
+    private AccountDto generalAccount;
 
     @Schema(
         description = "외화 계좌 정보",
-        implementation = CreateAccountDto.class,
+        implementation = AccountDto.class,
         example = "{\"accountNo\": \"0889876543210\", \"balance\": 5000, \"currency\": \"USD\"}"
     )
-    private CreateAccountDto foreignAccount;
+    private AccountDto foreignAccount;
 
 }

@@ -10,6 +10,12 @@ public class CreateAccountRequestDto {
     @Schema(description = "계좌 유형 (개인 : INDIVIDUAL, 그룹 : GROUP)", example = "GROUP")
     private AccountType accountType;
 
+    @Schema(description = "계좌 유형 (개인 : INDIVIDUAL, 그룹 : GROUP)", example = "GROUP")
+    private String AccountPassword;
+
+    @Schema(description = "계좌 이름")
+    private String accountName;
+
     @Schema(description = "통화 코드 (예: KRW, USD)", example = "USD")
     private String currencyCode;
 }

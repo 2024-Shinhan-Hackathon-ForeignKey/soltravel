@@ -1,10 +1,11 @@
 package com.ssafy.soltravel.mapper;
 
 import com.ssafy.soltravel.domain.Currency;
+import com.ssafy.soltravel.domain.Enum.AccountType;
 import com.ssafy.soltravel.domain.Enum.CurrencyType;
 import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.domain.GeneralAccount;
-import com.ssafy.soltravel.dto.account.CreateAccountDto;
+import com.ssafy.soltravel.dto.account.AccountDto;
 import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.currency.CurrencyDto;
 import java.util.Map;
@@ -12,13 +13,14 @@ import org.modelmapper.ModelMapper;
 
 public class AccountMapper {
 
-    public static CreateAccountDto toCreateAccountDto(GeneralAccount generalAccount) {
+    public static AccountDto toCreateAccountDto(GeneralAccount generalAccount) {
 
         CurrencyDto currencyDto = new CurrencyDto("KRW", "원화");
 
-        CreateAccountDto accountDto = CreateAccountDto.builder()
+        AccountDto accountDto = AccountDto.builder()
             .id(generalAccount.getId())
             .bankCode(generalAccount.getBankCode())
+            .accountPassword(generalAccount.getAccountPassword())
             .accountNo(generalAccount.getAccountNo())
             .currency(currencyDto)
             .build();
@@ -26,16 +28,19 @@ public class AccountMapper {
         return accountDto;
     }
 
-    public static CreateAccountDto toCreateAccountDto(ForeignAccount foreignAccount) {
+    public static AccountDto toCreateAccountDto(ForeignAccount foreignAccount) {
 
         CurrencyDto currencyDto = new CurrencyDto(
             foreignAccount.getCurrency().getCurrencyCode(),
             foreignAccount.getCurrency().getCurrencyName()
         );
 
-        CreateAccountDto accountDto = CreateAccountDto.builder()
+        AccountDto accountDto = AccountDto.builder()
             .id(foreignAccount.getId())
             .bankCode(foreignAccount.getBankCode())
+            .accountName(foreignAccount.getAccountName())
+            .accountPassword(foreignAccount.getAccountPassword())
+            .accountType(AccountType.GROUP)
             .accountNo(foreignAccount.getAccountNo())
             .currency(currencyDto)
             .build();
@@ -60,6 +65,7 @@ public class AccountMapper {
         ForeignAccount foreignAccount = ForeignAccount.builder()
             .bankCode(Integer.parseInt(recObject.get("bankCode")))
             .accountNo(recObject.get("accountNo"))
+            .accountPassword(requestDto.getAccountPassword())
             .balance(0.0)
             .generalAccount(generalAccount)
             .currency(currency)
