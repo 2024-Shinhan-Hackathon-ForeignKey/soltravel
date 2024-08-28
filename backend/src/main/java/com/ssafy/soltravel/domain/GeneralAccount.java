@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -49,11 +50,13 @@ public class GeneralAccount {
 
     private Double balance;
 
+    private String iconName;
+
     private String groupName;
 
-    private String travelStartDate;
+    private LocalDate travelStartDate;
 
-    private String travelEndDate;
+    private LocalDate travelEndDate;
 
     private int countryId;
 
