@@ -26,7 +26,7 @@ public class AccountBookController {
 
   private final AccountBookService accountBookService;
 
-  @Operation(summary = "영수증 업로드", description = "png만 가능(임시)")
+  @Operation(summary = "영수증 업로드", description = "jpg, png, pdf 형식의 영수증을 업로드하고 그 정보를 받아옵니다.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "업로드 완료", content = @Content(schema = @Schema(implementation = ReceiptUploadResponseDto.class))),
       @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),

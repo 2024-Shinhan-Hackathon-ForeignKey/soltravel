@@ -37,11 +37,12 @@ public class AccountBookService {
     // Clova OCR 사용
     ResponseEntity<Map<String, Object>> response = ocrService.execute(requestDto, uploadUrl);
 
-    //TODO: 챗 지피티한테 파싱 시키기
+    //챗 지피티한테 파싱 시키고 결과 반환하기
     String question = createQuestion(response.getBody());
     String reseponse = gptService.askChatGPT(question);
     LogUtil.info("reseponse", reseponse);
 
+    // 결과 반환
     return ReceiptUploadResponseDto.builder()
         .message("영수증 사진 업로드 완료")
         .uploadUrl(uploadUrl)
@@ -49,7 +50,7 @@ public class AccountBookService {
   }
 
   private String createQuestion(Map<String, Object> map) {
-    return String.format("%s 이 데이터에서 판매점 이름(store), 각 물품의 이름과 가격(name, price), 총 가격(total price)을 JSON 형태로 정리해줘", map);
+    return String.format("%s From this data, organize the store name, each item's name and price, and the total price into a JSON format.", map);
   }
 
 }
