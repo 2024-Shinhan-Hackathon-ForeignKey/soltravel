@@ -17,6 +17,7 @@ public class AccountMapper {
         CurrencyDto currencyDto = new CurrencyDto("KRW", "원화");
 
         CreateAccountDto accountDto = CreateAccountDto.builder()
+            .id(generalAccount.getId())
             .bankCode(generalAccount.getBankCode())
             .accountNo(generalAccount.getAccountNo())
             .currency(currencyDto)
@@ -33,6 +34,7 @@ public class AccountMapper {
         );
 
         CreateAccountDto accountDto = CreateAccountDto.builder()
+            .id(foreignAccount.getId())
             .bankCode(foreignAccount.getBankCode())
             .accountNo(foreignAccount.getAccountNo())
             .currency(currencyDto)

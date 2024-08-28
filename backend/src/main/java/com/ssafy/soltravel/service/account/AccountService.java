@@ -104,7 +104,7 @@ public class AccountService {
         generalAccount.setUser(user);
         generalAccount.setAccountType(requestDto.getAccountType());
 
-        generalAccountRepository.save(generalAccount);
+        GeneralAccount savedAccount = generalAccountRepository.save(generalAccount);
 
         CreateAccountResponseDto responseDto = new CreateAccountResponseDto();
 
@@ -112,7 +112,7 @@ public class AccountService {
 
         responseDto.setGeneralAccount(generalAccountDto);
 
-        // 토임 통장인경우 -> 외화 모임통장 자동 생성 & 그룹장으로 본인 참여자에 추가
+        // 모임 통장인경우 -> 외화 모임통장 자동 생성 & 그룹장으로 본인 참여자에 추가
         if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
             // foreingAccount 생성 & 저장
@@ -174,13 +174,15 @@ public class AccountService {
             GeneralAccount generalAccount = generalAccountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException());
 
-            ForeignAccount foreignAccount = AccountMapper.toForeignAccountEntitiy(recObject,
+            ForeignAccount foreignAccount = AccountMapper.toForeignAccountEntitiy(
+                recObject,
                 generalAccount,
-                requestDto);
+                requestDto
+            );
 
-            foreignAccountRepository.save(foreignAccount);
+            ForeignAccount savedAccount = foreignAccountRepository.save(foreignAccount);
 
-            return foreignAccount;
+            return savedAccount;
         } catch (WebClientResponseException e) {
             throw e;
         }
@@ -228,7 +230,10 @@ public class AccountService {
             // REC 부분을 Object 타입으로 받기
             Map<String, String> recObject = (Map<String, String>) response.getBody().get("REC");
 
+            Long accountId = generalAccountRepository.findAccountIdsByAccountNo(accountNo);
+
             AccountDto accountDto = modelMapper.map(recObject, AccountDto.class);
+            accountDto.setId(accountId);
 
             return ResponseEntity.status(HttpStatus.OK).body(accountDto);
         } catch (WebClientResponseException e) {
@@ -311,10 +316,8 @@ public class AccountService {
 
             if (refundAmount > 0) {
                 if (dto == null) {
-                    LogUtil.info("RefundAccountNotFoundException");
                     throw new RefundAccountNotFoundException();
                 } else if (dto.getRefundAccountNo() == null || dto.getRefundAccountNo().isBlank()) {
-                    LogUtil.info("RefundAccountNotFoundException");
                     throw new RefundAccountNotFoundException();
                 }
             }
@@ -404,6 +407,13 @@ public class AccountService {
             .build();
 
         participantRepository.save(participant);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    public ResponseEntity<ResponseDto> deleteParticipants(Long participantId) {
+
+        participantRepository.deleteById(participantId);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
