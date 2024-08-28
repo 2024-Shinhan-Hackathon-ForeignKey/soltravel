@@ -61,7 +61,6 @@ public class AccountMapper {
         GeneralAccount generalAccount,
         CreateAccountRequestDto requestDto
     ) {
-        ModelMapper modelMapper = new ModelMapper();
 
         CurrencyType currencyType = CurrencyType.fromCode(requestDto.getCurrencyCode());
 
@@ -76,6 +75,7 @@ public class AccountMapper {
             .accountPassword(requestDto.getAccountPassword())
             .balance(0.0)
             .generalAccount(generalAccount)
+            .groupName(requestDto.getGroupName())
             .currency(currency)
             .build();
 
