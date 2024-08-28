@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.controller;
 
+import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
 import com.ssafy.soltravel.service.account_book.AccountBookService;
@@ -36,7 +37,7 @@ public class AccountBookController {
   public ResponseEntity<?> uploadReceipt(@ModelAttribute ReceiptUploadRequestDto requestDto) throws IOException {
 
     LogUtil.info("requested", requestDto.toString());
-    ReceiptUploadResponseDto response = accountBookService.uploadReceipt(requestDto);
+    ReceiptAnalysisDto response = accountBookService.uploadReceipt(requestDto);
     return ResponseEntity.ok().body(response);
   }
 
