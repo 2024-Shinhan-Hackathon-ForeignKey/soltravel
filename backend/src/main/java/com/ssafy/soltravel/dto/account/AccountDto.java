@@ -3,6 +3,7 @@ package com.ssafy.soltravel.dto.account;
 import com.ssafy.soltravel.domain.Enum.AccountType;
 import com.ssafy.soltravel.dto.currency.CurrencyDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,12 @@ public class AccountDto {
 
     @Schema(description = "그룹 이름", example = "SolTravel 모임 통장")
     private String groupName;
+
+    @Schema(description = "여행 시작 일자", example = "20240830")
+    private String travelStartDate;
+
+    @Schema(description = "여행 종료 일자", example = "20240902")
+    private String travelEndDate;
 
     @Schema(description = "통화 정보")
     private CurrencyDto currency;

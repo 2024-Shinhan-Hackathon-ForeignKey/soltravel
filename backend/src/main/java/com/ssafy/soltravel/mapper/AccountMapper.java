@@ -25,6 +25,8 @@ public class AccountMapper {
             .accountType(generalAccount.getAccountType())
             .accountNo(generalAccount.getAccountNo())
             .groupName(generalAccount.getGroupName())
+            .travelStartDate(generalAccount.getTravelStartDate())
+            .travelEndDate(generalAccount.getTravelEndDate())
             .currency(currencyDto)
             .createdAt(String.valueOf(generalAccount.getCreatedAt()))
             .updatedAt(String.valueOf(generalAccount.getUpdatedAt()))
@@ -68,7 +70,6 @@ public class AccountMapper {
         currency.setCurrencyCode(currencyType.getCurrencyCode());
         currency.setCurrencyName(currencyType.getCurrencyName());
 
-        // REC 데이터를 GeneralAccount 엔티티로 변환
         ForeignAccount foreignAccount = ForeignAccount.builder()
             .bankCode(Integer.parseInt(recObject.get("bankCode")))
             .accountNo(recObject.get("accountNo"))

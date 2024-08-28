@@ -107,6 +107,8 @@ public class AccountService {
         if(generalAccount.getAccountType().equals(AccountType.INDIVIDUAL)) {
             generalAccount.setAccountName("신한은행 일반 개인통장");
         }else{
+            generalAccount.setTravelStartDate(requestDto.getTravelStartDate());
+            generalAccount.setTravelStartDate(requestDto.getTravelEndDate());
             generalAccount.setGroupName(requestDto.getGroupName());
             generalAccount.setAccountName("신한은행 일반 모임통장");
         }
