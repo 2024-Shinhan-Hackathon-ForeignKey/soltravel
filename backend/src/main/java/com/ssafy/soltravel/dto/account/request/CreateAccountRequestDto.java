@@ -10,8 +10,8 @@ public class CreateAccountRequestDto {
     @Schema(description = "계좌 유형 (개인 : INDIVIDUAL, 그룹 : GROUP)", example = "GROUP")
     private AccountType accountType;
 
-    @Schema(description = "계좌 비밀번호 (개인 : INDIVIDUAL, 그룹 : GROUP)", example = "1234")
-    private String AccountPassword;
+    @Schema(description = "계좌 비밀번호", example = "1234")
+    private String accountPassword;
 
     @Schema(description = "모임통장 이름(모임통장인 경우)", example = "SolTravel 모임통장")
     private String groupName;

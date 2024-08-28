@@ -62,7 +62,7 @@ public class GeneralAccountController {
         description = "특정 사용자의 모든 일반 계좌를 조회하는 API."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDetailDto.class))),
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
         @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
@@ -79,7 +79,7 @@ public class GeneralAccountController {
 
     @Operation(summary = "특정 계좌 조회", description = "계좌 번호를 사용하여 일반 계좌 기본정보를 조회하는 API.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDetailDto.class))),
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = AccountDto.class))),
         @ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
