@@ -16,6 +16,7 @@ import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
+import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
 import com.ssafy.soltravel.exception.RefundAccountNotFoundException;
 import com.ssafy.soltravel.mapper.AccountMapper;
 import com.ssafy.soltravel.mapper.ParticipantMapper;
@@ -115,6 +116,9 @@ public class AccountService {
 
     CreateAccountResponseDto responseDto = new CreateAccountResponseDto();
 
+    GeneralAccount generalAccount = generalAccountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("The General Account does not exist: " + accountId));
+    
     AccountDto generalAccountDto = AccountMapper.toCreateAccountDto(generalAccount);
 
     responseDto.setGeneralAccount(generalAccountDto);
@@ -347,6 +351,53 @@ public class AccountService {
       LogUtil.info("refundAmount: ", refundAmount);
       LogUtil.info("refundAmount > 0: ", refundAmount > 0);
 
+        if (refundAmount > 0) {
+            body.put("refundAccountNo", dto.getRefundAccountNo());
+
+            generalAccountRepository.findByAccountNo(dto.getRefundAccountNo()).orElseThrow(
+                () -> new IllegalArgumentException("The RefundAccount Does Not Exist : " + dto.getRefundAccountNo()));
+        }
+
+        try {
+            ResponseEntity<Map<String, Object>> response = webClient.post()
+                .uri(API_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .block();
+
+            // REC 부분을 Object 타입으로 받기
+            Object recObject = response.getBody().get("REC");
+
+            LogUtil.info("recObject", recObject);
+
+            ModelMapper modelMapper = new ModelMapper();
+
+            // REC 데이터를 GeneralAccount 엔티티로 변환
+            DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
+
+            LogUtil.info("responseDto", responseDto);
+
+            if (isForeign) {
+                foreignAccountRepository.deleteByAccountNo(accountNo);
+            } else {
+                generalAccountRepository.deleteByAccountNo(accountNo);
+            }
+
+
+            if (refundAmount > 0) {
+                GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
+                    .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
+
+                generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+                responseDto.setAccountBalance(refundAmount);
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+        } catch (WebClientResponseException e) {
+            throw e;
       // 잔액이 남아 있으면
       if (refundAmount > 0) {
         if (dto == null) {
@@ -473,4 +524,24 @@ public class AccountService {
   }
 
 
+  /*
+   * 유저 개인 계좌 전체 조회(기본정보)
+   */
+  public EmailValidationResponseDto getPersonalAccountByEmail(String email) {
+
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
+    );
+
+    long userId=user.getUserId();
+    GeneralAccount generalAccount =  generalAccountRepository.findFirstByUser_UserIdAndAccountType(userId, AccountType.INDIVIDUAL);
+
+    EmailValidationResponseDto responseDto =EmailValidationResponseDto.builder()
+        .userId(userId)
+        .accountId(generalAccount.getId())
+        .accountNo(generalAccount.getAccountNo())
+        .build();
+
+    return responseDto;
+  }
 }

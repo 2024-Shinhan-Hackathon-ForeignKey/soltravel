@@ -12,6 +12,7 @@ import com.ssafy.soltravel.exception.UserNotFoundException;
 import com.ssafy.soltravel.mapper.UserMapper;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.service.AwsFileService;
+import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.PasswordEncoder;
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class UserService implements UserDetailsService {
   private final AwsFileService fileService;
   private final Map<String, String> apiKeys;
   private final WebClient webClient;
+  private final AccountService accountService;
 
 
   // 외부 API 요청용 메서드
@@ -188,13 +190,5 @@ public class UserService implements UserDetailsService {
         .registerAt(user.getRegisterAt())
         .isExit(user.getIsExit())
         .build();
-  }
-
-  public EmailValidationResponseDto findUserIdByEmail(String email) throws UsernameNotFoundException {
-    User user = userRepository.findByEmail(email).orElseThrow(
-        () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
-    );
-
-    return new EmailValidationResponseDto(user.getUserId());
   }
 }
