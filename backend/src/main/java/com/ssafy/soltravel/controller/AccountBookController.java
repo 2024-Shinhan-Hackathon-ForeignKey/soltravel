@@ -92,7 +92,7 @@ public class AccountBookController {
       @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
       @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
   })
-  @GetMapping("/history/{accountNo}")
+  @GetMapping("/history/{accountNo}/detail")
   public ResponseEntity<?> getAccountHistory(
       @PathVariable("accountNo") String accountNo,
       @ModelAttribute DetailAccountHistoryReadRequestDto request
