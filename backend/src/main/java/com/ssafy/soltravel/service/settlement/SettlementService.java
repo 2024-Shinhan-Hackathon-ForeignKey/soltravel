@@ -85,6 +85,7 @@ public class SettlementService {
 
       TransactionRequestDto transactionRequestDto = new TransactionRequestDto();
       transactionRequestDto.setTransactionBalance(amountPerPerson);
+      transactionRequestDto.setUserId(participant.getUser().getUserId());
       transactionRequestDto.setTransactionSummary("정산 입금");
 
       transactionService.postAccountDeposit(participant.getPersonalAccount().getAccountNo(),
