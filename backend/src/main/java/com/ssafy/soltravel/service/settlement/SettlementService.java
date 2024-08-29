@@ -69,6 +69,7 @@ public class SettlementService {
     return ResponseEntity.status(HttpStatus.OK).body("정산 완료");
   }
 
+  @Transactional
   public void divideBalance(GeneralAccount generalAccount) {
 
     long accountId = generalAccount.getId();
