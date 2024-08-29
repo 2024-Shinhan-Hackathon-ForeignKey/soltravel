@@ -33,7 +33,7 @@ public class SettlementService {
   private final ForeignAccountRepository foreignAccountRepository;
   private final ParticipantRepository participantRepository;
 
-  @Transactional
+
   public ResponseEntity<?> executeSettlement(SettlementRequestDto requestDto) {
 
     ForeignAccount foreignAccount = foreignAccountRepository.findById(requestDto.getAccountId())
@@ -70,7 +70,7 @@ public class SettlementService {
     return ResponseEntity.status(HttpStatus.OK).body("정산 완료");
   }
 
-  @Transactional
+
   public void divideBalance(GeneralAccount generalAccount) {
 
     long accountId = generalAccount.getId();
