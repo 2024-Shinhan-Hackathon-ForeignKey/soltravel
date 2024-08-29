@@ -64,8 +64,6 @@ public class TransactionController {
         @RequestBody TransactionRequestDto requestDto
     ) {
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        requestDto.setUserId(userId);
         ResponseEntity<DepositResponseDto> response = transactionService.postAccountWithdrawal(accountNo, requestDto);
 
         return response;
