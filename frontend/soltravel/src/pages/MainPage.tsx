@@ -18,7 +18,12 @@ const MainPage = () => {
   const userId = localStorage.getItem("userId");
   const userIdNumber = userId ? parseInt(userId, 10) : 0;
   const accountList = useSelector((state: RootState) => state.account.accountList);
-  const foreignAccountList = useSelector((state: RootState) => state.account.foreingAccountList);
+  const foreignAccountList = useSelector((state: RootState) => state.account.foreignAccountList);
+
+  const formatAccountNumber = (accountNo: string) => {
+    // 계좌번호를 각 4자리씩 나누고 '-'로 연결
+    return accountNo.replace(/(\d{3})(\d{4})(\d{4})(\d{5})/, "$1-$2-$3-$4");
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,10 +44,10 @@ const MainPage = () => {
     };
 
     fetchData();
-  }, [dispatch, userIdNumber]); // 의존성 배열에 필요한 값 추가
+  }, [dispatch]); // 의존성 배열에 필요한 값 추가
 
   return (
-    <div className="w-full pb-16 bg-[#EFEFF5]">
+    <div className="w-full">
       <div className="w-full p-5 flex flex-col items-center space-y-4">
         {/* 모임통장 신청 */}
         <div className="w-full p-6 flex flex-col space-y-5 rounded-xl bg-white shadow-md">
@@ -79,7 +84,7 @@ const MainPage = () => {
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="font-bold">올인원머니통장</p>
-                  <p className="text-sm text-zinc-500">입출금 {accountList[0].accountNo}</p>
+                  <p className="text-sm text-zinc-500">입출금 {formatAccountNumber(accountList[0].accountNo)}</p>
                 </div>
               </div>
               <div className="flex items-center">
@@ -105,7 +110,7 @@ const MainPage = () => {
               className="mainSwiper rounded-xl">
               {accountList.slice(1).map((account, index) => (
                 <SwiperSlide>
-                  <MainMeetingAccount account={account} foreignAccount={foreignAccountList[index]} />
+                  <MainMeetingAccount index={index} account={account} foreignAccount={foreignAccountList[index]} />
                 </SwiperSlide>
               ))}
             </Swiper>
