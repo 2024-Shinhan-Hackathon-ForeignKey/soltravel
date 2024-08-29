@@ -83,7 +83,9 @@ public class AccountBookService {
     ForeignTransactionRequestDto withRequest = ForeignTransactionRequestDto.builder()
         .transactionBalance(requestDto.getPaid())
         .transactionSummary("현금 사용")
+        .userId(SecurityUtil.getCurrentUserId())
         .build();
+
     transactionService.postForeignWithdrawal(false, requestDto.getAccountNo(), withRequest);
 
     // 현금 사용 가계 등록
