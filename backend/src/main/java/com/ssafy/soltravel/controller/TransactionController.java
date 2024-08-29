@@ -141,7 +141,7 @@ public class TransactionController {
         @PathVariable String accountNo,
         @RequestBody ForeignTransactionRequestDto requestDto
     ) {
-        return ResponseEntity.ok().body(transactionService.postForeignWithdrawal(accountNo, requestDto));
+        return ResponseEntity.ok().body(transactionService.postForeignWithdrawal(false,accountNo, requestDto));
     }
 
 

@@ -341,7 +341,7 @@ public class TransactionService {
   /**
    * 외화 계좌에서 출금하는 메서드
    */
-  public DepositResponseDto postForeignWithdrawal(String accountNo, ForeignTransactionRequestDto requestDto) {
+  public DepositResponseDto postForeignWithdrawal(boolean is_settlement,String accountNo, ForeignTransactionRequestDto requestDto) {
 
     Long userId = SecurityUtil.getCurrentUserId();
     User user = userRepository.findByUserId(userId)
@@ -384,7 +384,8 @@ public class TransactionService {
     Double currentBalance = foreignAccount.getBalance();
     foreignAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
 
-    cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());
+    if(!is_settlement)
+      cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());
 
     foreignAccountRepository.save(foreignAccount);
 
