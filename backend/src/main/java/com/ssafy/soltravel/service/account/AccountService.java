@@ -477,6 +477,15 @@ public class AccountService {
     return ResponseEntity.status(HttpStatus.OK).body(responseDto);
   }
 
+  public ResponseEntity<List<AccountDto>> getAllGroupInfoByUserId(Long userId) {
+    List<GeneralAccount> allByParticipantUserId = generalAccountRepository.findAllByParticipantUserId(userId);
+
+    List<AccountDto> response = allByParticipantUserId.stream().map(AccountMapper::toCreateAccountDto).toList();
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+
   public List<Long> findUserIdsByGeneralAccountId(Long accountId) {
 
     return participantRepository.findUserIdsByGeneralAccountId(accountId);

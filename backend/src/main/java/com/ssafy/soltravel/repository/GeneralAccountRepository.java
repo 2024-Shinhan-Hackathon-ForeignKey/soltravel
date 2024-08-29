@@ -40,4 +40,7 @@ public interface GeneralAccountRepository extends JpaRepository<GeneralAccount, 
 
     @Query("SELECT ga.user FROM GeneralAccount ga WHERE ga.id = :generalAccountId")
     User findUserByGeneralAccountId(@Param("generalAccountId") Long generalAccountId);
+
+    @Query("SELECT ga FROM GeneralAccount ga JOIN ga.participants p WHERE p.user.userId = :userId AND ga.accountType = 'GROUP'")
+    List<GeneralAccount> findAllByParticipantUserId(@Param("userId") Long userId);
 }
