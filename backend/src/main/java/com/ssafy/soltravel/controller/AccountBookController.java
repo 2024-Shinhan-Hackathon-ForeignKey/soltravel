@@ -7,6 +7,7 @@ import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.service.account_book.AccountBookService;
+import com.ssafy.soltravel.service.account_book.AccountHistorySaveResponseDto;
 import com.ssafy.soltravel.util.LogUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -48,9 +49,10 @@ public class AccountBookController {
   @PostMapping("/save/history")
   public ResponseEntity<?> saveAccountHistory(@RequestBody AccountHistorySaveRequestDto requestDto)
       throws LackOfBalanceException {
+
     LogUtil.info("requested", requestDto.toString());
-    accountBookService.saveAccountHistory(requestDto);
-    return ResponseEntity.ok().body(new ResponseDto());
+    AccountHistorySaveResponseDto response = accountBookService.saveAccountHistory(requestDto);
+    return ResponseEntity.ok().body(response);
   }
 
 }

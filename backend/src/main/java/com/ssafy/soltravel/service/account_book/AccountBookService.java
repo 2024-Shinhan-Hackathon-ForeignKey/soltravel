@@ -31,7 +31,7 @@ public class AccountBookService {
   private final CashHistoryService cashHistoryService;
 
   /*
-  * 영수증 업로드 &
+  * 영수증 업로드 & 정보 파싱해서 반환
   */
   public ReceiptAnalysisDto uploadReceipt(ReceiptUploadRequestDto requestDto)
       throws IOException {
@@ -55,19 +55,24 @@ public class AccountBookService {
 
 
   /*
-  * 영수증 정보로 가계부 등록
+  * 영수증 정보(+사용자 입력 정보)로 가계부 등록
   */
-  public void saveAccountHistory(AccountHistorySaveRequestDto requestDto)
+  public AccountHistorySaveResponseDto saveAccountHistory(AccountHistorySaveRequestDto requestDto)
       throws LackOfBalanceException {
 
+    // 계좌 정보 조회
     ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(requestDto.getAccountNo())
         .orElseThrow(() -> new ForeignAccountNotFoundException(requestDto.getAccountNo()));
 
+    // 현금 사용 가계 등록
     Double newBalance = cashHistoryService.payCash(
         foreignAccount, requestDto.getPaid()
     );
 
-//    return AccountHistorySaveResponseDto
+    return AccountHistorySaveResponseDto.builder()
+        .message("가계부가 등록되었습니다.")
+        .cashBalance(newBalance)
+        .build();
   }
 
 
