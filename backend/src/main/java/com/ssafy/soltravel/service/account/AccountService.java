@@ -516,6 +516,7 @@ public class AccountService {
 
     EmailValidationDto responseDto = EmailValidationDto.builder()
         .userId(userId)
+        .userName(user.getName())
         .accountId(generalAccount.getId())
         .accountNo(generalAccount.getAccountNo())
         .build();

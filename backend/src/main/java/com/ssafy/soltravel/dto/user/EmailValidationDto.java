@@ -20,4 +20,7 @@ public class EmailValidationDto {
 
   @Schema(description = "사용자 계좌 번호", example="8888888888")
   private String accountNo;
+
+  @Schema(description = "사용자 이름", example = "박예진")
+  private String userName;
 }
