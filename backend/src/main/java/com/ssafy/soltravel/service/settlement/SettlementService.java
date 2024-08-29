@@ -49,7 +49,7 @@ public class SettlementService {
       ForeignTransactionRequestDto foreignTransactionRequestDto = new ForeignTransactionRequestDto();
       foreignTransactionRequestDto.setTransactionBalance(foreignAccount.getBalance());
       foreignTransactionRequestDto.setTransactionSummary("정산 출금");
-      transactionService.postForeignWithdrawal(requestDto.getAccountNo(),
+      transactionService.postForeignWithdrawal(true,requestDto.getAccountNo(),
           foreignTransactionRequestDto);
 
       //일반 통장에 입금
