@@ -49,6 +49,7 @@ public class SettlementService {
       ForeignTransactionRequestDto foreignTransactionRequestDto = new ForeignTransactionRequestDto();
       foreignTransactionRequestDto.setTransactionBalance(foreignAccount.getBalance());
       foreignTransactionRequestDto.setTransactionSummary("정산 출금");
+      foreignTransactionRequestDto.setUserId(foreignAccount.getGeneralAccount().getUser().getUserId());//모임주의 id
       transactionService.postForeignWithdrawal(true,requestDto.getAccountNo(),
           foreignTransactionRequestDto);
 
