@@ -16,7 +16,7 @@ import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
-import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
+import com.ssafy.soltravel.dto.user.EmailValidationDto;
 import com.ssafy.soltravel.exception.RefundAccountNotFoundException;
 import com.ssafy.soltravel.mapper.AccountMapper;
 import com.ssafy.soltravel.mapper.ParticipantMapper;
@@ -29,6 +29,7 @@ import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -122,8 +123,7 @@ public class AccountService {
     if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
       // foreingAccount 생성 & 저장
-      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,
-          generalAccount.getId());
+      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,generalAccount.getId());
 
       Participant participant = Participant.builder()
           .isMaster(true)
@@ -133,7 +133,26 @@ public class AccountService {
 
       // 참여자로 본인 추가
       participantRepository.save(participant);
+      
+      List<EmailValidationDto> participantInfos = requestDto.getParticipantInfos();
 
+      // 요청으로 넘어온 참여자 정보 돌면서 모임 참여자로 추가
+
+      if(participantInfos != null && !participantInfos.isEmpty()) {
+
+        participantInfos.forEach(info -> {
+          User infoUser = userRepository.findByUserId(info.getUserId())
+              .orElseThrow(() -> new IllegalArgumentException("User ID does not exist: " + info.getUserId()));
+
+          Participant newParticipant = Participant.builder()
+              .isMaster(false)
+              .user(infoUser)
+              .generalAccount(generalAccount)
+              .build();
+
+          participantRepository.save(participant);  // Save the participant to the database
+        });
+      }
       // dto 변환
       AccountDto foreignAccountDto = AccountMapper.toCreateAccountDto(foreignAccount);
 
@@ -452,7 +471,7 @@ public class AccountService {
     return participantRepository.findUserIdsByGeneralAccountId(accountId);
   }
 
-  public Long getBalanceByAccountId(Long accountId) {
+  public Double getBalanceByAccountId(Long accountId) {
     return generalAccountRepository.findBalanceByAccountId(accountId);
   }
 
@@ -465,7 +484,7 @@ public class AccountService {
   /*
    * 유저 개인 계좌 전체 조회(기본정보)
    */
-  public EmailValidationResponseDto getPersonalAccountByEmail(String email) {
+  public EmailValidationDto getPersonalAccountByEmail(String email) {
 
     User user = userRepository.findByEmail(email).orElseThrow(
         () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
@@ -474,7 +493,7 @@ public class AccountService {
     long userId=user.getUserId();
     GeneralAccount generalAccount =  generalAccountRepository.findFirstByUser_UserIdAndAccountType(userId, AccountType.INDIVIDUAL);
 
-    EmailValidationResponseDto responseDto =EmailValidationResponseDto.builder()
+    EmailValidationDto responseDto = EmailValidationDto.builder()
         .userId(userId)
         .accountId(generalAccount.getId())
         .accountNo(generalAccount.getAccountNo())

@@ -52,7 +52,7 @@ public class TransactionService {
   public ResponseEntity<DepositResponseDto> postAccountDeposit(String accountNo,
       TransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    Long userId = requestDto.getUserId();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
@@ -104,7 +104,7 @@ public class TransactionService {
       String accountNo,
       TransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    long userId= requestDto.getUserId();
 
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -291,7 +291,7 @@ public class TransactionService {
   public DepositResponseDto postForeignDeposit(String accountNo,
       ForeignTransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    Long userId = requestDto.getUserId();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
@@ -341,7 +341,7 @@ public class TransactionService {
   /**
    * 외화 계좌에서 출금하는 메서드
    */
-  public DepositResponseDto postForeignWithdrawal(String accountNo,ForeignTransactionRequestDto requestDto) {
+  public DepositResponseDto postForeignWithdrawal(boolean is_settlement,String accountNo, ForeignTransactionRequestDto requestDto) {
 
     Long userId = SecurityUtil.getCurrentUserId();
     User user = userRepository.findByUserId(userId)
@@ -384,7 +384,10 @@ public class TransactionService {
     Double currentBalance = foreignAccount.getBalance();
     foreignAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
 
-    cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());
+    if(!is_settlement)
+      cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());
+
+    foreignAccountRepository.save(foreignAccount);
 
     return responseDto;
   }
