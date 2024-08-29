@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailValidationResponseDto {
+public class EmailValidationDto {
 
   @Schema(description = "사용자 Id", example = "1")
   private long userId;

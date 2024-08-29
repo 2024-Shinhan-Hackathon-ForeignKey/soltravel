@@ -1,7 +1,7 @@
 package com.ssafy.soltravel.controller;
 
 import com.ssafy.soltravel.dto.ResponseDto;
-import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
+import com.ssafy.soltravel.dto.user.EmailValidationDto;
 import com.ssafy.soltravel.dto.user.UserCreateRequestDto;
 import com.ssafy.soltravel.dto.user.UserSearchRequestDto;
 import com.ssafy.soltravel.dto.user.UserSearchResponseDto;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -97,12 +96,12 @@ public class UserController {
 
     @Operation(summary = "모임원 이메일 유효성 검사", description = "이메일을 통해 회원인지 확인합니다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EmailValidationResponseDto.class))),
+        @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EmailValidationDto.class))),
         @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
         @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
     })
     @GetMapping("/validate-email/{email}")
-    public ResponseEntity<EmailValidationResponseDto> validateEmail(@PathVariable String email) {
+    public ResponseEntity<EmailValidationDto> validateEmail(@PathVariable String email) {
 
         return ResponseEntity.ok().body(accountService.getPersonalAccountByEmail(email));
     }
