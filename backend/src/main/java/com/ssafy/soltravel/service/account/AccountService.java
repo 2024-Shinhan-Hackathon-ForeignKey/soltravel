@@ -102,7 +102,8 @@ public class AccountService {
     Map<String, String> recObject = (Map<String, String>) response.getBody().get("REC");
 
     // generalAccount 생성 & 저장
-    GeneralAccount generalAccount = AccountMapper.toGeneralAccountEntitiy(recObject, user, requestDto);
+    GeneralAccount generalAccount = AccountMapper.toGeneralAccountEntitiy(recObject, user,
+        requestDto);
 
     GeneralAccount savedAccount = generalAccountRepository.save(generalAccount);
 
@@ -111,10 +112,11 @@ public class AccountService {
     exchangeRateRegisterRequestDto.setExchangeRate(requestDto.getExchangeRate());
     exchangeRateRegisterRequestDto.setCurrencyCode(requestDto.getCurrencyCode());
 
-    accountExchangeService.setPreferenceRate(generalAccount.getAccountNo(), exchangeRateRegisterRequestDto);
+    accountExchangeService.setPreferenceRate(generalAccount.getAccountNo(),
+        exchangeRateRegisterRequestDto);
 
     CreateAccountResponseDto responseDto = new CreateAccountResponseDto();
-    
+
     AccountDto generalAccountDto = AccountMapper.toCreateAccountDto(generalAccount);
 
     responseDto.setGeneralAccount(generalAccountDto);
@@ -123,35 +125,39 @@ public class AccountService {
     if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
       // foreingAccount 생성 & 저장
-      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,generalAccount.getId());
+      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,
+          generalAccount.getId());
 
-      Participant participant = Participant.builder()
-          .isMaster(true)
-          .user(user)
-          .generalAccount(generalAccount)
-          .build();
-
-      // 참여자로 본인 추가
-      participantRepository.save(participant);
-      
       List<EmailValidationDto> participantInfos = requestDto.getParticipantInfos();
 
       // 요청으로 넘어온 참여자 정보 돌면서 모임 참여자로 추가
 
-      if(participantInfos != null && !participantInfos.isEmpty()) {
+      if (participantInfos != null && !participantInfos.isEmpty()) {
 
-        participantInfos.forEach(info -> {
+        boolean isMaster = true;
+        for (int i = 0; i < participantInfos.size(); i++) {
+
+          EmailValidationDto info = participantInfos.get(i);
           User infoUser = userRepository.findByUserId(info.getUserId())
-              .orElseThrow(() -> new IllegalArgumentException("User ID does not exist: " + info.getUserId()));
+              .orElseThrow(() -> new IllegalArgumentException(
+                  "User ID does not exist: " + info.getUserId()));
+
+          GeneralAccount personalAccount = generalAccountRepository.findByAccountNo(
+              info.getAccountNo()).orElseThrow(() -> new IllegalArgumentException(
+              "Account No does not exist: " + info.getAccountNo()));
 
           Participant newParticipant = Participant.builder()
-              .isMaster(false)
+              .isMaster(isMaster)
               .user(infoUser)
               .generalAccount(generalAccount)
+              .personalAccount(personalAccount)
               .build();
 
-          participantRepository.save(participant);  // Save the participant to the database
-        });
+          participantRepository.save(newParticipant);  // Save the participant to the database
+
+          if (i == 0)
+            isMaster = false;
+        }
       }
       // dto 변환
       AccountDto foreignAccountDto = AccountMapper.toCreateAccountDto(foreignAccount);
@@ -350,7 +356,8 @@ public class AccountService {
       }
     } else {
       GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
-          .orElseThrow(() -> new IllegalArgumentException("The generalAccountNo does not exist: " + accountNo));
+          .orElseThrow(() -> new IllegalArgumentException(
+              "The generalAccountNo does not exist: " + accountNo));
       refundAmount = generalAccount.getBalance();
 
       LogUtil.info("refundAmount: ", refundAmount);
@@ -397,7 +404,8 @@ public class AccountService {
       ModelMapper modelMapper = new ModelMapper();
 
       // REC 데이터를 GeneralAccount 엔티티로 변환
-      DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
+      DeleteAccountResponseDto responseDto = modelMapper.map(recObject,
+          DeleteAccountResponseDto.class);
 
       if (isForeign) {
         foreignAccountRepository.deleteByAccountNo(accountNo);
@@ -406,8 +414,10 @@ public class AccountService {
       }
 
       if (refundAmount > 0) {
-        GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
-            .orElseThrow(() -> new RuntimeException("The RefundAccount Does Not Exist : " + responseDto.getRefundAccountNo()));
+        GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(
+                responseDto.getRefundAccountNo())
+            .orElseThrow(() -> new RuntimeException(
+                "The RefundAccount Does Not Exist : " + responseDto.getRefundAccountNo()));
 
         generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
       }
@@ -418,7 +428,8 @@ public class AccountService {
     }
   }
 
-  public ResponseEntity<ResponseDto> addParticipant(Long accountId, AddParticipantRequestDto requestDto) {
+  public ResponseEntity<ResponseDto> addParticipant(Long accountId,
+      AddParticipantRequestDto requestDto) {
 
     GeneralAccount generalAccount = generalAccountRepository.findById(accountId).orElseThrow(
         () -> new IllegalArgumentException("The generalAccountId does not exist: " + accountId));
@@ -490,8 +501,9 @@ public class AccountService {
         () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
     );
 
-    long userId=user.getUserId();
-    GeneralAccount generalAccount =  generalAccountRepository.findFirstByUser_UserIdAndAccountType(userId, AccountType.INDIVIDUAL);
+    long userId = user.getUserId();
+    GeneralAccount generalAccount = generalAccountRepository.findFirstByUser_UserIdAndAccountType(
+        userId, AccountType.INDIVIDUAL);
 
     EmailValidationDto responseDto = EmailValidationDto.builder()
         .userId(userId)
