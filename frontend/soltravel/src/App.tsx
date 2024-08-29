@@ -19,11 +19,12 @@ import Exchange from "./pages/exchange/Exchange";
 import SelectAccount from "./pages/exchange/SelectAccount";
 import SettleStart from "./pages/settle/SettleStart";
 import Settlement from "./pages/settle/Settlement";
-import SettleExchange from "./pages/settle/SettleExchange";
 import Detail from "./pages/viewaccount/Detail";
 import GroupAccountPage from "./pages/viewaccount/ViewAccount";
 import AccountCreateComplete from "./pages/account/AccountCreateComplete";
-import MeetingAccountCreate from "./pages/account/MeetingAccountCreate";
+import GeneralMeetingAccountCreate from "./pages/account/GeneralMeetingAccountCreate";
+import MeetingAccountCreatePrepare from "./pages/account/MeetingAccountCreatePrepare";
+import ForeignMeetingAccountCreate from "./pages/account/ForeignMeetingAccountCreate";
 
 function App() {
   return (
@@ -63,17 +64,18 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/userupdate" element={<UserUpdate />} />
           <Route path="/accountcreate" element={<AccountCreate />}></Route>
-          <Route path="/meetingaccountcreate" element={<MeetingAccountCreate />}></Route>
+          <Route path="/meetingaccountcreateprepare" element={<MeetingAccountCreatePrepare />}></Route>
+          <Route path="/generalmeetingaccountcreate" element={<GeneralMeetingAccountCreate />}></Route>
+          <Route path="/foreignmeetingaccountcreate" element={<ForeignMeetingAccountCreate />}></Route>
           <Route path="/accountcreatecomplete" element={<AccountCreateComplete />}></Route>
           <Route path="/myaccount" element={<MyAccount />}></Route>
           <Route path="/generalaccount" element={<GeneralAccount />}></Route>
           <Route path="/foreignaccount" element={<ForeignAccount />}></Route>
           <Route path="/account" element={<ViewAccount />}></Route>
           <Route path="/exchange" element={<Exchange />}></Route>
-          <Route path="/selectaccount" element={<SelectAccount />}></Route>
+          <Route path="/selectaccount/:userId" element={<SelectAccount />}></Route>
           <Route path="/settlestart" element={<SettleStart />}></Route>
           <Route path="/settlement" element={<Settlement />}></Route>
-          <Route path="/settleexchange" element={<SettleExchange />}></Route>
           <Route path="/detail" element={<Detail />}></Route>
           <Route path="/test" element={<Detail />}></Route>
         </Routes>
