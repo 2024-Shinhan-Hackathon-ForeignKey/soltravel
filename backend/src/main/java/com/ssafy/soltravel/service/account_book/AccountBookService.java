@@ -1,17 +1,28 @@
 package com.ssafy.soltravel.service.account_book;
 
+import com.ssafy.soltravel.domain.CashHistory;
+import com.ssafy.soltravel.domain.Enum.CashTransactionType;
+import com.ssafy.soltravel.domain.Enum.OrderByType;
 import com.ssafy.soltravel.domain.ForeignAccount;
+import com.ssafy.soltravel.dto.account_book.AccountHistoryReadRequestDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistoryReadResponseDto;
 import com.ssafy.soltravel.dto.account_book.AccountHistorySaveRequestDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistorySaveResponseDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
+import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
+import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
 import com.ssafy.soltravel.exception.ForeignAccountNotFoundException;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.mapper.AccountBookMapper;
+import com.ssafy.soltravel.mapper.TransactionMapper;
 import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.service.AwsFileService;
 import com.ssafy.soltravel.service.GPTService;
+import com.ssafy.soltravel.service.transaction.TransactionService;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +35,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AccountBookService {
 
+  // 외부 API 호출 Service
   private final AwsFileService fileService;
   private final ClovaOcrService ocrService;
   private final GPTService gptService;
-  private final ForeignAccountRepository foreignAccountRepository;
+
+  // 내부 API
   private final CashHistoryService cashHistoryService;
+  private final TransactionService transactionService;
+
+  // Repository
+  private final ForeignAccountRepository foreignAccountRepository;
 
   /*
   * 영수증 업로드 & 정보 파싱해서 반환
@@ -76,5 +93,118 @@ public class AccountBookService {
   }
 
 
+  /*
+  * 가계부 조회
+  */
+  public AccountHistoryReadResponseDto findAccountHistory(String accountNo, AccountHistoryReadRequestDto request) {
+
+    AccountHistoryReadResponseDto response = AccountHistoryReadResponseDto.builder()
+        .accountNo(accountNo)
+        .build();
+    response.initHistoryList();
+
+    // (가계부 요청 데이터)를 (외화 통장 이체 기록 요청 데이터)로 변환
+    TransactionHistoryRequestDto transactionDto =
+        TransactionMapper.convertaccountToTransaction(request);
+    transactionDto.setOrderByType(OrderByType.ASC);
+
+    // 변환한 데이터로 이체 기록 요청
+    List<TransactionHistoryDto> transactionHistoryList =
+        transactionService.getForeignHistoryByAccountNo(accountNo, transactionDto);
+
+    // 이체 기록을 가계부에 저장
+    updateAccountHistoryFromTransactions(
+        response.getMonthHistoryList(),
+        transactionHistoryList
+    );
+
+    //TODO: 현금 가계 기록 조회
+
+    // 기존 데이터로 현금 사용 기록 요청
+    List<CashHistory> cashTransactionHistoryList =
+        cashHistoryService.findAllByForeignAccountAndPeriod(
+            accountNo, request.getStartDate(), request.getEndDate()
+        );
+
+    // 사용 기록을 가계부에 저장
+
+    //TODO: 정리해서 응답
+    return null;
+  }
+
+  /*
+  * findAccountHistory에서 사용(이체 기록을 가계 기록으로 변경)
+  */
+  private void updateAccountHistoryFromTransactions(
+      List<AccountHistoryReadResponseDto.DayAccountHistory> monthAccountBook,
+      List<TransactionHistoryDto> transactionHistoryList
+  ) {
+
+    // 외화 통장 이체 기록을 순회하면서 응답 DTO에 저장
+    for(TransactionHistoryDto transaction : transactionHistoryList) {
+
+      // 일자를 인덱스로 사용
+      int date = Integer.parseInt(transaction.getTransactionDate().substring(6, 8));
+
+      // 거래 가격 저장
+      Double amount = Double.parseDouble(transaction.getTransactionBalance());
+
+      // 입/출금에 따라 저장
+      switch (transaction.getTransactionType()){
+        case "1": // 입금
+          monthAccountBook.get(date).addTotalIncome(amount);
+          break;
+
+        case "2": // 출금
+          monthAccountBook.get(date).addTotalExpenditure(amount);
+          break;
+      }
+    }
+  }
+
+  /*
+  * findAccountHistory에서 사용(현금 기록을 가계 기록으로 변경)
+  */
+  private void updateAccountHistoryFromCash(
+      List<AccountHistoryReadResponseDto.DayAccountHistory> monthAccountBook,
+      List<CashHistory> cashHistoryList
+  ) {
+
+    // 현금 사용 기록을 순회하면서 응답 DTO에 저장
+    for(CashHistory history : cashHistoryList) {
+
+      // 일자를 인덱스로 사용
+      int date = history.getTransactionAt().getDayOfMonth();
+
+      // 현금 사용 기록만 있어서 그대로 빼주기
+      monthAccountBook.get(date).addTotalExpenditure(history.getAmount());
+    }
+  }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
