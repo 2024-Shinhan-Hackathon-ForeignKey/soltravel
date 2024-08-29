@@ -1,9 +1,15 @@
 package com.ssafy.soltravel.dto.transaction.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ForeignTransactionRequestDto {
 
   @Schema(description = "입금 금액", example = "1500.50")
