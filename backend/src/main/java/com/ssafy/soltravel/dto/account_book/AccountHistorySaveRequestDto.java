@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountHistodySaveRequestDto {
+public class AccountHistorySaveRequestDto {
 
   private String accountNo;
   private String store;
