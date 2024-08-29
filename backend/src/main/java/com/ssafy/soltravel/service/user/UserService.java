@@ -2,7 +2,6 @@ package com.ssafy.soltravel.service.user;
 
 
 import com.ssafy.soltravel.domain.User;
-import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
 import com.ssafy.soltravel.dto.user.UserCreateRequestDto;
 import com.ssafy.soltravel.dto.user.UserDetailDto;
 import com.ssafy.soltravel.dto.user.UserSearchRequestDto;
@@ -17,10 +16,8 @@ import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.PasswordEncoder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
