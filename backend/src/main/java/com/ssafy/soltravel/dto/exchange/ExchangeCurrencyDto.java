@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 public class ExchangeCurrencyDto {
 
   @Schema(description = "환전한 원화 금액", example = "1000")
-  private long amount;
+  private double amount;
 
   @Schema(description = "적용된 환율", example = "1333.40")
   private Double exchangeRate;
 
   @Schema(description = "환전된 외화의 통화 코드", example = "USD")
-  private String currency;
+  private String currencyCode;
 }

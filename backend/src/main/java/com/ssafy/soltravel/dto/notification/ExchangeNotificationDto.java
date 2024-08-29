@@ -1,11 +1,11 @@
-package com.ssafy.soltravel.dto;
+package com.ssafy.soltravel.dto.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class NotificationDto {
+public class ExchangeNotificationDto {
 
   private long accountId;
   private String accountNo;

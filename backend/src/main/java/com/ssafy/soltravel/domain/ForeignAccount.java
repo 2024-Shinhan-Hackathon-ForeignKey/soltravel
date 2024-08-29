@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +11,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,9 +39,21 @@ public class ForeignAccount {
 
     private int bankCode;
 
+    private String accountName;
+
+    private String accountPassword;
+
     private String accountNo;
 
-    private Long balance;
+    private String groupName;
+
+    private String iconName;
+
+    private LocalDate travelStartDate;
+
+    private LocalDate travelEndDate;
+
+    private Double balance;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -51,7 +67,25 @@ public class ForeignAccount {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "general_account_id")
+    @JsonIgnore
     private GeneralAccount generalAccount;
 
+    @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountBookHistory> accountBook;
 
+    @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CashHistory> cashHistory;
+
+    /*
+    * 연관관계 편의 메서드
+    */
+    public void addAccountBookHistory(AccountBookHistory accountBookHistory) {
+        this.accountBook.add(accountBookHistory);
+        accountBookHistory.setForeignAccount(this);
+    }
+
+    public void addCashHistory(CashHistory cashHistory) {
+        this.cashHistory.add(cashHistory);
+        cashHistory.setForeignAccount(this);
+    }
 }

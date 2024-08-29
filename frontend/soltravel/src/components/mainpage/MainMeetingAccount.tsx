@@ -19,8 +19,36 @@ const MainMeetingAccount = ({ account, foreignAccount }: Props) => {
   };
 
   return (
-    <>
       {account && (
+    <div
+      onClick={() => {
+        navigate(`/meetingaccount/${account.id}`);
+      }}
+      className="w-full py-5 pb-10 px-5 flex flex-col rounded-xl bg-white shadow-md">
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center space-x-1 mb-1">
+          {account.meetingAccountIcon === "airplane" ? (
+            <div className="w-6 h-6 bg-[#638ee4] rounded-full flex justify-center items-center">
+              <PiAirplaneTiltFill className="text-zinc-50" />
+            </div>
+          ) : (
+            <div className="w-6 h-6 bg-[#61bb9d] rounded-full flex justify-center items-center">
+              <IoSchool className="text-zinc-50" />
+            </div>
+          )}
+          <p className="font-bold">{account.meetingAccountName}</p>
+        </div>
+        <div className="rounded-md flex justify-between">
+          <div>
+            <p className="text-sm font-bold">올인원 일반모임통장</p>
+            <p className="text-sm text-zinc-500">{account.normalMeetingAccount.accountNumber}</p>
+          </div>
+          <div className="flex items-center">
+            <p className="text-[1.3rem] font-semibold">{account.normalMeetingAccount.accountMoney}</p>
+            <p className="text-[1rem]">원</p>
+          </div>
+        </div>
+        <hr />
         <div
           onClick={() => {
             navigate(`/meetingaccount/${account.id}`);

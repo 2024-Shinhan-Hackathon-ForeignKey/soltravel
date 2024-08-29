@@ -44,6 +44,9 @@ export const userSilce = createSlice({
     editGeneralMeetingAccountList: (state, action: PayloadAction<GeneralMeetingAccountDetail>) => {
       state.generalMeetingAccountDetail = action.payload;
     },
+    editGeneralMeetingAccountList: (state, action: PayloadAction<GeneralMeetingAccountDetail>) => {
+      state.generalMeetingAccountDetail = action.payload;
+    },
   },
 });
 

@@ -82,7 +82,8 @@ const SignUp = () => {
             onClick={() => {
               navigate("/login");
             }}
-            className="text-[#0046FF] font-bold">
+            className="text-[#0046FF] font-bold"
+          >
             로그인
           </button>
         </div>
