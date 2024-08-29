@@ -5,6 +5,7 @@ import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
 import com.ssafy.soltravel.dto.user.UserCreateRequestDto;
 import com.ssafy.soltravel.dto.user.UserSearchRequestDto;
 import com.ssafy.soltravel.dto.user.UserSearchResponseDto;
+import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.service.user.UserService;
 import com.ssafy.soltravel.util.LogUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final AccountService accountService;
 
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
     @ApiResponses(value = {
@@ -102,6 +104,6 @@ public class UserController {
     @GetMapping("/validate-email/{email}")
     public ResponseEntity<EmailValidationResponseDto> validateEmail(@PathVariable String email) {
 
-        return ResponseEntity.ok().body(userService.findUserIdByEmail(email));
+        return ResponseEntity.ok().body(accountService.getPersonalAccountByEmail(email));
     }
 }

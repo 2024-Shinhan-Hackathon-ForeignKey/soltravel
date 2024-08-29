@@ -16,6 +16,7 @@ import com.ssafy.soltravel.dto.exchange.ExchangeRateRegisterRequestDto;
 import com.ssafy.soltravel.dto.participants.ParticipantDto;
 import com.ssafy.soltravel.dto.participants.request.AddParticipantRequestDto;
 import com.ssafy.soltravel.dto.participants.request.ParticipantListResponseDto;
+import com.ssafy.soltravel.dto.user.EmailValidationResponseDto;
 import com.ssafy.soltravel.exception.RefundAccountNotFoundException;
 import com.ssafy.soltravel.mapper.AccountMapper;
 import com.ssafy.soltravel.mapper.ParticipantMapper;
@@ -523,4 +524,24 @@ public class AccountService {
   }
 
 
+  /*
+   * 유저 개인 계좌 전체 조회(기본정보)
+   */
+  public EmailValidationResponseDto getPersonalAccountByEmail(String email) {
+
+    User user = userRepository.findByEmail(email).orElseThrow(
+        () -> new RuntimeException(String.format("loadUserByUsername Failed: %s", email))
+    );
+
+    long userId=user.getUserId();
+    GeneralAccount generalAccount =  generalAccountRepository.findFirstByUser_UserIdAndAccountType(userId, AccountType.INDIVIDUAL);
+
+    EmailValidationResponseDto responseDto =EmailValidationResponseDto.builder()
+        .userId(userId)
+        .accountId(generalAccount.getId())
+        .accountNo(generalAccount.getAccountNo())
+        .build();
+
+    return responseDto;
+  }
 }
