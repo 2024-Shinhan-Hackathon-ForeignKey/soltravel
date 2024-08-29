@@ -33,6 +33,7 @@ public class SettlementService {
   private final ForeignAccountRepository foreignAccountRepository;
   private final ParticipantRepository participantRepository;
 
+  @Transactional
   public ResponseEntity<?> executeSettlement(SettlementRequestDto requestDto) {
 
     ForeignAccount foreignAccount = foreignAccountRepository.findById(requestDto.getAccountId())
