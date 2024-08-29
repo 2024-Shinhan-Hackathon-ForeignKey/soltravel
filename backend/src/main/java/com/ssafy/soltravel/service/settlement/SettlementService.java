@@ -7,6 +7,7 @@ import com.ssafy.soltravel.dto.settlement.SettlementRequestDto;
 import com.ssafy.soltravel.dto.settlement.SettlementResponseDto;
 import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
+import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
 import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.repository.ParticipantRepository;
 import com.ssafy.soltravel.service.NotificationService;
@@ -64,6 +65,7 @@ public class SettlementService {
     //정산
     divideBalance(generalAccount);
 
+
     return ResponseEntity.status(HttpStatus.OK).body("정산 완료");
   }
 
@@ -83,13 +85,13 @@ public class SettlementService {
     LogUtil.info("각 모임원 입금 금액:", amountPerPerson);
     for (Participant participant : participants) {
 
-      TransactionRequestDto transactionRequestDto = new TransactionRequestDto();
-      transactionRequestDto.setTransactionBalance(amountPerPerson);
-      transactionRequestDto.setUserId(participant.getUser().getUserId());
-      transactionRequestDto.setTransactionSummary("정산 입금");
+      TransferRequestDto transferRequestDto = new TransferRequestDto();
+      transferRequestDto.setDepositAccountNo(participant.getPersonalAccount().getAccountNo());
+      transferRequestDto.setDepositTransactionSummary("정산 입금");
+      transferRequestDto.setTransactionBalance(amountPerPerson);
+      transferRequestDto.setWithdrawalTransactionSummary("정산 출금");
 
-      transactionService.postAccountDeposit(participant.getPersonalAccount().getAccountNo(),
-          transactionRequestDto);
+      transactionService.postAccountTransfer(generalAccount.getAccountNo(),transferRequestDto);
 
       //알림 전송
       SettlementResponseDto responseDto = new SettlementResponseDto();
