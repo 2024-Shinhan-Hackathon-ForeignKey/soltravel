@@ -29,6 +29,7 @@ import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -122,8 +123,7 @@ public class AccountService {
     if (requestDto.getAccountType().equals(AccountType.GROUP)) {
 
       // foreingAccount 생성 & 저장
-      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,
-          generalAccount.getId());
+      ForeignAccount foreignAccount = createForeignAccount(user, requestDto,generalAccount.getId());
 
       Participant participant = Participant.builder()
           .isMaster(true)
@@ -133,7 +133,26 @@ public class AccountService {
 
       // 참여자로 본인 추가
       participantRepository.save(participant);
+      
+      List<EmailValidationDto> participantInfos = requestDto.getParticipantInfos();
 
+      // 요청으로 넘어온 참여자 정보 돌면서 모임 참여자로 추가
+
+      if(participantInfos != null && !participantInfos.isEmpty()) {
+
+        participantInfos.forEach(info -> {
+          User infoUser = userRepository.findByUserId(info.getUserId())
+              .orElseThrow(() -> new IllegalArgumentException("User ID does not exist: " + info.getUserId()));
+
+          Participant newParticipant = Participant.builder()
+              .isMaster(false)
+              .user(infoUser)
+              .generalAccount(generalAccount)
+              .build();
+
+          participantRepository.save(participant);  // Save the participant to the database
+        });
+      }
       // dto 변환
       AccountDto foreignAccountDto = AccountMapper.toCreateAccountDto(foreignAccount);
 
