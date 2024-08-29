@@ -404,6 +404,7 @@ public class AccountService {
                     .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
 
                 generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+                responseDto.setAccountBalance(refundAmount);
             }
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
