@@ -70,6 +70,14 @@ public class ForeignAccount {
     @JsonIgnore
     private GeneralAccount generalAccount;
 
-//    @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<AccountBookHistory> accountBook;
+    @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccountBookHistory> accountBook;
+
+    /*
+    * 연관관계 편의 메서드
+    */
+    public void addAccountBookHistory(AccountBookHistory accountBookHistory) {
+        this.accountBook.add(accountBookHistory);
+        accountBookHistory.setForeignAccount(this);
+    }
 }

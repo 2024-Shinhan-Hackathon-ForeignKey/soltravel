@@ -12,7 +12,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import lombok.Getter;
 
+@Getter
 @Entity
 @Table(name = "account_book")
 public class AccountBookHistory {
@@ -39,5 +41,23 @@ public class AccountBookHistory {
 
   @Column(name = "store")
   private String store;
+
+
+  public void setForeignAccount(ForeignAccount foreignAccount) {
+    this.foreignAccount = foreignAccount;
+  }
+
+  public static AccountBookHistory createAccountBookHistory(
+      ForeignAccount foreignAccount,String transactionType, String store, Double amount, Double balance
+  ) {
+    AccountBookHistory accountBookHistory = new AccountBookHistory();
+    foreignAccount.addAccountBookHistory(accountBookHistory);
+    accountBookHistory.store = store;
+    accountBookHistory.amount = amount;
+    accountBookHistory.transactionType = transactionType;
+    accountBookHistory.transactionAt = LocalDateTime.now();
+    accountBookHistory.balance = balance;
+    return accountBookHistory;
+  }
 
 }
