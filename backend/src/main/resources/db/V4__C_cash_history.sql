@@ -2,7 +2,7 @@ CREATE TABLE cash_history (
     cash_history_id     BIGINT NOT NULL PRIMARY KEY,
     foreign_account_id  BIGINT NOT NULL,
     amount              FLOAT(53) NOT NULL,
-    transaction_type    ENUM('M', 'D', 'A') NOT NULL,
+    transaction_type    ENUM('G', 'P', 'A') NOT NULL,
     transaction_at      DATETIME NOT NULL,
     balance             FLOAT(53),
     store               varchar(32),
