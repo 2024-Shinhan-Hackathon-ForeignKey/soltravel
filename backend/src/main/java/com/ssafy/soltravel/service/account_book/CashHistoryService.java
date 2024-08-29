@@ -4,6 +4,9 @@ import com.ssafy.soltravel.domain.CashHistory;
 import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.repository.CashHistoryRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,9 @@ public class CashHistoryService {
   }
 
 
-  // 현금 출금
+  /*
+  * 현금 출금
+  */
   public Double getCashFromAccount(ForeignAccount foreignAccount, Double amount) {
 
     // 마지막 현금 잔액 확인
@@ -41,7 +46,9 @@ public class CashHistoryService {
     return newBalance;
   }
 
-  // 현금 사용
+  /*
+  * 현금 사용
+  */
   public Double payCash(ForeignAccount foreignAccount, Double amount)
     throws LackOfBalanceException {
 
@@ -63,6 +70,24 @@ public class CashHistoryService {
     // 저장
     cashHistoryRepository.save(newHistory);
     return newBalance;
+  }
+
+  /*
+  * 현금 기록 조회
+  */
+  public List<CashHistory> findAllByForeignAccountAndPeriod(
+      String accountNo, String startDate, String endDate
+  ) {
+    LocalDateTime start = LocalDateTime.parse(startDate);
+    LocalDateTime end = LocalDateTime.parse(endDate);
+
+    List<CashHistory> histories = cashHistoryRepository.findAllByForeignAccountAndPeriod(
+      accountNo, start, end
+    ).orElse(
+        new ArrayList<CashHistory>()
+    );
+
+    return histories;
   }
 
 }

@@ -1,7 +1,9 @@
 package com.ssafy.soltravel.repository;
 
 import com.ssafy.soltravel.domain.CashHistory;
+import com.ssafy.soltravel.domain.ForeignAccount;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,23 @@ public class CashHistoryRepository {
     List<CashHistory> result = em.createQuery("select c from CashHistory c order by c.id desc limit 1", CashHistory.class)
         .getResultList();
     return (result.isEmpty()) ? Optional.empty() : Optional.of(result.get(0));
+  }
+
+  public Optional<List<CashHistory>> findAllByForeignAccountAndPeriod(
+      String accountNo, LocalDateTime startDate, LocalDateTime endDate
+  ){
+    List<CashHistory> result = em.createQuery(
+        "select c from CashHistory c "
+            + "where c.transactionAt between :startDate and :endDate "
+            + "and c.foreignAccount.accountNo = :accountNo "
+            + "order by c.id asc",
+            CashHistory.class
+        )
+        .setParameter("startDate", startDate)
+        .setParameter("endDate", endDate)
+        .setParameter("accountNo", accountNo)
+        .getResultList();
+    return (result.isEmpty()) ? Optional.empty() : Optional.of(result);
   }
 
 }

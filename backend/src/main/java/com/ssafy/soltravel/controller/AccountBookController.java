@@ -1,7 +1,10 @@
 package com.ssafy.soltravel.controller;
 
 import com.ssafy.soltravel.dto.ResponseDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistoryReadRequestDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistoryReadResponseDto;
 import com.ssafy.soltravel.dto.account_book.AccountHistorySaveRequestDto;
+import com.ssafy.soltravel.dto.account_book.AccountHistorySaveResponseDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
@@ -17,7 +20,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,12 +50,34 @@ public class AccountBookController {
     return ResponseEntity.ok().body(response);
   }
 
+
+  @Operation(summary = "가계부 등록", description = "영수증 정보(사진 말고 Json 데이터)로 가계부를 등록합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "업로드 완료", content = @Content(schema = @Schema(implementation = ReceiptUploadResponseDto.class))),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+  })
   @PostMapping("/save/history")
   public ResponseEntity<?> saveAccountHistory(@RequestBody AccountHistorySaveRequestDto requestDto)
       throws LackOfBalanceException {
+
     LogUtil.info("requested", requestDto.toString());
-    accountBookService.saveAccountHistory(requestDto);
-    return ResponseEntity.ok().body(new ResponseDto());
+    AccountHistorySaveResponseDto response = accountBookService.saveAccountHistory(requestDto);
+    return ResponseEntity.ok().body(response);
   }
+
+
+  @GetMapping("/history/{accountNo}")
+  public ResponseEntity<?> getAccountHistory(
+      @PathVariable("accountNo") String accountNo,
+      @ModelAttribute AccountHistoryReadRequestDto request
+  ) {
+
+    LogUtil.info("requested", accountNo, request.toString());
+    AccountHistoryReadResponseDto response = accountBookService.findAccountHistory(accountNo, request);
+    return ResponseEntity.ok().body(response);
+  }
+
+
 
 }

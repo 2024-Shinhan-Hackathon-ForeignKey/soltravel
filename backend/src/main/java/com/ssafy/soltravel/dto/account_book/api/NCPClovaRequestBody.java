@@ -1,4 +1,4 @@
-package com.ssafy.soltravel.dto.account_book;
+package com.ssafy.soltravel.dto.account_book.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
