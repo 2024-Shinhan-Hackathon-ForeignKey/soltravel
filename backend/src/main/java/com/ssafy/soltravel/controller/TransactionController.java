@@ -125,6 +125,22 @@ public class TransactionController {
         return ResponseEntity.ok().body(transactionService.postForeignDeposit(accountNo, requestDto));
     }
 
+    @PostMapping("/foreign/{accountNo}/withdrawal")
+    @Operation(summary = "외화 계좌 출금", description = "외화 계좌에서 출금합니다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "출금 성공", content = @Content(schema = @Schema(implementation = DepositResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+        @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content)
+    })
+    public ResponseEntity<DepositResponseDto> postForeignAccountWithdrawal(
+        @Parameter(description = "사용자의 계좌 번호", example = "0887850232491646")
+        @PathVariable String accountNo,
+        @RequestBody ForeignTransactionRequestDto requestDto
+    ) {
+        return ResponseEntity.ok().body(transactionService.postForeignWithdrawal(accountNo, requestDto));
+    }
+
+
     /**
      * 외화 계좌 거래 내역 조회 getForeignHistoryByAccountNo
      */
