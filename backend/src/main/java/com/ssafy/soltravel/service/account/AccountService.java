@@ -101,8 +101,7 @@ public class AccountService {
     Map<String, String> recObject = (Map<String, String>) response.getBody().get("REC");
 
     // generalAccount 생성 & 저장
-    GeneralAccount generalAccount = AccountMapper.toGeneralAccountEntitiy(recObject, user,
-        requestDto);
+    GeneralAccount generalAccount = AccountMapper.toGeneralAccountEntitiy(recObject, user, requestDto);
 
     GeneralAccount savedAccount = generalAccountRepository.save(generalAccount);
 
@@ -111,13 +110,9 @@ public class AccountService {
     exchangeRateRegisterRequestDto.setExchangeRate(requestDto.getExchangeRate());
     exchangeRateRegisterRequestDto.setCurrencyCode(requestDto.getCurrencyCode());
 
-    accountExchangeService.setPreferenceRate(generalAccount.getAccountNo(),
-        exchangeRateRegisterRequestDto);
+    accountExchangeService.setPreferenceRate(generalAccount.getAccountNo(), exchangeRateRegisterRequestDto);
 
     CreateAccountResponseDto responseDto = new CreateAccountResponseDto();
-
-    GeneralAccount generalAccount = generalAccountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("The General Account does not exist: " + accountId));
     
     AccountDto generalAccountDto = AccountMapper.toCreateAccountDto(generalAccount);
 
@@ -307,33 +302,26 @@ public class AccountService {
 //        }
 //    }
 
+
   public ResponseEntity<DeleteAccountResponseDto> deleteAccount(
       String accountNo,
       boolean isForeign,
       DeleteAccountRequestDto dto
   ) {
-
     Long userId = SecurityUtil.getCurrentUserId();
-
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
-
     String API_NAME = "deleteDemandDepositAccount";
     String API_URL = BASE_URL + "/" + API_NAME;
-
     Double refundAmount = 0.0;
-
     if (isForeign) {
       API_NAME = "deleteForeignCurrencyDemandDepositAccount";
       API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
-
       ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(accountNo)
           .orElseThrow(() -> new IllegalArgumentException(
               "The foreignAccountNo does not exist: " + accountNo)
           );
-
       refundAmount = foreignAccount.getBalance();
-
       if (refundAmount > 0) {
         if (dto == null) {
           throw new RefundAccountNotFoundException();
@@ -343,61 +331,12 @@ public class AccountService {
       }
     } else {
       GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
-          .orElseThrow(() -> new IllegalArgumentException(
-              "The generalAccountNo does not exist: " + accountNo));
-
+          .orElseThrow(() -> new IllegalArgumentException("The generalAccountNo does not exist: " + accountNo));
       refundAmount = generalAccount.getBalance();
 
       LogUtil.info("refundAmount: ", refundAmount);
       LogUtil.info("refundAmount > 0: ", refundAmount > 0);
 
-        if (refundAmount > 0) {
-            body.put("refundAccountNo", dto.getRefundAccountNo());
-
-            generalAccountRepository.findByAccountNo(dto.getRefundAccountNo()).orElseThrow(
-                () -> new IllegalArgumentException("The RefundAccount Does Not Exist : " + dto.getRefundAccountNo()));
-        }
-
-        try {
-            ResponseEntity<Map<String, Object>> response = webClient.post()
-                .uri(API_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-                })
-                .block();
-
-            // REC 부분을 Object 타입으로 받기
-            Object recObject = response.getBody().get("REC");
-
-            LogUtil.info("recObject", recObject);
-
-            ModelMapper modelMapper = new ModelMapper();
-
-            // REC 데이터를 GeneralAccount 엔티티로 변환
-            DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
-
-            LogUtil.info("responseDto", responseDto);
-
-            if (isForeign) {
-                foreignAccountRepository.deleteByAccountNo(accountNo);
-            } else {
-                generalAccountRepository.deleteByAccountNo(accountNo);
-            }
-
-
-            if (refundAmount > 0) {
-                GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
-                    .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
-
-                generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
-                responseDto.setAccountBalance(refundAmount);
-            }
-
-            return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-        } catch (WebClientResponseException e) {
-            throw e;
       // 잔액이 남아 있으면
       if (refundAmount > 0) {
         if (dto == null) {
@@ -416,6 +355,7 @@ public class AccountService {
         .build();
 
     Map<String, Object> body = new HashMap<>();
+
     body.put("Header", header);
     body.put("accountNo", accountNo);
 
@@ -435,12 +375,10 @@ public class AccountService {
 
       // REC 부분을 Object 타입으로 받기
       Object recObject = response.getBody().get("REC");
-
       ModelMapper modelMapper = new ModelMapper();
 
       // REC 데이터를 GeneralAccount 엔티티로 변환
-      DeleteAccountResponseDto responseDto = modelMapper.map(recObject,
-          DeleteAccountResponseDto.class);
+      DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
 
       if (isForeign) {
         foreignAccountRepository.deleteByAccountNo(accountNo);
@@ -448,11 +386,12 @@ public class AccountService {
         generalAccountRepository.deleteByAccountNo(accountNo);
       }
 
-      GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(
-              responseDto.getRefundAccountNo())
-          .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
+      if (refundAmount > 0) {
+        GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
+            .orElseThrow(() -> new RuntimeException("The RefundAccount Does Not Exist : " + responseDto.getRefundAccountNo()));
 
-      generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+        generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+      }
 
       return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     } catch (WebClientResponseException e) {
@@ -460,8 +399,7 @@ public class AccountService {
     }
   }
 
-  public ResponseEntity<ResponseDto> addParticipant(Long accountId,
-      AddParticipantRequestDto requestDto) {
+  public ResponseEntity<ResponseDto> addParticipant(Long accountId, AddParticipantRequestDto requestDto) {
 
     GeneralAccount generalAccount = generalAccountRepository.findById(accountId).orElseThrow(
         () -> new IllegalArgumentException("The generalAccountId does not exist: " + accountId));
