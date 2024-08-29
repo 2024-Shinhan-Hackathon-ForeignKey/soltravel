@@ -12,7 +12,7 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     // // accessToken을 sessionStorage에서 가져오고
-    // const accessToken = sessionStorage.getItem("accessToken");
+    const accessToken = sessionStorage.getItem("accessToken");
     // // 토큰이 있으면 토큰을 넣어서 요청을 보냄
     // if (accessToken) {
     //   config.headers.Authorization = `${accessToken}`
