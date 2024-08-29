@@ -1,12 +1,12 @@
 import React from 'react';
-import { AccountInfo } from '../../types/account';
+import { AccountInfo } from "../../types/account";
 
 type AccountDetailsProps = {
   accounts: AccountInfo[];
   onSelectAccount: (account: AccountInfo) => void;
 };
 
-const AccountDetails = ({ accounts, onSelectAccount }: AccountDetailsProps): React.ReactElement => {
+const AccountList = ({ accounts, onSelectAccount }: AccountDetailsProps): React.ReactElement => {
   return (
     <div>
       {accounts.map((account) => (
@@ -18,13 +18,12 @@ const AccountDetails = ({ accounts, onSelectAccount }: AccountDetailsProps): Rea
           <div className='mb-2 flex items-center'>
             <div className='w-8 h-8 mr-2 bg-[#0046FF] rounded-full'></div>
             <div className='ml-3'>
-              <p className='font-semibold'>{account.bankName}</p>
               <p className='font-semibold'>{account.accountName}</p>
               <p className='text-sm text-gray-500'>{account.accountNo}</p>
             </div>
           </div>
           <p className='text-2xl font-bold text-right'>
-            {Number(account.accountBalance).toLocaleString()} {account.currency}
+            {/* {Number(account.accountBalance).toLocaleString()} {account.currency} */}
           </p>
         </div>
       ))}
@@ -32,4 +31,4 @@ const AccountDetails = ({ accounts, onSelectAccount }: AccountDetailsProps): Rea
   );
 };
 
-export default AccountDetails;
+export default AccountList;

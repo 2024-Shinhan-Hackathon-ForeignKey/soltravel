@@ -2,21 +2,10 @@ import { useNavigate } from "react-router";
 import { PiAirplaneTiltFill } from "react-icons/pi";
 import { IoSchool } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
+import { MeetingAccountListDetail } from "../../types/account";
 
 interface Props {
-  account: {
-    MeetingAccountName: string;
-    MeetingAccountIcon: string;
-    normalMeetingAccount: {
-      accountNumber: string;
-      accountMoney: string;
-    };
-    foreignMeetingAccount: {
-      accountNumber: string;
-      accountMoney: string;
-      currencyType: string;
-    };
-  };
+  account: MeetingAccountListDetail;
 }
 
 const MeetingAccount = ({ account }: Props) => {
@@ -26,21 +15,21 @@ const MeetingAccount = ({ account }: Props) => {
     <div
       // key={index}
       onClick={() => {
-        navigate("/account");
+        navigate(`/meetingaccount/${account.id}`);
       }}
       className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
-      <div className="flex flex-col space-y-4">
-        <div className="flex items-center space-x-[9px] mb-1">
-            {account.MeetingAccountIcon === "airplane" ? (
-              <div className="w-6 h-6 bg-[#638ee4] rounded-full flex justify-center items-center">
-                <PiAirplaneTiltFill className="text-zinc-50" />
-              </div>
-            ) : (
-              <div className="w-6 h-6 bg-[#61bb9d] rounded-full flex justify-center items-center">
-                <IoSchool className="text-zinc-50" />
-              </div>
-            )}
-          <p className="font-bold">{account.MeetingAccountName}</p>
+      {/* <div className="flex flex-col space-y-4">
+        <div className="flex items-center space-x-1 mb-1">
+          {account.meetingAccountIcon === "airplane" ? (
+            <div className="w-6 h-6 bg-[#638ee4] rounded-full flex justify-center items-center">
+              <PiAirplaneTiltFill className="text-zinc-50" />
+            </div>
+          ) : (
+            <div className="w-6 h-6 bg-[#61bb9d] rounded-full flex justify-center items-center">
+              <IoSchool className="text-zinc-50" />
+            </div>
+          )}
+          <p className="font-bold">{account.meetingAccountName}</p>
         </div>
         <div className="rounded-md flex justify-between">
           <div>
@@ -68,7 +57,7 @@ const MeetingAccount = ({ account }: Props) => {
             <p className="text-[1rem]">{account.foreignMeetingAccount.currencyType}</p>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
