@@ -1,11 +1,16 @@
 package com.ssafy.soltravel.service.account_book;
 
 import com.google.gson.Gson;
+import com.ssafy.soltravel.domain.AccountBookHistory;
+import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.dto.account_book.AccountHistodySaveRequestDto;
 import com.ssafy.soltravel.dto.account_book.ItemAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptAnalysisDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.account_book.ReceiptUploadResponseDto;
+import com.ssafy.soltravel.exception.ForeignAccountNotFoundException;
+import com.ssafy.soltravel.mapper.AccountBookMapper;
+import com.ssafy.soltravel.repository.ForeignAccountRepository;
 import com.ssafy.soltravel.service.AwsFileService;
 import com.ssafy.soltravel.service.GPTService;
 import com.ssafy.soltravel.util.LogUtil;
@@ -27,6 +32,7 @@ public class AccountBookService {
   private final AwsFileService fileService;
   private final ClovaOcrService ocrService;
   private final GPTService gptService;
+  private final ForeignAccountRepository foreignAccountRepository;
 
   /*
   * 영수증 업로드 &
@@ -48,19 +54,30 @@ public class AccountBookService {
     String receiptInfoString = gptService.askChatGPT(response.getBody().toString());
 
     // String(JSON) -> 객체 변환후 return
-    return convertJSONToItemAnalysisDto(receiptInfoString);
+    return AccountBookMapper.convertJSONToItemAnalysisDto(receiptInfoString);
   }
+
 
   /*
   * 영수증 정보로 가계부 등록
   */
   public void saveAccountHistory(AccountHistodySaveRequestDto requestDto) {
 
+    ForeignAccount account = foreignAccountRepository.findByAccountNo(requestDto.getAccountNo())
+        .orElseThrow(() -> new ForeignAccountNotFoundException(requestDto.getAccountNo()));
+
+//    AccountBookHistory history = AccountBookHistory.createAccountBookHistory(
+//        account,
+//        "D",
+//        requestDto.getStore(),
+//        requestDto.getPaid(),
+//
+//
+//    );
+
+
   }
 
-  private ReceiptAnalysisDto convertJSONToItemAnalysisDto(String json) {
-    Gson gson = new Gson();
-    return gson.fromJson(json, ReceiptAnalysisDto.class);
-  }
+
 
 }
