@@ -12,7 +12,6 @@ public class ForeignTransactionRequestDto {
   @Schema(description = "거래 요약", example = "환전 입금")
   private String transactionSummary;
 
-
-  @Schema(hidden = true)
+  @Schema(description = "유저 ID", example = "1")
   Long userId;
 }

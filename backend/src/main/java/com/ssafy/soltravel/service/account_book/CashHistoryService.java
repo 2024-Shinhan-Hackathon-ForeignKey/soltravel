@@ -4,6 +4,7 @@ import com.ssafy.soltravel.domain.CashHistory;
 import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.repository.CashHistoryRepository;
+import com.ssafy.soltravel.util.LogUtil;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

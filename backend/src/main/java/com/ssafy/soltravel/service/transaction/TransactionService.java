@@ -17,6 +17,7 @@ import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.service.NotificationService;
 import com.ssafy.soltravel.service.account_book.CashHistoryService;
+import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
 import java.util.List;
@@ -292,6 +293,7 @@ public class TransactionService {
       ForeignTransactionRequestDto requestDto) {
 
     Long userId = requestDto.getUserId();
+
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
@@ -343,7 +345,8 @@ public class TransactionService {
    */
   public DepositResponseDto postForeignWithdrawal(boolean is_settlement,String accountNo, ForeignTransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    Long userId = requestDto.getUserId();
+
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
@@ -383,6 +386,7 @@ public class TransactionService {
 
     Double currentBalance = foreignAccount.getBalance();
     foreignAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
+
 
     if(!is_settlement)
       cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());

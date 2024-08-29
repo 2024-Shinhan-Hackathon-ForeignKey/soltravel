@@ -15,9 +15,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
 @Entity
+@ToString
 @Table(name = "cash_history")
 public class CashHistory {
 
@@ -65,7 +67,7 @@ public class CashHistory {
     cashHistory.store = "";
     cashHistory.transactionType = CashTransactionType.G;
     cashHistory.transactionAt = LocalDateTime.now();
-    return new CashHistory();
+    return cashHistory;
   }
 
   public static CashHistory createGetCashHistory(
