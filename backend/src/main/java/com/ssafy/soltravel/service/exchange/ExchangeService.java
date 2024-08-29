@@ -27,6 +27,8 @@ import com.ssafy.soltravel.service.NotificationService;
 import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.service.transaction.TransactionService;
 import com.ssafy.soltravel.util.LogUtil;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -285,8 +287,12 @@ public class ExchangeService {
       throw new IllegalArgumentException("환율은 0보다 커야 합니다.");
     }
 
-    double usdAmount = krwAmount / exchangeRate;
-    return Math.round(usdAmount * 100.0) / 100.0; // 소수점 두 자리까지 반올림
+    // BigDecimal을 사용하여 정확한 소수점 계산
+    BigDecimal krw = BigDecimal.valueOf(krwAmount);
+    BigDecimal rate = BigDecimal.valueOf(exchangeRate);
+    BigDecimal usdAmount = krw.divide(rate, 2, RoundingMode.HALF_UP); // 소수점 두 자리까지 반올림
+
+    return usdAmount.doubleValue();
   }
 
   /**
