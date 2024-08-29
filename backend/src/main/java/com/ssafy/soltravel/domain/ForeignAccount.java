@@ -33,7 +33,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public class ForeignAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "foreign_account_id")
     private Long id;
 
