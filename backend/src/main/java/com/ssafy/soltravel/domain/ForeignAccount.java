@@ -73,11 +73,19 @@ public class ForeignAccount {
     @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountBookHistory> accountBook;
 
+    @OneToMany(mappedBy = "foreignAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CashHistory> cashHistory;
+
     /*
     * 연관관계 편의 메서드
     */
     public void addAccountBookHistory(AccountBookHistory accountBookHistory) {
         this.accountBook.add(accountBookHistory);
         accountBookHistory.setForeignAccount(this);
+    }
+
+    public void addCashHistory(CashHistory cashHistory) {
+        this.cashHistory.add(cashHistory);
+        cashHistory.setForeignAccount(this);
     }
 }
