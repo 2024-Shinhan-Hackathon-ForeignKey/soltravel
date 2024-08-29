@@ -34,13 +34,16 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())                 //등록된 빈에서 CORS 커스텀 설정 찾아서 등록
             .csrf(AbstractHttpConfigurer::disable)           //csrf 비활성화
-            .httpBasic(httpBasicCustomizer -> httpBasicCustomizer.disable())
+            .httpBasic(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(requests -> requests      //특정 uri만 허용하고 나머지는 인증받아야함
                     .requestMatchers(
-                        new AntPathRequestMatcher("/api/v1/auth/test"),
-                        new AntPathRequestMatcher("api/v1/account/*")
-                    ).authenticated()
-                    .anyRequest().permitAll()
+                        new AntPathRequestMatcher("/api/v1/auth/**"),
+                        new AntPathRequestMatcher("/api/v1/user/join"),
+                        new AntPathRequestMatcher("/api/v1/user/join/test"),
+                        new AntPathRequestMatcher("/api/v1/swagger-ui/**"),
+                        new AntPathRequestMatcher("/api/v1/v3/api-docs/**")
+                    ).permitAll()
+                    .anyRequest().authenticated()
                 //.anyRequest().authenticated()
             ).formLogin(form -> form
                 .defaultSuccessUrl("/api/v1/auth/test-ok", true)

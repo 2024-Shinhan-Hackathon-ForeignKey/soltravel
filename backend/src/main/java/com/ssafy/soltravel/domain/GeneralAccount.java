@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ssafy.soltravel.domain.Enum.AccountType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -42,7 +44,19 @@ public class GeneralAccount {
 
     private String accountNo;
 
-    private Long balance;
+    private String accountName;
+
+    private String accountPassword;
+
+    private Double balance;
+
+    private String iconName;
+
+    private String groupName;
+
+    private LocalDate travelStartDate;
+
+    private LocalDate travelEndDate;
 
     private int countryId;
 
@@ -63,5 +77,6 @@ public class GeneralAccount {
     private List<Participant> participants;
 
     @OneToOne(mappedBy = "generalAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private ForeignAccount foreignAccount;
 }

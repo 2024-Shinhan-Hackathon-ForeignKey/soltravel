@@ -1,7 +1,10 @@
 package com.ssafy.soltravel.service.transaction;
 
 import com.ssafy.soltravel.common.Header;
+import com.ssafy.soltravel.domain.ForeignAccount;
+import com.ssafy.soltravel.domain.GeneralAccount;
 import com.ssafy.soltravel.domain.User;
+import com.ssafy.soltravel.dto.notification.TransactionNotificationDto;
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
 import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
@@ -9,7 +12,11 @@ import com.ssafy.soltravel.dto.transaction.request.TransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
 import com.ssafy.soltravel.dto.transaction.response.DepositResponseDto;
 import com.ssafy.soltravel.dto.transaction.response.TransferHistoryResponseDto;
+import com.ssafy.soltravel.repository.ForeignAccountRepository;
+import com.ssafy.soltravel.repository.GeneralAccountRepository;
 import com.ssafy.soltravel.repository.UserRepository;
+import com.ssafy.soltravel.service.NotificationService;
+import com.ssafy.soltravel.service.account_book.CashHistoryService;
 import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.util.HashMap;
@@ -31,265 +38,410 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class TransactionService {
 
-    private final Map<String, String> apiKeys;
-    private final WebClient webClient;
-    private final ModelMapper modelMapper;
-    private final UserRepository userRepository;
+  private final Map<String, String> apiKeys;
+  private final WebClient webClient;
+  private final ModelMapper modelMapper;
 
-    private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
+  private final UserRepository userRepository;
+  private final GeneralAccountRepository generalAccountRepository;
+  private final ForeignAccountRepository foreignAccountRepository;
+  private final NotificationService notificationService;
+  private final CashHistoryService cashHistoryService;
 
-    public ResponseEntity<DepositResponseDto> postAccountDeposit(String accountNo, TransactionRequestDto requestDto) {
+  private final String BASE_URL = "https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit";
+  // 일반 계좌 입금
+  public ResponseEntity<DepositResponseDto> postAccountDeposit(String accountNo,
+      TransactionRequestDto requestDto) {
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+    Long userId = requestDto.getUserId();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        String API_NAME = "updateDemandDepositAccountDeposit";
-        String API_URL = BASE_URL + "/" + API_NAME;
+    GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
+        .orElseThrow(
+            () -> new IllegalArgumentException("The accountNo does not exist: " + accountNo));
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    String API_NAME = "updateDemandDepositAccountDeposit";
+    String API_URL = BASE_URL + "/" + API_NAME;
 
-        Map<String, Object> body = new HashMap<>();
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
 
-        body.put("Header", header);
-        body.put("accountNo", accountNo);
-        body.put("transactionBalance", requestDto.getTransactionBalance());
-        body.put("transactionSummary", requestDto.getTransactionSummary());
+    Map<String, Object> body = new HashMap<>();
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("transactionBalance", requestDto.getTransactionBalance());
+    body.put("transactionSummary", requestDto.getTransactionSummary());
 
-        Object recObject = response.getBody().get("REC");
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
 
-        DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
+    Object recObject = response.getBody().get("REC");
 
-        return ResponseEntity.status(HttpStatus.OK).body(depositResponseDto);
-    }
+    DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
 
-    public ResponseEntity<DepositResponseDto> postAccountWithdrawal(String accountNo, TransactionRequestDto requestDto) {
+    Double currentBalance = generalAccount.getBalance();
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+    generalAccount.setBalance(currentBalance + requestDto.getTransactionBalance());
 
-        String API_NAME = "updateDemandDepositAccountWithdrawal";
-        String API_URL = BASE_URL + "/" + API_NAME;
+    generalAccountRepository.save(generalAccount);
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    return ResponseEntity.status(HttpStatus.OK).body(depositResponseDto);
+  }
 
-        Map<String, Object> body = new HashMap<>();
+  // 일반 계좌 출금
+  public ResponseEntity<DepositResponseDto> postAccountWithdrawal(
+      String accountNo,
+      TransactionRequestDto requestDto) {
 
-        body.put("Header", header);
-        body.put("accountNo", accountNo);
-        body.put("transactionBalance", requestDto.getTransactionBalance());
-        body.put("transactionSummary", requestDto.getTransactionSummary());
+    Long userId= requestDto.getUserId();
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        Object recObject = response.getBody().get("REC");
+    GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(accountNo)
+        .orElseThrow(
+            () -> new IllegalArgumentException("The accountNo does not exist: " + accountNo));
 
-        DepositResponseDto responseDto = modelMapper.map(recObject, DepositResponseDto.class);
+    String API_NAME = "updateDemandDepositAccountWithdrawal";
+    String API_URL = BASE_URL + "/" + API_NAME;
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-    }
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
+
+    Map<String, Object> body = new HashMap<>();
+
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("transactionBalance", requestDto.getTransactionBalance());
+    body.put("transactionSummary", requestDto.getTransactionSummary());
+
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
+
+    Object recObject = response.getBody().get("REC");
+
+    DepositResponseDto responseDto = modelMapper.map(recObject, DepositResponseDto.class);
+
+    // 계좌 인출
+    Double currentBalance = generalAccount.getBalance();
+    generalAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
+
+    return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+  }
+
+  /**
+   * 계좌 이체
+   */
+  @Transactional
+  public ResponseEntity<List<TransferHistoryResponseDto>> postAccountTransfer(
+      String accountNo,
+      TransferRequestDto requestDto
+  ) {
+
+    Long userId = SecurityUtil.getCurrentUserId();
+
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
+    // 출금할 계좌
+    GeneralAccount withDrawalAccount = generalAccountRepository.findByAccountNo(accountNo)
+        .orElseThrow(
+            () -> new IllegalArgumentException("The accountNo does not exist: " + accountNo));
+
+    // 입금할 계좌
+    GeneralAccount depositAccount = generalAccountRepository.findByAccountNo(
+            requestDto.getDepositAccountNo())
+        .orElseThrow(() -> new IllegalArgumentException(
+            "The accountNo does not exist: " + requestDto.getDepositAccountNo()));
+
+    String API_NAME = "updateDemandDepositAccountTransfer";
+    String API_URL = BASE_URL + "/" + API_NAME;
+
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
+
+    Map<String, Object> body = new HashMap<>();
+
+    body.put("Header", header);
+    body.put("depositAccountNo", requestDto.getDepositAccountNo());
+    body.put("depositTransactionSummary", requestDto.getDepositTransactionSummary());
+    body.put("transactionBalance", requestDto.getTransactionBalance());
+    body.put("withdrawalAccountNo", accountNo);
+    body.put("withdrawalTransactionSummary", requestDto.getWithdrawalTransactionSummary());
+
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
+
+    List<Object> recObject = (List<Object>) response.getBody().get("REC");
+
+    List<TransferHistoryResponseDto> responseDto = recObject.stream()
+        .map(value -> modelMapper.map(value, TransferHistoryResponseDto.class))
+        .collect(Collectors.toList());
+
+    withDrawalAccount.setBalance(
+        withDrawalAccount.getBalance() - requestDto.getTransactionBalance());
+    depositAccount.setBalance(depositAccount.getBalance() + requestDto.getTransactionBalance());
+
+    generalAccountRepository.save(withDrawalAccount);
+    generalAccountRepository.save(depositAccount);
+
+    //출금 계좌 알림
+    TransactionNotificationDto withDrawalNotification = TransactionNotificationDto.builder()
+        .userId(userId)
+        .accountId(withDrawalAccount.getId())
+        .accountNo(withDrawalAccount.getAccountNo())
+        .amount(requestDto.getTransactionBalance())
+        .balance(withDrawalAccount.getBalance())
+        .message("출금 발생").build();
+    notificationService.notifyTransactionMessage(withDrawalNotification);
 
 
-    public ResponseEntity<List<TransferHistoryResponseDto>> postAccountTransfer(String accountNo, TransferRequestDto requestDto) {
+    //입금 계좌 알림
+    TransactionNotificationDto depositNotification = TransactionNotificationDto.builder()
+        .userId(userId)
+        .accountId(depositAccount.getId())
+        .accountNo(depositAccount.getAccountNo())
+        .amount(requestDto.getTransactionBalance())
+        .balance(depositAccount.getBalance())
+        .message("입금 발생").build();
+    notificationService.notifyTransactionMessage(depositNotification);
+    return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+  }
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+  public ResponseEntity<List<TransactionHistoryDto>> getHistoryByAccountNo(
+      String accountNo,
+      TransactionHistoryRequestDto requestDto
+  ) {
 
-        String API_NAME = "updateDemandDepositAccountTransfer";
-        String API_URL = BASE_URL + "/" + API_NAME;
+    Long userId = SecurityUtil.getCurrentUserId();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    String API_NAME = "inquireTransactionHistoryList";
+    String API_URL = BASE_URL + "/" + API_NAME;
 
-        Map<String, Object> body = new HashMap<>();
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
 
-        body.put("Header", header);
-        body.put("depositAccountNo", requestDto.getDepositAccountNo());
-        body.put("depositTransactionSummary", requestDto.getDepositTransactionSummary());
-        body.put("transactionBalance", requestDto.getTransactionBalance());
-        body.put("withdrawalAccountNo", accountNo);
-        body.put("withdrawalTransactionSummary", requestDto.getWithdrawalTransactionSummary());
+    Map<String, Object> body = new HashMap<>();
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("startDate", requestDto.getStartDate());
+    body.put("endDate", requestDto.getEndDate());
+    body.put("transactionType", requestDto.getTransactionType());
+    body.put("orderByType", requestDto.getOrderByType());
 
-        List<Object> recObject = (List<Object>) response.getBody().get("REC");
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
 
-        List<TransferHistoryResponseDto> responseDto = recObject.stream()
-            .map(value -> modelMapper.map(value, TransferHistoryResponseDto.class))
-            .collect(Collectors.toList());
+    Map<String, Object> recObject = (Map<String, Object>) response.getBody().get("REC");
+    List<Object> recList = (List<Object>) recObject.get("list");
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-    }
+    List<TransactionHistoryDto> responseDto = recList.stream()
+        .map(value -> modelMapper.map(value, TransactionHistoryDto.class))
+        .collect(Collectors.toList());
 
-    public ResponseEntity<List<TransactionHistoryDto>> getHistoryByAccountNo(String accountNo, TransactionHistoryRequestDto requestDto) {
+    return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+  }
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+  /**
+   * 외화 계좌에 입금하는 메서드
+   */
+  public DepositResponseDto postForeignDeposit(String accountNo,
+      ForeignTransactionRequestDto requestDto) {
 
-        String API_NAME = "inquireTransactionHistoryList";
-        String API_URL = BASE_URL + "/" + API_NAME;
+    Long userId = requestDto.getUserId();
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        Map<String, Object> body = new HashMap<>();
+    ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(accountNo)
+        .orElseThrow(
+            () -> new IllegalArgumentException("The AccountNo Does Not Exist" + accountNo));
 
-        body.put("Header", header);
-        body.put("accountNo", accountNo);
-        body.put("startDate", requestDto.getStartDate());
-        body.put("endDate", requestDto.getEndDate());
-        body.put("transactionType", requestDto.getTransactionType());
-        body.put("orderByType", requestDto.getOrderByType());
+    String API_NAME = "updateForeignCurrencyDemandDepositAccountDeposit";
+    String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
 
-        Map<String, Object> recObject = (Map<String, Object>) response.getBody().get("REC");
-        List<Object> recList = (List<Object>) recObject.get("list");
+    Map<String, Object> body = new HashMap<>();
 
-        List<TransactionHistoryDto> responseDto = recList.stream()
-            .map(value -> modelMapper.map(value, TransactionHistoryDto.class))
-            .collect(Collectors.toList());
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("transactionBalance", requestDto.getTransactionBalance());
+    body.put("transactionSummary", requestDto.getTransactionSummary());
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
-    }
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
 
-    /**
-     * 외화 계좌에 입금하는 메서드
-     */
-    public DepositResponseDto postForeignDeposit(String accountNo, ForeignTransactionRequestDto requestDto) {
+    Object recObject = response.getBody().get("REC");
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+    DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
 
-        String API_NAME = "updateForeignCurrencyDemandDepositAccountDeposit";
-        String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+    Double currentBalance = foreignAccount.getBalance();
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    foreignAccount.setBalance(currentBalance + requestDto.getTransactionBalance());
 
-        Map<String, Object> body = new HashMap<>();
+    foreignAccountRepository.save(foreignAccount);
 
-        body.put("Header", header);
-        body.put("accountNo", accountNo);
-        body.put("transactionBalance", requestDto.getTransactionBalance());
-        body.put("transactionSummary", requestDto.getTransactionSummary());
+    return depositResponseDto;
+  }
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+  /**
+   * 외화 계좌에서 출금하는 메서드
+   */
+  public DepositResponseDto postForeignWithdrawal(boolean is_settlement,String accountNo, ForeignTransactionRequestDto requestDto) {
 
-        Object recObject = response.getBody().get("REC");
+    Long userId = requestDto.getUserId();
 
-        DepositResponseDto depositResponseDto = modelMapper.map(recObject, DepositResponseDto.class);
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
-        return depositResponseDto;
+    ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(accountNo)
+        .orElseThrow(
+            () -> new IllegalArgumentException("The AccountNo Does Not Exist" + accountNo));
 
-    }
-    /**
-     * 외화 통장 거래 내역 조회
-     */
-    public List<TransactionHistoryDto> getForeignHistoryByAccountNo(String accountNo, TransactionHistoryRequestDto requestDto) {
+    String API_NAME = "updateForeignCurrencyDemandDepositAccountWithdrawal";
+    String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
 
-        Long userId = SecurityUtil.getCurrentUserId();
-        User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
 
-        String API_NAME = "inquireForeignCurrencyTransactionHistoryList";
-        String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+    Map<String, Object> body = new HashMap<>();
 
-        Header header = Header.builder()
-            .apiName(API_NAME)
-            .apiServiceCode(API_NAME)
-            .apiKey(apiKeys.get("API_KEY"))
-            .userKey(user.getUserKey())
-            .build();
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("transactionBalance", requestDto.getTransactionBalance());
+    body.put("transactionSummary", requestDto.getTransactionSummary());
 
-        Map<String, Object> body = new HashMap<>();
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
 
-        body.put("Header", header);
-        body.put("accountNo", accountNo);
-        body.put("startDate", requestDto.getStartDate());
-        body.put("endDate", requestDto.getEndDate());
-        body.put("transactionType", requestDto.getTransactionType());
-        body.put("orderByType", requestDto.getOrderByType());
+    Object recObject = response.getBody().get("REC");
 
-        ResponseEntity<Map<String, Object>> response = webClient.post()
-            .uri(API_URL)
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(body)
-            .retrieve()
-            .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
-            })
-            .block();
+    DepositResponseDto responseDto = modelMapper.map(recObject, DepositResponseDto.class);
 
-        Map<String, Object> recObject = (Map<String, Object>) response.getBody().get("REC");
-        List<Object> recList = (List<Object>) recObject.get("list");
+    Double currentBalance = foreignAccount.getBalance();
+    foreignAccount.setBalance(currentBalance - requestDto.getTransactionBalance());
 
-        List<TransactionHistoryDto> responseDto = recList.stream()
-            .map(value -> modelMapper.map(value, TransactionHistoryDto.class))
-            .collect(Collectors.toList());
 
-        return responseDto;
-    }
+    if(!is_settlement)
+      cashHistoryService.getCashFromAccount(foreignAccount, requestDto.getTransactionBalance());
+
+    foreignAccountRepository.save(foreignAccount);
+
+    return responseDto;
+  }
+
+  /**
+   * 외화 통장 거래 내역 조회
+   */
+  public List<TransactionHistoryDto> getForeignHistoryByAccountNo(String accountNo,
+      TransactionHistoryRequestDto requestDto) {
+
+    Long userId = SecurityUtil.getCurrentUserId();
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
+    String API_NAME = "inquireForeignCurrencyTransactionHistoryList";
+    String API_URL = BASE_URL + "/foreignCurrency/" + API_NAME;
+
+    Header header = Header.builder()
+        .apiName(API_NAME)
+        .apiServiceCode(API_NAME)
+        .apiKey(apiKeys.get("API_KEY"))
+        .userKey(user.getUserKey())
+        .build();
+
+    Map<String, Object> body = new HashMap<>();
+
+    body.put("Header", header);
+    body.put("accountNo", accountNo);
+    body.put("startDate", requestDto.getStartDate());
+    body.put("endDate", requestDto.getEndDate());
+    body.put("transactionType", requestDto.getTransactionType());
+    body.put("orderByType", requestDto.getOrderByType());
+
+    ResponseEntity<Map<String, Object>> response = webClient.post()
+        .uri(API_URL)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {
+        })
+        .block();
+
+    Map<String, Object> recObject = (Map<String, Object>) response.getBody().get("REC");
+    List<Object> recList = (List<Object>) recObject.get("list");
+
+    List<TransactionHistoryDto> responseDto = recList.stream()
+        .map(value -> modelMapper.map(value, TransactionHistoryDto.class))
+        .collect(Collectors.toList());
+
+    return responseDto;
+  }
 }
