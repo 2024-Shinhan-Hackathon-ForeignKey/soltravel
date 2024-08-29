@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AccountHistoryReadRequestDto {
 
-  @Schema(description = "조회할 거래의 시작 날짜", example = "20240822")
+  @Schema(description = "조회할 거래의 시작 날짜", example = "20240801")
   private String startDate;
 
-  @Schema(description = "조회할 거래의 종료 날짜", example = "20241010")
+  @Schema(description = "조회할 거래의 종료 날짜", example = "20240831")
   private String endDate;
 
   @Schema(description = "거래 유형 (M:입금, D:출금, A:전체)", example = "A")
