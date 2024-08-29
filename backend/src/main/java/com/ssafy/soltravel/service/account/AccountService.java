@@ -452,7 +452,7 @@ public class AccountService {
     return participantRepository.findUserIdsByGeneralAccountId(accountId);
   }
 
-  public Long getBalanceByAccountId(Long accountId) {
+  public Double getBalanceByAccountId(Long accountId) {
     return generalAccountRepository.findBalanceByAccountId(accountId);
   }
 

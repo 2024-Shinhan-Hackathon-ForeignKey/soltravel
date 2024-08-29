@@ -33,7 +33,7 @@ public interface GeneralAccountRepository extends JpaRepository<GeneralAccount, 
     Optional<GeneralAccount> findByAccountNo(String accountNo);
 
     @Query("SELECT ga.balance FROM GeneralAccount ga WHERE ga.id = :accountId")
-    Long findBalanceByAccountId(@Param("accountId") Long accountId);
+    Double findBalanceByAccountId(@Param("accountId") Long accountId);
 
     GeneralAccount findFirstByUser_UserIdAndAccountType(Long userId, AccountType accountType);
 }

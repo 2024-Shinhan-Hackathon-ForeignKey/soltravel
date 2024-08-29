@@ -22,7 +22,7 @@ public class ExchangeRequestDto {
   private String currencyCode;
 
   @Schema(example = "1000", description = "환전할 원화 금액")
-  private long exchangeAmount;
+  private double exchangeAmount;
 
   @Schema(example = "1333.40", description = "환율")
   private Double exchangeRate;

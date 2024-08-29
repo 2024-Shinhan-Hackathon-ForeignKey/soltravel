@@ -214,7 +214,7 @@ public class ExchangeService {
    */
   public ExchangeResponseDto executeKRWTOUSDExchange(ExchangeRequestDto dto) {
 
-    long krw=dto.getExchangeAmount();
+    double krw=dto.getExchangeAmount();
     if (dto.getExchangeAmount() % 10 != 0)
       dto.setExchangeAmount(krw - krw % 10);
 
@@ -233,7 +233,7 @@ public class ExchangeService {
     }
 
     TransactionRequestDto withdrawal = new TransactionRequestDto();
-    withdrawal.setTransactionBalance(dto.getExchangeAmount());//원화
+    withdrawal.setTransactionBalance(Math.round(dto.getExchangeAmount()));//원화
     withdrawal.setTransactionSummary("환전 출금");
     transactionService.postAccountWithdrawal(dto.getAccountNo(), withdrawal);
 
@@ -249,7 +249,7 @@ public class ExchangeService {
         .amount(dto.getExchangeAmount())//원화
         .build();
 
-    long balance = accountService.getBalanceByAccountId(dto.getAccountId());
+    double balance = accountService.getBalanceByAccountId(dto.getAccountId());
 
     AccountInfoDto accountInfoDto = AccountInfoDto.builder()
         .accountId(dto.getAccountId())
@@ -271,7 +271,7 @@ public class ExchangeService {
   /**
    * KRW->USD 환전된 금액 반환하는 메서드
    */
-  public double convertKrwToUsdWithoutFee(long krwAmount, double exchangeRate) {
+  public double convertKrwToUsdWithoutFee(double krwAmount, double exchangeRate) {
     if (exchangeRate <= 0) {
       throw new IllegalArgumentException("환율은 0보다 커야 합니다.");
     }
