@@ -178,7 +178,7 @@ public class AccountService {
             Map<String, String> recObject = (Map<String, String>) response.getBody().get("REC");
 
             GeneralAccount generalAccount = generalAccountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException());
+                .orElseThrow(() -> new RuntimeException("The General Account does not exist: " + accountId));
 
             ForeignAccount foreignAccount = AccountMapper.toForeignAccountEntitiy(
                 recObject,
@@ -365,6 +365,9 @@ public class AccountService {
 
         if (refundAmount > 0) {
             body.put("refundAccountNo", dto.getRefundAccountNo());
+
+            generalAccountRepository.findByAccountNo(dto.getRefundAccountNo()).orElseThrow(
+                () -> new IllegalArgumentException("The RefundAccount Does Not Exist : " + dto.getRefundAccountNo()));
         }
 
         try {
@@ -380,10 +383,14 @@ public class AccountService {
             // REC 부분을 Object 타입으로 받기
             Object recObject = response.getBody().get("REC");
 
+            LogUtil.info("recObject", recObject);
+
             ModelMapper modelMapper = new ModelMapper();
 
             // REC 데이터를 GeneralAccount 엔티티로 변환
             DeleteAccountResponseDto responseDto = modelMapper.map(recObject, DeleteAccountResponseDto.class);
+
+            LogUtil.info("responseDto", responseDto);
 
             if (isForeign) {
                 foreignAccountRepository.deleteByAccountNo(accountNo);
@@ -391,10 +398,13 @@ public class AccountService {
                 generalAccountRepository.deleteByAccountNo(accountNo);
             }
 
-            GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
-                .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
 
-            generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+            if (refundAmount > 0) {
+                GeneralAccount generalAccount = generalAccountRepository.findByAccountNo(responseDto.getRefundAccountNo())
+                    .orElseThrow(() -> new RuntimeException("RefundAccountNotFoundException"));
+
+                generalAccount.setBalance(generalAccount.getBalance() + refundAmount);
+            }
 
             return ResponseEntity.status(HttpStatus.OK).body(responseDto);
         } catch (WebClientResponseException e) {
