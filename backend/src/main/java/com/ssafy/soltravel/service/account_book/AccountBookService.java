@@ -105,7 +105,7 @@ public class AccountBookService {
     AccountHistoryReadResponseDto response = AccountHistoryReadResponseDto.builder()
         .accountNo(accountNo)
         .build();
-    response.initHistoryList();
+    response.initList();
 
     // (가계부 요청 데이터)를 (외화 통장 이체 기록 요청 데이터)로 변환
     TransactionHistoryRequestDto transactionDto =
@@ -123,6 +123,7 @@ public class AccountBookService {
     );
 
     //현금 가계 기록 조회(추후에)
+    response.setTransactionCount(transactionHistoryList.size());
     return response;
   }
 
