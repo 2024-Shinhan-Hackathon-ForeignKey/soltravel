@@ -52,7 +52,7 @@ public class TransactionService {
   public ResponseEntity<DepositResponseDto> postAccountDeposit(String accountNo,
       TransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    Long userId = requestDto.getUserId();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 
@@ -104,7 +104,7 @@ public class TransactionService {
       String accountNo,
       TransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    long userId= requestDto.getUserId();
 
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
@@ -291,7 +291,7 @@ public class TransactionService {
   public DepositResponseDto postForeignDeposit(String accountNo,
       ForeignTransactionRequestDto requestDto) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+    Long userId = requestDto.getUserId();
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
 

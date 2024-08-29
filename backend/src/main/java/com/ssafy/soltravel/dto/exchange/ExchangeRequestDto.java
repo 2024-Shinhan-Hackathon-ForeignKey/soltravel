@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExchangeRequestDto {
 
+  @Schema(example = "1", description = "모임주 ID")
+  private long userId;
+
   @Schema(example = "1", description = "계좌 ID")
   private long accountId;
 
@@ -22,7 +25,7 @@ public class ExchangeRequestDto {
   private String currencyCode;
 
   @Schema(example = "1000", description = "환전할 원화 금액")
-  private long exchangeAmount;
+  private double exchangeAmount;
 
   @Schema(example = "1333.40", description = "환율")
   private Double exchangeRate;
