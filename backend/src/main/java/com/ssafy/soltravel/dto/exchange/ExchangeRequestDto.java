@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExchangeRequestDto {
 
+  @Schema(example = "1", description = "모임주 ID")
+  private long userId;
+
   @Schema(example = "1", description = "계좌 ID")
   private long accountId;
 

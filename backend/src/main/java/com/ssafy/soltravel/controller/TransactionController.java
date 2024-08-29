@@ -8,6 +8,7 @@ import com.ssafy.soltravel.dto.transaction.request.TransferRequestDto;
 import com.ssafy.soltravel.dto.transaction.response.DepositResponseDto;
 import com.ssafy.soltravel.dto.transaction.response.TransferHistoryResponseDto;
 import com.ssafy.soltravel.service.transaction.TransactionService;
+import com.ssafy.soltravel.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -62,6 +63,9 @@ public class TransactionController {
         @PathVariable String accountNo,
         @RequestBody TransactionRequestDto requestDto
     ) {
+
+        Long userId = SecurityUtil.getCurrentUserId();
+        requestDto.setUserId(userId);
         ResponseEntity<DepositResponseDto> response = transactionService.postAccountWithdrawal(accountNo, requestDto);
 
         return response;

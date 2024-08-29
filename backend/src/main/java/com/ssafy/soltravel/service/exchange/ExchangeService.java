@@ -4,6 +4,7 @@ import com.ssafy.soltravel.common.Header;
 import com.ssafy.soltravel.domain.ExchangeRate;
 import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.domain.GeneralAccount;
+import com.ssafy.soltravel.domain.User;
 import com.ssafy.soltravel.domain.redis.PreferenceRate;
 import com.ssafy.soltravel.dto.exchange.Account;
 import com.ssafy.soltravel.dto.exchange.AccountInfoDto;
@@ -130,7 +131,8 @@ public class ExchangeService {
    */
   public List<LatestRate> getLatestExchangeRate(LatestRateRequestDto requestDto) {
 
-    return latestRateRepository.findLatestRatesByCurrencyAndDateRange(requestDto.getCurrencyCode(),requestDto.getStartDate(),requestDto.getEndDate());
+    return latestRateRepository.findLatestRatesByCurrencyAndDateRange(requestDto.getCurrencyCode(),
+        requestDto.getStartDate(), requestDto.getEndDate());
   }
 
   /**
@@ -173,7 +175,8 @@ public class ExchangeService {
 
           for (Account account : preferenceRate.getAccounts()) {
 
-            GeneralAccount generalAccount=generalAccountRepository.findById(account.getAccountId()).orElseThrow();
+            GeneralAccount generalAccount = generalAccountRepository.findById(
+                account.getAccountId()).orElseThrow();
             ExchangeRequestDto exchangeRequestDto = ExchangeRequestDto.builder()
                 .currencyCode(dto.getCurrency())
                 .accountId(account.getAccountId())
@@ -214,9 +217,10 @@ public class ExchangeService {
    */
   public ExchangeResponseDto executeKRWTOUSDExchange(ExchangeRequestDto dto) {
 
-    double krw=dto.getExchangeAmount();
-    if (dto.getExchangeAmount() % 10 != 0)
+    double krw = dto.getExchangeAmount();
+    if (dto.getExchangeAmount() % 10 != 0) {
       dto.setExchangeAmount(krw - krw % 10);
+    }
 
     dto.setExchangeRate(
         exchangeRateRepository.findByCurrencyCode(dto.getCurrencyCode()).getExchangeRate());
@@ -232,15 +236,20 @@ public class ExchangeService {
       throw new InvalidAmountException(minimumAmount, dto.getCurrencyCode());
     }
 
+    User user=generalAccountRepository.findUserByGeneralAccountId(dto.getAccountId());
+
+
     TransactionRequestDto withdrawal = new TransactionRequestDto();
     withdrawal.setTransactionBalance(Math.round(dto.getExchangeAmount()));//원화
     withdrawal.setTransactionSummary("환전 출금");
+    withdrawal.setUserId(user.getUserId());//모임통장의 userId
     transactionService.postAccountWithdrawal(dto.getAccountNo(), withdrawal);
 
     ForeignAccount foreignAccount = accountService.getForeignAccount(dto.getAccountId());
     ForeignTransactionRequestDto deposit = new ForeignTransactionRequestDto();
     deposit.setTransactionBalance(amount);//외화임
     deposit.setTransactionSummary("환전 입금");
+    deposit.setUserId(user.getUserId());
     transactionService.postForeignDeposit(foreignAccount.getAccountNo(), deposit);
 
     ExchangeCurrencyDto exchangeCurrencyDto = ExchangeCurrencyDto.builder()

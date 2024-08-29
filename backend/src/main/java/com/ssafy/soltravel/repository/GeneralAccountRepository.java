@@ -2,6 +2,7 @@ package com.ssafy.soltravel.repository;
 
 import com.ssafy.soltravel.domain.Enum.AccountType;
 import com.ssafy.soltravel.domain.GeneralAccount;
+import com.ssafy.soltravel.domain.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,4 +37,7 @@ public interface GeneralAccountRepository extends JpaRepository<GeneralAccount, 
     Double findBalanceByAccountId(@Param("accountId") Long accountId);
 
     GeneralAccount findFirstByUser_UserIdAndAccountType(Long userId, AccountType accountType);
+
+    @Query("SELECT ga.user FROM GeneralAccount ga WHERE ga.id = :generalAccountId")
+    User findUserByGeneralAccountId(@Param("generalAccountId") Long generalAccountId);
 }
