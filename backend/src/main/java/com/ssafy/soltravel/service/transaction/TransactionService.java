@@ -105,7 +105,7 @@ public class TransactionService {
       String accountNo,
       TransactionRequestDto requestDto) {
 
-    long userId= requestDto.getUserId();
+    Long userId= requestDto.getUserId();
 
     User user = userRepository.findByUserId(userId)
         .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
