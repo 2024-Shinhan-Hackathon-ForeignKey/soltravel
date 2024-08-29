@@ -83,4 +83,9 @@ public class ForeignAccount {
         this.accountBook.add(accountBookHistory);
         accountBookHistory.setForeignAccount(this);
     }
+
+    public void addCashHistory(CashHistory cashHistory) {
+        this.cashHistory.add(cashHistory);
+        cashHistory.setForeignAccount(this);
+    }
 }
