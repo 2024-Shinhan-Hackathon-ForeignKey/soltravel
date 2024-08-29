@@ -1,4 +1,4 @@
-package com.ssafy.soltravel.service.account_book;
+package com.ssafy.soltravel.dto.account_book;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
