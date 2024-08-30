@@ -58,7 +58,7 @@ public class CashHistory {
 
   public static CashHistory createCashHistory(
       ForeignAccount foreignAccount, CashTransactionType transactionType,
-      Double amount, Double balance
+      Double amount, Double balance, String store
   ) {
     CashHistory cashHistory = new CashHistory();
     foreignAccount.addCashHistory(cashHistory);
@@ -67,19 +67,20 @@ public class CashHistory {
     cashHistory.store = "";
     cashHistory.transactionType = CashTransactionType.G;
     cashHistory.transactionAt = LocalDateTime.now();
+    cashHistory.store = store;
     return cashHistory;
   }
 
   public static CashHistory createGetCashHistory(
-      ForeignAccount foreignAccount, Double amount, Double balance
+      ForeignAccount foreignAccount, Double amount, Double balance, String store
   ) {
-    return createCashHistory(foreignAccount, CashTransactionType.G, amount, balance);
+    return createCashHistory(foreignAccount, CashTransactionType.G, amount, balance, store);
   }
 
   public static CashHistory createPaidCashHistory(
-      ForeignAccount foreignAccount, Double amount, Double balance
+      ForeignAccount foreignAccount, Double amount, Double balance, String store
   ) {
-    return createCashHistory(foreignAccount, CashTransactionType.P, amount, balance);
+    return createCashHistory(foreignAccount, CashTransactionType.P, amount, balance, store);
   }
 
 

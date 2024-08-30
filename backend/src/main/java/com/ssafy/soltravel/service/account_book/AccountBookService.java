@@ -1,6 +1,7 @@
 package com.ssafy.soltravel.service.account_book;
 
 import com.ssafy.soltravel.domain.Enum.OrderByType;
+import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.dto.account_book.AccountHistoryReadRequestDto;
 import com.ssafy.soltravel.dto.account_book.AccountHistoryReadResponseDto;
 import com.ssafy.soltravel.dto.account_book.AccountHistorySaveRequestDto;
@@ -12,6 +13,7 @@ import com.ssafy.soltravel.dto.account_book.ReceiptUploadRequestDto;
 import com.ssafy.soltravel.dto.transaction.TransactionHistoryDto;
 import com.ssafy.soltravel.dto.transaction.request.ForeignTransactionRequestDto;
 import com.ssafy.soltravel.dto.transaction.request.TransactionHistoryRequestDto;
+import com.ssafy.soltravel.exception.ForeignAccountNotFoundException;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.mapper.AccountBookMapper;
 import com.ssafy.soltravel.mapper.TransactionMapper;
@@ -80,18 +82,23 @@ public class AccountBookService {
       throws LackOfBalanceException {
 
     // 현금 사용으로 출금 신청
-    ForeignTransactionRequestDto withRequest = ForeignTransactionRequestDto.builder()
-        .transactionBalance(requestDto.getPaid())
-        .transactionSummary("현금 사용")
-        .userId(SecurityUtil.getCurrentUserId())
-        .build();
-
-    transactionService.postForeignWithdrawal(false, requestDto.getAccountNo(), withRequest);
+    // ForeignTransactionRequestDto withRequest = ForeignTransactionRequestDto.builder()
+    //     .transactionBalance(requestDto.getPaid())
+    //     .transactionSummary("현금 사용")
+    //     .userId(SecurityUtil.getCurrentUserId())
+    //     .build();
+    // transactionService.postForeignWithdrawal(false, requestDto.getAccountNo(), withRequest);
 
     // 현금 사용 가계 등록
-    // Double newBalance = cashHistoryService.payCash(
-    //     foreignAccount, requestDto.getPaid()
-    // );
+    ForeignAccount foreignAccount = foreignAccountRepository.findByAccountNo(
+        requestDto.getAccountNo()
+    ).orElseThrow(
+        () -> new ForeignAccountNotFoundException(requestDto.getAccountNo())
+    );
+
+     Double newBalance = cashHistoryService.payCash(
+         foreignAccount, requestDto.getPaid(), requestDto.getStore()
+     );
 
     return AccountHistorySaveResponseDto.builder()
         .message("가계부가 등록되었습니다.")
