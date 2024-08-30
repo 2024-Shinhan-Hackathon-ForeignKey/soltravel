@@ -11,6 +11,7 @@ import com.ssafy.soltravel.exception.UserNotFoundException;
 import com.ssafy.soltravel.mapper.UserMapper;
 import com.ssafy.soltravel.repository.UserRepository;
 import com.ssafy.soltravel.service.AwsFileService;
+import com.ssafy.soltravel.service.NotificationService;
 import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.PasswordEncoder;
@@ -45,6 +46,7 @@ public class UserService implements UserDetailsService {
   private final Map<String, String> apiKeys;
   private final WebClient webClient;
   private final AccountService accountService;
+  private final NotificationService notificationService;
 
 
   // 외부 API 요청용 메서드
@@ -108,7 +110,8 @@ public class UserService implements UserDetailsService {
 
     // 저장할 수 있게 변환 후 저장
     User user = UserMapper.convertCreateDtoToUserWithUserKey(createDto, profileImageUrl, userKey);
-    userRepository.save(user);
+    long userId=userRepository.save(user);
+    notificationService.subscribe(userId);
   }
 
 
