@@ -32,7 +32,7 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
     birthday: false,
     phone: false,
     address: false,
-    // verificationCode: false,
+    verificationCode: false,
     accountPassword: false,
   });
   
@@ -47,21 +47,6 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
       console.error("Error sending verification code:", error);
       alert("인증 코드 발송 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
-  };
-
-  const fetchVerifySmsCode = async () => {
-    if (!errors.phone && inputs.verificationCode != undefined) {
-    try {
-      const formattedValue = inputs.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
-      const response = await userApi.fetchVerifySmsCode(formattedValue, inputs.verificationCode);
-      if (response.status === 200) {
-        alert("인증이 성공적으로 완료되었습니다!");
-      }
-    } catch (error) {
-      console.error("Error verifying phone code:", error);
-      alert("인증 코드 확인 중 오류가 발생했습니다. 다시 시도해주세요.");
-    }
-  }
   };
 
   const handleValidation = (id: string, value: string) => {
@@ -104,8 +89,8 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
         error = !phoneRegex.test(value);
         break;
       case "verificationCode":
-        // 인증번호는 6자리 숫자만 허용
-        const codeRegex = /^\d{6}$/;
+        // 인증번호는 6자리 알파벳이나 숫자만 허용
+        const codeRegex = /^[a-zA-Z0-9]{6}$/; 
         error = !codeRegex.test(value);
         break;
       case "address":
@@ -124,6 +109,7 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+
     setInputs((prev) => ({ ...prev, [id]: value }));
 
     // 입력이 변경될 때마다 유효성 검사를 실행하고 에러 상태 업데이트
@@ -278,8 +264,11 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
 
         <div className="w-full h-16 pl-2 flex items-start justify-between">
           <TextField
+             value={inputs.verificationCode}
+             onChange={handleChange}
+             error={errors.verificationCode}
             className="w-[70%] h-14"
-            id="phone"
+            id="verificationCode"
             label="인증 번호"
             variant="standard"
             sx={{

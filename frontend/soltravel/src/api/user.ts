@@ -17,7 +17,8 @@ export const userApi = {
 
   // 인증 검사
   fetchVerifySmsCode: (phone: string, authCode: string) => {
-    return api.post(`/auth/verify/phone/confirm`, { phone, authCode });
+
+    return api.post(`/auth/verify/phone/code`, { phone, authCode });
   },
 
   // 로그인
