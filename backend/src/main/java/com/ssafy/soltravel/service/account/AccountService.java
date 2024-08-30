@@ -220,7 +220,7 @@ public class AccountService {
     }
   }
 
-  // 계좌 단건 조회 - 상세 정보 X
+  // 계좌 단건 조회 (AccountNo로) - 상세 정보 X
   public ResponseEntity<AccountDto> getByAccountNo(String accountNo, boolean isForeign) {
 
     Long userId = SecurityUtil.getCurrentUserId();
@@ -244,6 +244,26 @@ public class AccountService {
       accountDto = accountMapper.toCreateAccountDto(generalAccount);
 
     }
+    return ResponseEntity.status(HttpStatus.OK).body(accountDto);
+  }
+
+
+  // 외화 계좌 단건 조회 (AccountID로)- 상세 정보 X
+  public ResponseEntity<AccountDto> getForeignByAccountId(Long accountId) {
+
+    Long userId = SecurityUtil.getCurrentUserId();
+
+    User user = userRepository.findByUserId(userId)
+        .orElseThrow(() -> new IllegalArgumentException("The userId does not exist: " + userId));
+
+    AccountDto accountDto = null;
+
+      ForeignAccount foreignAccount = foreignAccountRepository.findById(accountId)
+          .orElseThrow(
+              () -> new IllegalArgumentException("The accountId does not exist: " + accountId));
+
+      accountDto = accountMapper.toCreateAccountDto(foreignAccount);
+
     return ResponseEntity.status(HttpStatus.OK).body(accountDto);
   }
 
