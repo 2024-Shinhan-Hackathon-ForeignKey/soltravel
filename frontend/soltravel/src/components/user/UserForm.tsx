@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { userApi } from "../../api/user";
 
 interface InputState {
   file: File | null;
@@ -34,7 +35,34 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
     // verificationCode: false,
     accountPassword: false,
   });
+  
+  const handleSendVerificationCode = async () => {
+    try {
+      const formattedValue = inputs.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+      const response = await userApi.fetchSendSmsValidation(formattedValue);
+      if (response.status === 200) {
+        alert("인증 코드가  발송되었습니다. 확인해주세요.");
+      }
+    } catch (error) {
+      console.error("Error sending verification code:", error);
+      alert("인증 코드 발송 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  };
 
+  const fetchVerifySmsCode = async () => {
+    if (!errors.phone && inputs.verificationCode != undefined) {
+    try {
+      const formattedValue = inputs.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+      const response = await userApi.fetchVerifySmsCode(formattedValue, inputs.verificationCode);
+      if (response.status === 200) {
+        alert("인증이 성공적으로 완료되었습니다!");
+      }
+    } catch (error) {
+      console.error("Error verifying phone code:", error);
+      alert("인증 코드 확인 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  }
+  };
 
   const handleValidation = (id: string, value: string) => {
     let error = false;
@@ -266,6 +294,7 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
             }}
           />
           <Button
+            onClick={handleSendVerificationCode}
             className="h-14 w-20 flex flex-col"
             variant="contained"
             sx={{
