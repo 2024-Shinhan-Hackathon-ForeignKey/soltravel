@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
@@ -11,6 +11,8 @@ import MainMeetingAccount from "../components/mainpage/MainMeetingAccount";
 import "../css/swiper.css";
 import "swiper/css/pagination";
 import "swiper/css";
+import ExchangeRate from '../components/exchange/ExchangeRate';
+import { ExchangeRateInfo } from '../types/exchange';
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -19,6 +21,31 @@ const MainPage = () => {
   const userIdNumber = userId ? parseInt(userId, 10) : 0;
   const accountList = useSelector((state: RootState) => state.account.accountList);
   const foreignAccountList = useSelector((state: RootState) => state.account.foreignAccountList);
+  const [exchangeRates, setExchangeRates] = useState<ExchangeRateInfo[]>([]);
+
+  // 환율 받아오기
+  const handleExchangeRatesUpdate = (rates: ExchangeRateInfo[]) => {
+    setExchangeRates(rates);
+  };
+
+  const getExchangeRate = (currencyCode: string) => {
+    const rate = exchangeRates.find(r => r.currencyCode === currencyCode);
+    return rate ? rate.exchangeRate.toFixed(2) : 'N/A';
+  };
+
+  const getLatestUpdateTime = () => {
+    if (exchangeRates.length === 0) return 'N/A';
+    const latestDate = new Date(Math.max(...exchangeRates.map(r => new Date(r.created).getTime())));
+    return latestDate.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  };
 
   const formatAccountNumber = (accountNo: string) => {
     // 계좌번호를 각 4자리씩 나누고 '-'로 연결
@@ -123,7 +150,7 @@ const MainPage = () => {
               <IoIosArrowForward className="text-[#565656]" />
             </div>
             <div className="flex justify-end">
-              <p className="text-sm text-zinc-400">매매기준율 2024.08.22 17:20:00</p>
+              <p className="text-sm text-zinc-400">매매기준율 {getLatestUpdateTime()} </p>
             </div>
             <div className="flex justify-between items-center">
               <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
@@ -131,7 +158,7 @@ const MainPage = () => {
                   <img className="w-6 h-5 rounded-sm" src="/assets/flag/flagOfTheUnitedStates.png" alt="미국" />
                   <p>USD</p>
                 </div>
-                <p className="text-lg font-semibold">1,335.90</p>
+                <p className="text-lg font-semibold">{getExchangeRate('USD')}</p>
               </div>
               <div className="w-[0.8px] h-14 bg-gray-300"></div>
               <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
@@ -139,7 +166,7 @@ const MainPage = () => {
                   <img className="w-6 h-5 rounded-sm border" src="/assets/flag/flagOfJapan.png" alt="미국" />
                   <p>JPY</p>
                 </div>
-                <p className="text-lg font-semibold">918.65</p>
+                <p className="text-lg font-semibold">{getExchangeRate('JPY')}</p>
               </div>
               <div className="w-[0.8px] h-14 bg-gray-300"></div>
               <div className="w-24 p-1 flex flex-col justify-center items-center space-y-2">
@@ -147,7 +174,7 @@ const MainPage = () => {
                   <img className="w-6 h-5 rounded-sm" src="/assets/flag/flagOfEurope.png" alt="미국" />
                   <p>EUR</p>
                 </div>
-                <p className="text-lg font-semibold">1,488.99</p>
+                <p className="text-lg font-semibold">{getExchangeRate('EUR')}</p>
               </div>
             </div>
             <button
@@ -159,6 +186,14 @@ const MainPage = () => {
               환전신청
             </button>{" "}
           </div>
+        </div>
+
+        {/* ExchangeRate 컴포넌트 (숨겨진 상태로 사용) */}
+        <div style={{ display: 'none' }}>
+          <ExchangeRate
+            onCurrencyChange={() => {}}
+            onExchangeRatesUpdate={handleExchangeRatesUpdate}
+          />
         </div>
 
         {/* 가계부 */}
