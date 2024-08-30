@@ -85,17 +85,28 @@ const AccountBookInputModal = ({ accountNo, isModalOpen, setIsModalOpen, getAcco
   };
 
   const handleCreateAccountBook = async () => {
+    const now = new Date();
+    const kstOffset = 9 * 60 * 60 * 1000; // 9시간을 밀리초로 변환
+    const kstDate = new Date(now.getTime() + kstOffset);
+
     const data = {
       accountNo: accountNo,
       store: buyStore,
       paid: Number(paid),
-      transactionAt: new Date().toISOString(),
-      items: [],
+      transactionAt: `${kstDate.toISOString()}`,
+      items: [
+        {
+          item: "기타",
+          price: Number(paid),
+          quantity: 1,
+        },
+      ],
     };
 
     try {
+      console.log("이게 맞지", data);
       const response = await accountBookApi.createAccountBook(data);
-      console.log(response);
+      console.log("등록요청데이터", response.data);
       setIsModalOpen(false);
       getAccountBookInfo();
       document.getElementById("input-modal")?.click();
@@ -118,7 +129,7 @@ const AccountBookInputModal = ({ accountNo, isModalOpen, setIsModalOpen, getAcco
       <div className="modal" role="dialog">
         <div className="modal-box grid gap-5">
           {loading ? ( // 로딩 중일 때 렌더링할 화면
-            <p>로딩 중...</p>
+            <p className="text-center">로딩 중...</p>
           ) : (
             <>
               <div className="flex justify-between items-end">

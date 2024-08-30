@@ -1,15 +1,14 @@
 import React from "react";
-import { useParams } from "react-router";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 import { useNavigate } from "react-router";
 import { AccountInfo } from "../../types/account";
 
 interface Props {
+  isLeader: boolean;
   account: AccountInfo | null;
   foreignAccount: AccountInfo | null;
 }
-const AccountDetail = ({ account, foreignAccount }: Props) => {
+
+const AccountDetail = ({ isLeader, account, foreignAccount }: Props) => {
   const navigate = useNavigate();
 
   // 숫자를 세 자리마다 쉼표로 구분하여 표시
@@ -24,11 +23,10 @@ const AccountDetail = ({ account, foreignAccount }: Props) => {
 
   return (
     <>
-      {account && foreignAccount && (
+      {account && (
         <div>
           <p className="text-sm mb-3 font-bold">일반모임통장</p>
           <div
-            // key={index}
             onClick={() => {
               navigate("/");
             }}
@@ -53,22 +51,26 @@ const AccountDetail = ({ account, foreignAccount }: Props) => {
                   className="w-full h-9 p-2 rounded-md bg-[#0046FF] text-white text-sm font-bold">
                   입금
                 </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate("/exchange");
-                  }}
-                  className="w-full h-9 p-2 rounded-md bg-[#0046FF] text-white text-sm font-bold">
-                  환전
-                </button>
+                {isLeader && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/exchange");
+                    }}
+                    className="w-full h-9 p-2 rounded-md bg-[#0046FF] text-white text-sm font-bold">
+                    환전
+                  </button>
+                )}
               </div>
             </div>
           </div>
+        </div>
+      )}
 
+      {foreignAccount && (
+        <div>
           <p className="text-sm mb-3 font-bold">외화모임통장</p>
-
           <div
-            // key={index}
             onClick={() => {
               navigate("/");
             }}
@@ -88,14 +90,16 @@ const AccountDetail = ({ account, foreignAccount }: Props) => {
                 <p className="text-[1rem]">{foreignAccount.currency.currencyCode}</p>
               </div>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/exchange");
-              }}
-              className="w-full h-9 p-2 rounded-md bg-[#0046FF] text-white text-sm font-bold">
-              재환전
-            </button>
+            {isLeader && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/exchange");
+                }}
+                className="w-full h-9 p-2 rounded-md bg-[#0046FF] text-white text-sm font-bold">
+                재환전
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -66,12 +66,12 @@ const MeetingAccountList = () => {
             </div>
           ) : (
             <div>
-              <p>개설된 모임 통장이 없어요</p>
+              <p className="text-sm">개설된 모임 통장이 없어요</p>
             </div>
           )}
 
           {/* 내가 가입한 모임 통장 있을 시 표시 */}
-          {accountList.length > 1 ? (
+          {joinedAccountList.length > 0 ? (
             <div>
               <p className="my-3 font-bold">참여중인 모임통장</p>
               <div className="flex flex-col space-y-3">
@@ -82,7 +82,8 @@ const MeetingAccountList = () => {
             </div>
           ) : (
             <div>
-              <p>참여 중인 모임 통장이 없어요</p>
+              <p className="my-3 font-bold">참여중인 모임통장</p>
+              <p className="text-sm">참여 중인 모임 통장이 없어요</p>
             </div>
           )}
         </div>
