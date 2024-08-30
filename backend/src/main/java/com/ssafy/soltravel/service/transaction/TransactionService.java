@@ -154,7 +154,6 @@ public class TransactionService {
   /**
    * 계좌 이체
    */
-  @Transactional
   public ResponseEntity<List<TransferHistoryResponseDto>> postAccountTransfer(
       String accountNo,
       TransferRequestDto requestDto

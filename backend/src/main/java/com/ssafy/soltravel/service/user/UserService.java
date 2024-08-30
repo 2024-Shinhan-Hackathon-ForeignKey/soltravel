@@ -1,7 +1,9 @@
 package com.ssafy.soltravel.service.user;
 
 
+import com.ssafy.soltravel.domain.Enum.AccountType;
 import com.ssafy.soltravel.domain.User;
+import com.ssafy.soltravel.dto.account.request.CreateAccountRequestDto;
 import com.ssafy.soltravel.dto.user.UserCreateRequestDto;
 import com.ssafy.soltravel.dto.user.UserDetailDto;
 import com.ssafy.soltravel.dto.user.UserSearchRequestDto;
@@ -83,13 +85,13 @@ public class UserService implements UserDetailsService {
   */ 
   public void createUser(UserCreateRequestDto createDto) throws IOException {
 
-    // 외부 API 요청용 Body 생성
+    // 외부 API 요청용 Body 생성(로그인)
     UserCreateRequestBody body = UserCreateRequestBody.builder()
         .apiKey(apiKeys.get("API_KEY"))
         .userId(createDto.getEmail())
         .build();
 
-    // 외부 API 요청
+    // 외부 API 요청(로그인)
     LogUtil.info("request(create) to API", body);
     ResponseEntity<Map<String, Object>> response = request(
         API_URI, body, UserCreateRequestBody.class
@@ -109,6 +111,16 @@ public class UserService implements UserDetailsService {
     // 저장할 수 있게 변환 후 저장
     User user = UserMapper.convertCreateDtoToUserWithUserKey(createDto, profileImageUrl, userKey);
     userRepository.save(user);
+
+    /* 회원가입과 동시에 계좌 생성 필요 */
+    // 외부 API 요청용 Body 생성(계좌 생성)
+    CreateAccountRequestDto accountDto = CreateAccountRequestDto.builder()
+        .accountType(AccountType.INDIVIDUAL)
+        .accountPassword(createDto.getAccountPwd())
+        .build();
+
+    LogUtil.info("request(account) to API", accountDto);
+    accountService.createGeneralAccount(user.getUserId(), accountDto);
   }
 
 

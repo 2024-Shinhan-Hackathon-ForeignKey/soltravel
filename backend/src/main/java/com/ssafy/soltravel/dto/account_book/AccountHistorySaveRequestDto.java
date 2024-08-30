@@ -2,6 +2,7 @@ package com.ssafy.soltravel.dto.account_book;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,9 @@ public class AccountHistorySaveRequestDto {
 
   @Schema(description = "총 사용 금액", example = "9.35")
   private Double paid;
+
+  @Schema(description = "사용 일시", example = "2024-08-29T20:51:21")
+  private LocalDateTime transactionAt;
 
   @Schema(description = "구매 품목 리스트")
   private List<Item> items;

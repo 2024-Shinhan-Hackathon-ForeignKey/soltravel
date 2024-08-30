@@ -1,5 +1,6 @@
 package com.ssafy.soltravel.dto.account_book;
 
+import com.ssafy.soltravel.domain.Enum.CashTransactionType;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
