@@ -50,8 +50,9 @@ public class CashHistoryService {
   /*
   * 현금 사용
   */
-  public Double payCash(ForeignAccount foreignAccount, Double amount, String store)
-    throws LackOfBalanceException {
+  public Double payCash(
+      ForeignAccount foreignAccount, Double amount, String store, LocalDateTime transactionAt
+  ) throws LackOfBalanceException {
 
 /*
     // 마지막 현금 잔액 확인
@@ -67,7 +68,7 @@ public class CashHistoryService {
 
     // 현금 사용 기록 저장해야됨
     CashHistory newHistory = CashHistory.createPaidCashHistory(
-        foreignAccount, amount, 0., store
+        foreignAccount, amount, 0., store, transactionAt
     );
 
     // 저장

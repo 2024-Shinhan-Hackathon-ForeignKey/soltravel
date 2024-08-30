@@ -97,7 +97,7 @@ public class AccountBookService {
     );
 
      Double newBalance = cashHistoryService.payCash(
-         foreignAccount, requestDto.getPaid(), requestDto.getStore()
+         foreignAccount, requestDto.getPaid(), requestDto.getStore(), requestDto.getTransactionAt()
      );
 
     return AccountHistorySaveResponseDto.builder()
