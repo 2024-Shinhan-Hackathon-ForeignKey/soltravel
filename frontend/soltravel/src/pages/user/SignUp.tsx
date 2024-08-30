@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import { userApi } from "../../api/user";
 import UserForm from "../../components/user/UserForm";
+import { FaHandSparkles } from "react-icons/fa";
 
 interface InputState {
   file: File | null;
@@ -31,14 +32,40 @@ const SignUp = () => {
     phone: "",
     address: "",
     accountPassword: "",
-    // verificationCode: "",
+    verificationCode: "",
   });
 
   const formatBirthday = (birthday: string): string => {
     return `${birthday.slice(0, 4)}-${birthday.slice(4, 6)}-${birthday.slice(6, 8)}`;
   };
 
+
+  const fetchVerifySmsCode = async () => {
+    try {
+      const formattedValue = inputs.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+      const response = await userApi.fetchVerifySmsCode(formattedValue, inputs.verificationCode!);
+
+      if (response.status === 200) {
+        console.log("휴대폰 인증이 성공적으로 완료되었습니다!");
+        return true;
+      }else{
+        alert("인증번호를 다시 확인해주세요");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+      alert("인증번호를 다시 확인해주세요");
+    }
+  };
+
   const handleSignUp = async () => {
+
+    // 인증 코드 검증
+    const isCodeVerified = await fetchVerifySmsCode();
+  
+    if (!isCodeVerified) 
+      return;
+
     const formData = new FormData();
 
     // formData.append("file", inputs.file as Blob);
