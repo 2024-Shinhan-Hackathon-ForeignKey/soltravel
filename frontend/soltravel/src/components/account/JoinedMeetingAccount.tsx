@@ -3,15 +3,21 @@ import { PiAirplaneTiltFill } from "react-icons/pi";
 import { IoSchool } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { AccountInfo } from "../../types/account";
+import { useEffect } from "react";
 
 interface Props {
   index: number;
   account: AccountInfo;
-  foreignAccount: AccountInfo;
+  accountId: number;
 }
 
-const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
+const JoinedMeetingAccount = ({ index, account, accountId }: Props) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log(accountId);
+  }
+  , [accountId]);
 
   // 숫자를 세 자리마다 쉼표로 구분하여 표시
   const formatCurrency = (amount: number) => {
@@ -60,18 +66,18 @@ const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
             navigate("/foreignaccount");
           }}
           className="rounded-md flex justify-between">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <p className="text-sm font-bold">올인원 외화모임통장</p>
             <p className="text-sm text-zinc-500">{formatAccountNumber(foreignAccount.accountNo)}</p>
           </div>
           <div className="flex items-center space-x-[0.1rem]">
             <p className="text-[1.3rem] font-semibold">{formatCurrency(foreignAccount.balance)}</p>
             <p className="text-[1rem]">{foreignAccount.currency.currencyCode}</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
   );
 };
 
-export default MeetingAccount;
+export default JoinedMeetingAccount;
