@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import { IoSchool, IoHome } from "react-icons/io5";
+import { IoHome } from "react-icons/io5";
 import { PiAirplaneTiltFill } from "react-icons/pi";
-import { FaCar, FaUserFriends, FaBriefcase, FaHeart } from "react-icons/fa"; // 필요한 추가 아이콘 임포트
+import { FaUserFriends, FaBriefcase, FaHeart } from "react-icons/fa";
 import path from "path";
 import { AccountInfo } from "../../types/account";
 
