@@ -5,6 +5,7 @@ import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
 import com.ssafy.soltravel.dto.notification.TransactionNotificationDto;
 import com.ssafy.soltravel.dto.settlement.SettlementResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
+import com.ssafy.soltravel.util.LogUtil;
 import com.ssafy.soltravel.util.SecurityUtil;
 import java.io.IOException;
 import java.util.List;
@@ -27,8 +28,7 @@ public class NotificationService {
    */
   public SseEmitter subscribe(long userId) {
 
-//    Long userId = SecurityUtil.getCurrentUserId();
-
+    LogUtil.info("알림구독요청",userId);
     //sseEmitter 객체 생성
     SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
 

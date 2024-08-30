@@ -85,7 +85,7 @@ public class UserService implements UserDetailsService {
   /*
   * 회원가입
   */ 
-  public void createUser(UserCreateRequestDto createDto) throws IOException {
+  public long createUser(UserCreateRequestDto createDto) throws IOException {
 
     // 외부 API 요청용 Body 생성(로그인)
     UserCreateRequestBody body = UserCreateRequestBody.builder()
@@ -112,8 +112,8 @@ public class UserService implements UserDetailsService {
 
     // 저장할 수 있게 변환 후 저장
     User user = UserMapper.convertCreateDtoToUserWithUserKey(createDto, profileImageUrl, userKey);
-    Long userId = userRepository.save(user);
-    notificationService.subscribe(userId);
+    userRepository.save(user);
+//    notificationService.subscribe(userId);
 
     /* 회원가입과 동시에 계좌 생성 필요 */
     // 외부 API 요청용 Body 생성(계좌 생성)
@@ -124,6 +124,7 @@ public class UserService implements UserDetailsService {
 
     LogUtil.info("request(account) to API", accountDto);
     accountService.createGeneralAccount(user.getUserId(), accountDto);
+    return user.getUserId();
   }
 
 

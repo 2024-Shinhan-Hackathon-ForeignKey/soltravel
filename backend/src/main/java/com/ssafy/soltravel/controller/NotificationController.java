@@ -25,13 +25,13 @@ public class NotificationController {
   /**
    * 메시지 알림 구독
    */
-  @GetMapping("/subscribe")
+  @GetMapping("/subscribe/{userId}")
   @Operation(summary = "메시지 알림 구독", description = "특정 사용자의 메시지 알림을 구독합니다. SSE를 통해 실시간 알림을 수신합니다.", responses = {
       @ApiResponse(responseCode = "200", description = "성공적으로 알림을 구독했습니다.", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
       @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.", content = @Content),
       @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
-  public SseEmitter subscribe() {
+  public SseEmitter subscribe(@Parameter(description = "사용자의 userId", example = "1")@PathVariable Long userId) {
 
-    return notificationService.subscribe(1L);
+    return notificationService.subscribe(userId);
   }
 }

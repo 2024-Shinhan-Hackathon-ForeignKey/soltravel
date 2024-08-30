@@ -83,6 +83,39 @@ const SignUp = () => {
       // const notificationResponse = await userApi.fetchNotificationSubscribe();
       if (response.status === 200) {
         console.log("회원가입이 성공적으로 완료되었습니다!");
+
+        //SSE연결 설정
+        const sseUrl = `http://3.107.138.21:8080/api/v1/notification/subscribe/${response.data}`; // response.data를 통해 사용자 ID를 가져옵니다.
+        const eventSource = new EventSource(sseUrl);
+  
+        eventSource.onopen = function (event) {
+          console.log("SSE connection opened:", event);
+        };
+  
+        eventSource.addEventListener("Exchange", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Exchange notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+  
+        eventSource.addEventListener("Settlement", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Settlement notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+  
+        eventSource.addEventListener("Transaction", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Transaction notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+  
+        eventSource.onerror = function (event) {
+          console.error("Error occurred in SSE connection:", event);
+          eventSource.close(); // 오류 발생 시 SSE 연결 닫기
+        };
+
+
         navigate("/login");
       }
     } catch (error) {
