@@ -32,6 +32,6 @@ public class NotificationController {
       @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
   public SseEmitter subscribe() {
 
-    return notificationService.subscribe();
+    return notificationService.subscribe(1L);
   }
 }

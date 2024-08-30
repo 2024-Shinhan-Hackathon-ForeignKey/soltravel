@@ -14,6 +14,7 @@ interface InputState {
   phone: string;
   address: string;
   verificationCode?: string;
+  accountPassword: string;
 }
 
 const SignUp = () => {
@@ -29,6 +30,7 @@ const SignUp = () => {
     birthday: "",
     phone: "",
     address: "",
+    accountPassword: "",
     // verificationCode: "",
   });
 
@@ -46,6 +48,7 @@ const SignUp = () => {
     formData.append("phone", inputs.phone);
     formData.append("address", inputs.address);
     formData.append("birth", formatBirthday(inputs.birthday));
+    formData.append("accountPassword", inputs.accountPassword);
 
     try {
       const response = await userApi.fetchSignUp(formData);
@@ -62,15 +65,15 @@ const SignUp = () => {
   };
 
   return (
-    <div className="w-full h-screen p-5 bg-[#EFEFF5]">
-      <div className="h-full flex flex-col justify-center space-y-8">
+    <div className="w-full min-h-screen p-5 bg-[#EFEFF5]">
+      <div className="flex flex-col justify-center space-y-8">
         <p className="text-xl font-bold">회원가입</p>
         <UserForm inputs={inputs} setInputs={setInputs} setIsFormValid={setIsFormValid} />
         <button
           onClick={() => {
             handleSignUp();
           }}
-          className={`w-full h-24 rounded-md font-bold text-white text-sm ${
+          className={`w-full h-12 rounded-md font-bold text-white text-sm ${
             !isFormValid ? "bg-[#c5cde2]" : "bg-[#0046FF]"
           }`}
           disabled={!isFormValid}>
