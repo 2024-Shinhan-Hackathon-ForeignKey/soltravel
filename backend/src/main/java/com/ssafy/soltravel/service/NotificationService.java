@@ -25,9 +25,9 @@ public class NotificationService {
   /**
    * 메시지 알림 구독
    */
-  public SseEmitter subscribe() {
+  public SseEmitter subscribe(long userId) {
 
-    Long userId = SecurityUtil.getCurrentUserId();
+//    Long userId = SecurityUtil.getCurrentUserId();
 
     //sseEmitter 객체 생성
     SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
