@@ -3,12 +3,17 @@ import { exchangeApi } from '../../api/exchange';
 import { ExchangeRateInfo as ExchangeRateInfoType } from '../../types/exchange';
 import { currencyNames } from '../../types/exchange';
 
-interface ExchangeRateInfoProps {
+interface ExchangeRateProps {
   onExchangeClick?: () => void;
   onCurrencyChange: (currency: string) => void;
+  onExchangeRatesUpdate?: (rates: ExchangeRateInfoType[]) => void;
 }
 
-const ExchangeRateInfo = ({ onExchangeClick, onCurrencyChange }: ExchangeRateInfoProps): React.ReactElement => {
+const ExchangeRate: React.FC<ExchangeRateProps> = ({ 
+  onExchangeClick, 
+  onCurrencyChange,
+  onExchangeRatesUpdate 
+}) => {
   const [currencies, setCurrencies] = useState<ExchangeRateInfoType[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<ExchangeRateInfoType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +29,10 @@ const ExchangeRateInfo = ({ onExchangeClick, onCurrencyChange }: ExchangeRateInf
       setCurrencies(data);
       if (data.length > 0) {
         setSelectedCurrency(data[0]);
+        onCurrencyChange(data[0].currencyCode);
+      }
+      if (onExchangeRatesUpdate) {
+        onExchangeRatesUpdate(data);
       }
     } catch (error) {
       setError('환율 정보를 가져오는 데 실패했습니다. 다시 시도해 주세요.');
@@ -89,4 +98,4 @@ const ExchangeRateInfo = ({ onExchangeClick, onCurrencyChange }: ExchangeRateInf
   );
 };
 
-export default ExchangeRateInfo;
+export default ExchangeRate;

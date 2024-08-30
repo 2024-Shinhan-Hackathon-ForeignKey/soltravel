@@ -7,9 +7,8 @@ import MyPage from "./pages/user/MyPage";
 import UserUpdate from "./pages/user/UserUpdate";
 import MeetingAccountList from "./pages/account/MeetingAccountList";
 import MeetingAccountDetail from "./pages/account/MeetingAccountDetail";
-import MyAccount from "./pages/viewaccount/MyAccount";
-import GeneralAccount from "./pages/viewaccount/GeneralAccount";
-import ForeignAccount from "./pages/viewaccount/ForeignAccount";
+import AccountHistory from "./pages/accountHistory/AccountHistory";
+import ForeignAccount from "./pages/accountHistory/ForeignAccount";
 import ViewAccount from "./pages/viewaccount/Account";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -68,9 +67,8 @@ function App() {
           <Route path="/meetingaccountcreatecomplete" element={<MeetingAccountCreateComplete />} />
 
           <Route path="/account/:userId" element={<GroupAccountPage />} />
-          <Route path="/myaccount" element={<MyAccount />} />
+          <Route path="/accounthistory/:accountNo" element={<AccountHistory />} />
           <Route path="/meetingaccount/:id" element={<MeetingAccountDetail />} />
-          <Route path="/generalaccount" element={<GeneralAccount />} />
           <Route path="/foreignaccount" element={<ForeignAccount />} />
           <Route path="/account" element={<ViewAccount />} />
 

@@ -42,7 +42,7 @@ const Exchange: React.FC = () => {
         }
         setExchangeRates(rates);
         if (rates.length > 0) {
-          setSelectedCurrency(rates[0].currencyCode);
+          setSelectedCurrency(rates[6].currencyCode);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -126,7 +126,7 @@ const Exchange: React.FC = () => {
     try {
       const response: ExchangeResponse = await exchangeApi.requestExchange(exchangeRequest);
       console.log('환전 완료:', response);
-      alert(`환전이 완료되었습니다. 환전된 금액: ${response.exchangeCurrencyDto.amount} ${response.exchangeCurrencyDto.currency}`);
+      alert(`${response.exchangeCurrencyDto.amount}원이 환전이 완료되었습니다.`);
       // 환전 후 계좌 정보 업데이트
       setAccounts(accounts.map(acc => 
         acc.accountNo === selectedAccount.accountNo 
@@ -139,6 +139,7 @@ const Exchange: React.FC = () => {
       });
       setExchangeAmount('');
       setExpectedExchange('0');
+      navigate('/')
     } catch (error) {
       console.error('환전 중 오류 발생:', error);
       alert('환전 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -201,7 +202,7 @@ const Exchange: React.FC = () => {
           ))}
         </select>
         <p className="text-right text-sm text-gray-500">
-          최소 {exchangeRates.find(r => r.currencyCode === selectedCurrency)?.exchangeMin.toLocaleString()} KRW 이상
+          최소 {exchangeRates.find(r => r.currencyCode === selectedCurrency)?.exchangeMin.toLocaleString()} {selectedCurrency} 이상
         </p>
       </div>
       <div className="bg-white rounded-lg p-4 shadow mb-4">
