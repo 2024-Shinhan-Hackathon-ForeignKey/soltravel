@@ -45,7 +45,7 @@ public class NotificationService {
     }
 
     // Redis에 저장
-    redisTemplate.opsForValue().set(EMITTER_PREFIX + userId, sseEmitter, 24, TimeUnit.HOURS); // 24시간 동안 유효
+    redisTemplate.opsForValue().set(EMITTER_PREFIX + userId, sseEmitter, 2400, TimeUnit.HOURS); // 24시간 동안 유효
 
     sseEmitter.onCompletion(() -> redisTemplate.delete(EMITTER_PREFIX + userId));  // sseEmitter 연결 완료 시 제거
     sseEmitter.onTimeout(() -> redisTemplate.delete(EMITTER_PREFIX + userId));    // sseEmitter 연결 타임아웃 시 제거

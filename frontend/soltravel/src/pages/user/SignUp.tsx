@@ -85,7 +85,7 @@ const SignUp = () => {
         console.log("회원가입이 성공적으로 완료되었습니다!");
 
         //SSE연결 설정
-        const sseUrl = `http://3.107.138.21:8080/api/v1/notification/subscribe/${response.data}`; // response.data를 통해 사용자 ID를 가져옵니다.
+        const sseUrl = `https://soltravel.com/api/v1/notification/subscribe/${response.data}`; // response.data를 통해 사용자 ID를 가져옵니다.
         const eventSource = new EventSource(sseUrl);
   
         eventSource.onopen = function (event) {
