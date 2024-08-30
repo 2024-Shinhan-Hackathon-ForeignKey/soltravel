@@ -19,6 +19,7 @@ const MainPage = () => {
   const userIdNumber = userId ? parseInt(userId, 10) : 0;
   const accountList = useSelector((state: RootState) => state.account.accountList);
   const foreignAccountList = useSelector((state: RootState) => state.account.foreignAccountList);
+
   const formatAccountNumber = (accountNo: string) => {
     // 계좌번호를 각 4자리씩 나누고 '-'로 연결
     return accountNo.replace(/(\d{3})(\d{4})(\d{4})(\d{5})/, "$1-$2-$3-$4");
