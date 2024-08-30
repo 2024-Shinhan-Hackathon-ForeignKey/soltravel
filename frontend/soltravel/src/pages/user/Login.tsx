@@ -61,6 +61,11 @@ const Login = () => {
                 onChange={(e) => {
                   handleChange(e);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleLogin();
+                  }
+                }}
                 id="password"
                 className="focus:outline-none text-zinc-800"
                 type="password"
