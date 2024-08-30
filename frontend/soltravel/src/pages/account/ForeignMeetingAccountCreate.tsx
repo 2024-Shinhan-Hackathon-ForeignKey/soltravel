@@ -21,6 +21,7 @@ const ForeignMeetingAccountCreate = () => {
   const stepList = ["통화를", "희망 환율을", "여행 일정을"];
   const [currencyType, setCurrencyType] = useState("");
   const [exchangeRate, setExchangeRate] = useState(0);
+  const [exchangeRateBDP, setExchangeRateBDP] = useState(0);
   const [currentExchangeRate, setCurrentExchangeRate] = useState(0);
   const [travelSchedule, setTravelSchedule] = useState<{ startDate: Dayjs | null; endDate: Dayjs | null }>({
     startDate: null,
@@ -67,6 +68,13 @@ const ForeignMeetingAccountCreate = () => {
     }
   };
 
+  const handleExchangeRateChangeBDP = (exchangeRateBDP: number) => {
+    setExchangeRateBDP(exchangeRateBDP);
+    if (exchangeRateBDP > 0) {
+      setStep(2);
+    }
+  };
+
   const handleTravelStartDate = (startDate: Dayjs) => {
     setTravelSchedule((prevSchedule) => ({
       ...prevSchedule,
@@ -91,6 +99,8 @@ const ForeignMeetingAccountCreate = () => {
       alert("준비 중인 통화입니다. 현재는 미국 달러만 지원합니다.");
     }
 
+    const combinedExchangeRate = parseFloat(`${exchangeRate}.${exchangeRateBDP}`);
+
     const accountRequest: MeetingAccountCreate = {
       accountType: "GROUP",
       accountPassword: generalMeetingAccountDetail.generalMeetingAccountPassword,
@@ -99,7 +109,7 @@ const ForeignMeetingAccountCreate = () => {
       travelEndDate: travelSchedule.endDate.format("YYYY-MM-DD"),
       currencyCode: currencyType,
       iconName: generalMeetingAccountDetail.generalMeetingAccountIcon,
-      exchangeRate: exchangeRate,
+      exchangeRate: combinedExchangeRate,
       participantInfos: generalMeetingAccountDetail.generalMeetingAccountMemberList,
     };
 
@@ -162,8 +172,10 @@ const ForeignMeetingAccountCreate = () => {
                 <ExchangeRateInput
                   currencyType={currencyType}
                   exchangeRate={exchangeRate}
+                  exchangeRateBDP={exchangeRateBDP}
                   currentExchangeRate={currentExchangeRate}
                   onChange={handleExchangeRateChange}
+                  onChangeBDP={handleExchangeRateChangeBDP}
                 />
               )}
             </div>
