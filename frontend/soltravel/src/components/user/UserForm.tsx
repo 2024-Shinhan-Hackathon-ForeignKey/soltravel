@@ -13,6 +13,7 @@ interface InputState {
   phone: string;
   address: string;
   verificationCode?: string;
+  accountPassword: string;
 }
 
 interface Props {
@@ -31,6 +32,7 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
     phone: false,
     address: false,
     // verificationCode: false,
+    accountPassword: false,
   });
 
 
@@ -81,6 +83,11 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
       case "address":
         error = value.trim() === "";
         break;
+      case "accountPassword":
+        // 입출금 계좌 비밀번호는 4자리 숫자만 허용
+        const accountPasswordRegex = /^\d{4}$/;
+        error = !accountPasswordRegex.test(value);
+        break;
       default:
         break;
     }
@@ -107,7 +114,11 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
 
   return (
     <>
-      <Box className="w-full flex flex-col justify-center items-center space-y-5" component="form" noValidate autoComplete="off">
+      <Box
+        className="w-full flex flex-col justify-center items-center space-y-5"
+        component="form"
+        noValidate
+        autoComplete="off">
         <TextField
           required
           className="w-full h-14"
@@ -264,8 +275,7 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
               // "&:hover": {
               //   backgroundColor: "#0036D4", // hover 상태에서의 배경색
               // },
-            }}
-          >
+            }}>
             <p className="text-xs font-semibold">인증번호</p>
             <p className="text-xs font-semibold">발송</p>
           </Button>
@@ -281,6 +291,29 @@ const UserForm = ({ inputs, setInputs, setIsFormValid }: Props) => {
           onChange={handleChange}
           error={errors.address}
           helperText={errors.address ? "주소를 입력해주세요." : ""}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              backgroundColor: "white",
+              height: "50px",
+            },
+            "& .MuiFormHelperText-root": {
+              fontSize: "0.7rem",
+              marginTop: "2px",
+            },
+          }}
+        />
+
+        <TextField
+          required
+          className="w-full h-14"
+          id="accountPassword"
+          label="입출금 계좌 비밀번호"
+          type="password"
+          variant="outlined"
+          value={inputs.accountPassword}
+          onChange={handleChange}
+          error={errors.accountPassword}
+          helperText={errors.accountPassword ? "입출금 계좌 비밀번호를 4자리로 설정해주세요." : ""}
           sx={{
             "& .MuiOutlinedInput-root": {
               backgroundColor: "white",
