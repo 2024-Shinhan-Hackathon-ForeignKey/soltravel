@@ -4,11 +4,12 @@ import com.ssafy.soltravel.domain.CashHistory;
 import com.ssafy.soltravel.domain.ForeignAccount;
 import com.ssafy.soltravel.exception.LackOfBalanceException;
 import com.ssafy.soltravel.repository.CashHistoryRepository;
-import com.ssafy.soltravel.util.LogUtil;
+import com.ssafy.soltravel.util.DateUtil;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,8 +83,8 @@ public class CashHistoryService {
   public List<CashHistory> findAllByForeignAccountAndPeriod(
       String accountNo, String startDate, String endDate
   ) {
-    LocalDateTime start = LocalDateTime.parse(startDate);
-    LocalDateTime end = LocalDateTime.parse(endDate);
+    LocalDateTime start = DateUtil.getLocalDateTime(startDate);
+    LocalDateTime end = DateUtil.getLocalDateTime(endDate);
 
     List<CashHistory> histories = cashHistoryRepository.findAllByForeignAccountAndPeriod(
       accountNo, start, end
@@ -94,4 +95,25 @@ public class CashHistoryService {
     return histories;
   }
 
+  public List<CashHistory> findAllByForeignAccountOneDay(
+      String accountNo, String date
+  ) {
+    List<LocalDateTime> stoe = getNextDate(date);
+
+    List<CashHistory> histories = cashHistoryRepository.findAllByForeignAccountAndPeriod(
+        accountNo, stoe.get(0), stoe.get(1)
+    ).orElse(
+        new ArrayList<CashHistory>()
+    );
+
+    return histories;
+  }
+
+  private List<LocalDateTime> getNextDate(String dateString) {
+    // to LocalDateTime
+    LocalDateTime start = DateUtil.getLocalDateTime(dateString);
+    LocalDateTime end = start.plusDays(1);
+
+    return List.of(start, end);
+  }
 }
