@@ -2,7 +2,10 @@ import axios from "axios"
 
 // Axios 요청
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BACK_BASEURL,
+  // baseURL: process.env.REACT_APP_BACK_BASEURL,
+  
+  baseURL: "http://3.107.138.21:8080/api/v1"
+  
   // headers: {
   //   Authorization: `Bearer ${process.env.REACT_APP_ACCESS_TOKEN}`,
   // },

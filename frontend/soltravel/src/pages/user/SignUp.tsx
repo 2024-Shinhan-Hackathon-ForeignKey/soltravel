@@ -39,6 +39,13 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
+
+      // 먼저 인증을 진행하기 위해 필요한 값들 확인
+    if (!inputs.verificationCode || !inputs.phone) {
+      alert("인증 정보는 필수입니다.");
+      return;
+  }
+
     const formData = new FormData();
 
     // formData.append("file", inputs.file as Blob);
