@@ -174,7 +174,7 @@ const MeetingAccountDetail = () => {
               <p className="text-sm text-zinc-800 font-bold">{getAccountTypeFromIconName(selectedAccount.iconName)}</p>
             </div>
             <hr className="mb-3 border-0 border-t-[0.5px] border-zinc-200" />
-            <AccountDetail account={selectedAccount} foreignAccount={selectedForeignAccount} />
+            <AccountDetail isLeader={true} account={selectedAccount} foreignAccount={selectedForeignAccount} />
           </div>
         </div>
       )}

@@ -8,34 +8,108 @@ import { FreeMode, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/free-mode";
 import "swiper/css/pagination";
+
+import { IoHome } from "react-icons/io5";
 import { PiAirplaneTiltFill } from "react-icons/pi";
+import { FaUserFriends, FaBriefcase, FaHeart } from "react-icons/fa";
+
 import { RiHome5Line } from "react-icons/ri";
-import AccountDetail from "./AccountDetail";
+import AccountDetail from "../../components/account/AccountDetail";
 import { AccountInfo } from "../../types/account";
 
 const JoinedMeetingAccountDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [numberIndex, setNumberIndex] = useState(Number(id) + 1);
+  const [numberId, setNumberId] = useState(Number(id));
 
-  const accountList = useSelector((state: RootState) => state.account.accountList);
+  const joinedAccountList = useSelector((state: RootState) => state.account.joinedAccountList);
   const foreignAccountList = useSelector((state: RootState) => state.account.foreignAccountList);
   const [selectedAccount, setSelectedAccount] = useState<AccountInfo | null>(null);
   const [selectedForeignAccount, setSelectedForeignAccount] = useState<AccountInfo | null>(null);
   const [memberList, setMemberList] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+const getAccountTypeFromIconName = (iconName: string) => {
+  switch (iconName) {
+    case "airPlane":
+      return "여행";
+    case "friend":
+      return "친구";
+    case "family":
+      return "가족";
+    case "lover":
+      return "연인";
+    case "job":
+      return "직장";
+    default:
+      return "기본";
+  }
+};
+
+const getIcon = (iconName: string) => {
+  // 아이콘별 배경색을 정의하는 객체
+  const iconBackgrounds: Record<string, string> = {
+    airPlane: "bg-[#638ee4]",
+    friend: "bg-[#F5E198]",
+    family: "bg-[#FFB555]",
+    lover: "bg-[#EB8CA2]",
+    job: "bg-[#95DBC1]",
+    default: "bg-[#638ee4]", // 기본 배경색
+  };
+
+  // 해당 아이콘의 배경색을 가져오고, 없으면 기본값 사용
+  const backgroundClass = iconBackgrounds[iconName] || iconBackgrounds.default;
+
+  const containerClasses = `w-6 h-6 ${backgroundClass} rounded-full flex justify-center items-center text-white`;
+  const iconClasses = "w-4 h-4"; // 아이콘 자체 크기를 줄이기 위한 클래스
+
+  let IconComponent;
+
+  switch (iconName) {
+    case "airPlane":
+      IconComponent = <PiAirplaneTiltFill className={iconClasses} />;
+      break;
+    case "friend":
+      IconComponent = <FaUserFriends className={iconClasses} />;
+      break;
+    case "family":
+      IconComponent = <IoHome className={iconClasses} />;
+      break;
+    case "lover":
+      IconComponent = <FaHeart className={iconClasses} />;
+      break;
+    case "job":
+      IconComponent = <FaBriefcase className={iconClasses} />;
+      break;
+    default:
+      IconComponent = <PiAirplaneTiltFill className={iconClasses} />;
+      break;
+  }
+
+  return <span className={containerClasses}>{IconComponent}</span>;
+};
+
   useEffect(() => {
-    if (accountList.length > 0 && !isNaN(numberIndex)) {
-      if (numberIndex >= 0 && numberIndex < accountList.length) {
-        setSelectedAccount(accountList[numberIndex]);
-        setSelectedForeignAccount(foreignAccountList[numberIndex - 1]);
-      } else {
-        setSelectedAccount(null);
-        setSelectedForeignAccount(null);
+    // 특정 외화모임통장 조회
+    const fetchData = async () => {
+      try {
+        const response = await accountApi.fetchForeignMeetingAccount(numberId);
+        setSelectedForeignAccount(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("계좌 조회에 실패했습니다.");
       }
-    }
-  }, [accountList, numberIndex]);
+    };
+
+    fetchData();
+  }, [numberId]);
+
+  useEffect(() => {
+    // accountList에서 numberId와 일치하는 계좌 찾기
+    const account = joinedAccountList.find((acc) => acc.id === numberId);
+    setSelectedAccount(account || null);
+
+  }, [joinedAccountList, numberId]);
 
   useEffect(() => {
     const getParticipants = async () => {
@@ -63,7 +137,7 @@ const JoinedMeetingAccountDetail = () => {
 
   return (
     <>
-      {accountList.length > 0 && foreignAccountList.length > 0 && (
+      {joinedAccountList.length > 0 && foreignAccountList.length > 0 && (
         <div className="w-full h-full pb-16 bg-[#EFEFF5]">
           <div className="p-5 flex flex-col bg-[#c3d8eb]">
             <div className="mb-12 flex space-x-2 items-center justify-start">
@@ -102,13 +176,11 @@ const JoinedMeetingAccountDetail = () => {
           </div>
           <div className="w-full p-5 flex flex-col">
             <div className="mb-3 flex items-center space-x-[9px]">
-              <div className="w-6 h-6 bg-[#638ee4] rounded-full flex justify-center items-center">
-                <PiAirplaneTiltFill className="text-zinc-50" />
-              </div>
-              <p className="text-sm text-zinc-800 font-bold">직장</p>
+              {getIcon(selectedAccount.iconName)}
+              <p className="text-sm text-zinc-800 font-bold">{getAccountTypeFromIconName(selectedAccount.iconName)}</p>
             </div>
             <hr className="mb-3 border-0 border-t-[0.5px] border-zinc-200" />
-            <AccountDetail account={selectedAccount} foreignAccount={selectedForeignAccount} />
+            <AccountDetail isLeader={false} account={selectedAccount} foreignAccount={selectedForeignAccount} />
           </div>
         </div>
       )}

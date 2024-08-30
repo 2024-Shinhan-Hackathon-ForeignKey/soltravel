@@ -28,10 +28,10 @@ const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
     // 아이콘별 배경색을 정의하는 객체
     const iconBackgrounds: Record<string, string> = {
       airPlane: "bg-[#638ee4]",
-      friend: "bg-[#87CEEB]",
-      family: "bg-[#FFE66D]",
-      lover: "bg-[#FF9F1C]",
-      job: "bg-[#2EC4B6]",
+      friend: "bg-[#F5E198]",
+      family: "bg-[#FFB555]",
+      lover: "bg-[#EB8CA2]",
+      job: "bg-[#95DBC1]",
       default: "bg-[#638ee4]", // 기본 배경색
     };
   

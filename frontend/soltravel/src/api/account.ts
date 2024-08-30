@@ -32,4 +32,10 @@ export const accountApi = {
     const response = await api.get(`/account/${userId}/participants/all`);
     return response.data;
   },
+
+  // 특정 외화모임통장 조회
+  fetchForeignMeetingAccount: async (accountId: number): Promise<AccountInfo> => {
+    const response = await api.get(`/account/foreign/accountId/${accountId}`);
+    return response.data;
+  },
 };
