@@ -18,13 +18,16 @@ const MeetingAccountList = () => {
 
         <div className="w-full flex flex-col space-y-3">
           {/* 모임 통장 총 개수 표시 */}
-          <div className="w-full py-3 px-5 flex flex-col rounded-xl bg-[#e6e6e6]">
+          <div className="w-full mb-2 py-3 px-5 flex flex-col rounded-xl bg-[#e6e6e6]">
             <p className="font-bold">
               총 <span className="text-blue-500">{accountCount}</span>개
             </p>
           </div>
 
           {/* 모임 통장 있을 시 표시 */}
+          <div>
+            <p className="font-bold">내가 개설한 모임통장</p>
+          </div>
           {accountList.length > 1 ? (
             accountList
               .slice(1)
