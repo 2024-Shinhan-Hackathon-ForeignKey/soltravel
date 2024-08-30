@@ -26,7 +26,20 @@ const MainMeetingAccount = ({ index, account, foreignAccount }: Props) => {
   };
   
   const getIcon = (iconName: string) => {
-    const containerClasses = "w-6 h-6 bg-[#638ee4] rounded-full flex justify-center items-center text-white";
+    // 아이콘별 배경색을 정의하는 객체
+    const iconBackgrounds: Record<string, string> = {
+      airPlane: "bg-[#638ee4]",
+      friend: "bg-[#F5E198]",
+      family: "bg-[#FFB555]",
+      lover: "bg-[#EB8CA2]",
+      job: "bg-[#95DBC1]",
+      default: "bg-[#638ee4]", // 기본 배경색
+    };
+  
+    // 해당 아이콘의 배경색을 가져오고, 없으면 기본값 사용
+    const backgroundClass = iconBackgrounds[iconName] || iconBackgrounds.default;
+  
+    const containerClasses = `w-6 h-6 ${backgroundClass} rounded-full flex justify-center items-center text-white`;
     const iconClasses = "w-4 h-4"; // 아이콘 자체 크기를 줄이기 위한 클래스
   
     let IconComponent;
@@ -58,6 +71,7 @@ const MainMeetingAccount = ({ index, account, foreignAccount }: Props) => {
       </span>
     );
   };
+  
 
   return (
     <>
