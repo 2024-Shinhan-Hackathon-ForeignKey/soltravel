@@ -21,6 +21,7 @@ interface Props {
 const AccountBookCalendar = ({ accountNo }: Props) => {
   const dispatch = useDispatch();
   const [value, onChange] = useState<Value>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeStartDate, setActiveStartDate] = useState("");
   const [activeEndDate, setActiveEndDate] = useState("");
@@ -42,6 +43,7 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
         };
         const response = await accountBookApi.fetchAccountBookDayInfo(accountNo, data);
         dispatch(setDayHistoryDetailList(response.data));
+        console.log("내역 정보", response.data);
       } catch (error) {
         console.log("accountBookApi의 fetchAccountBookDayInfo : ", error);
       }
@@ -54,6 +56,7 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
       const data = { startDate: activeStartDate, endDate: activeEndDate, transactionType: "A", orderByType: "ASC" };
       const response = await accountBookApi.fetchAccountBookInfo(accountNo, data);
       setMonthlyTransaction(response.data.monthHistoryList);
+      console.log("월별 내역", response.data.monthHistoryList);
     } catch (error) {
       console.log("accountBook의 fetchAccountBookInfo : ", error);
     } finally {
@@ -76,6 +79,7 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
     if (accountNo !== "") {
       getAccountBookInfo();
     }
+
   }, [accountNo]);
 
   return isLoading ? (
@@ -98,25 +102,28 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
               <p className="text-[#FF5F5F]">
                 {monthlyTransaction[date.getDate()] !== undefined &&
                 monthlyTransaction[date.getDate()].totalExpenditure !== 0
-                  ? `+ ${monthlyTransaction[date.getDate()].totalExpenditure}`
+                  ? `+ ${monthlyTransaction[date.getDate()].totalExpenditure.toFixed(2)}`
                   : ""}
               </p>
               <p className="text-[#0471E9]">
                 {monthlyTransaction[date.getDate()] !== undefined &&
                 monthlyTransaction[date.getDate()].totalIncome !== 0
-                  ? `- ${monthlyTransaction[date.getDate()].totalIncome}`
+                  ? `- ${monthlyTransaction[date.getDate()].totalIncome.toFixed(2)}`
                   : ""}
               </p>
             </div>
-
-            {/* {today === date ? <p>오늘</p> : <></>} */}
           </div>
         )}
         onActiveStartDateChange={(activeStartDate) => handleActiveDateChange(activeStartDate)}
         onClickDay={(value, event) => handleDateDetail(value)}
       />
 
-      <AccountBookInputModal accountNo={accountNo} />
+      <AccountBookInputModal
+        accountNo={accountNo}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        getAccountBookInfo={getAccountBookInfo}
+      />
     </div>
   );
 };

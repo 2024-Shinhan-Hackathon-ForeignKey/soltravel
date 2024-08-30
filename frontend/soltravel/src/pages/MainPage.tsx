@@ -47,6 +47,11 @@ const MainPage = () => {
     });
   };
 
+  // 숫자를 세 자리마다 쉼표로 구분하여 표시
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("ko-KR").format(amount);
+  };
+
   const formatAccountNumber = (accountNo: string) => {
     // 계좌번호를 각 4자리씩 나누고 '-'로 연결
     return accountNo.replace(/(\d{3})(\d{4})(\d{4})(\d{5})/, "$1-$2-$3-$4");
@@ -115,7 +120,7 @@ const MainPage = () => {
                 </div>
               </div>
               <div className="flex items-center">
-                <p className="text-[1.3rem] font-semibold">{accountList[0].balance}</p>
+                <p className="text-[1.3rem] font-semibold">{formatCurrency(accountList[0].balance)}</p>
                 <p className="text-[1rem]">원</p>
               </div>
               <hr />
