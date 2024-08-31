@@ -56,7 +56,6 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
       const data = { startDate: activeStartDate, endDate: activeEndDate, transactionType: "A", orderByType: "ASC" };
       const response = await accountBookApi.fetchAccountBookInfo(accountNo, data);
       setMonthlyTransaction(response.data.monthHistoryList);
-      console.log("월별 내역", response.data.monthHistoryList);
     } catch (error) {
       console.log("accountBook의 fetchAccountBookInfo : ", error);
     } finally {
