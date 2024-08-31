@@ -16,7 +16,7 @@ const ExchangeRatePage = (): React.ReactElement => {
   };
 
   return (
-    <div className="p-4 mt-5 max-w-sm mx-auto bg-white rounded-xl shadow-md">
+    <div className="p-4 max-w-sm mx-auto bg-white rounded-xl shadow-md">
       <h1 className="text-xl font-bold mb-4">환율 조회</h1>
       <ExchangeRateInfo onExchangeClick={handleExchange} onCurrencyChange={handleCurrencyChange} />
       <div className="mt-8">

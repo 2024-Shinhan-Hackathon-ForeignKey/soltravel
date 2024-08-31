@@ -28,8 +28,8 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
       const data = await exchangeApi.getExchangeRates();
       setCurrencies(data);
       if (data.length > 0) {
-        setSelectedCurrency(data[0]);
-        onCurrencyChange(data[0].currencyCode);
+        setSelectedCurrency(data[6]);
+        onCurrencyChange(data[6].currencyCode);
       }
       if (onExchangeRatesUpdate) {
         onExchangeRatesUpdate(data);

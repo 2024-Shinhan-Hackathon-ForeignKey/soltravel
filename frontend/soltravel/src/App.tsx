@@ -9,7 +9,6 @@ import MeetingAccountList from "./pages/account/MeetingAccountList";
 import MeetingAccountDetail from "./pages/account/MeetingAccountDetail";
 import JoinedMeetingAccountDetail from "./pages/account/JoinedMeetingAccountDetail";
 import AccountHistory from "./pages/accountHistory/AccountHistory";
-import ForeignAccount from "./pages/accountHistory/ForeignAccount";
 import ViewAccount from "./pages/viewaccount/Account";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -46,6 +45,7 @@ function App() {
                       <Route path="/" element={<MainPage />} />
                       <Route path="/meetingaccountlist" element={<MeetingAccountList />} />
                       <Route path="/accountbookdetail" element={<AccountBookDetail />} />
+                      <Route path="/exchangerate" element={<ExchangeRate />} />
                       {/* Add other protected routes here */}
                     </Route>
                   </Routes>
@@ -68,13 +68,11 @@ function App() {
           <Route path="/meetingaccountcreatecomplete" element={<MeetingAccountCreateComplete />} />
 
           <Route path="/account/:userId" element={<GroupAccountPage />} />
-          <Route path="/accounthistory/:accountNo" element={<AccountHistory />} />
           <Route path="/meetingaccount/:id" element={<MeetingAccountDetail />} />
           <Route path="/joinedmeetingaccount/:id" element={<JoinedMeetingAccountDetail />} />
-          <Route path="/foreignaccount" element={<ForeignAccount />} />
           <Route path="/account" element={<ViewAccount />} />
+          <Route path="/accounthistory/:accountNo" element={<AccountHistory />} />
 
-          <Route path="/exchangerate" element={<ExchangeRate />} />
           <Route path="/exchange" element={<Exchange />}></Route>
           <Route path="/selectaccount/:userId" element={<SelectAccount />}></Route>
           <Route path="/settlement" element={<Settlement />}></Route>
