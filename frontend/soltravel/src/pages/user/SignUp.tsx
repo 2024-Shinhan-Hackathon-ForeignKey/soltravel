@@ -60,11 +60,11 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
 
-    // 인증 코드 검증
-    const isCodeVerified = await fetchVerifySmsCode();
+    // // 인증 코드 검증
+    // const isCodeVerified = await fetchVerifySmsCode();
   
-    if (!isCodeVerified) 
-      return;
+    // if (!isCodeVerified) 
+    //   return;
 
     const formData = new FormData();
 
