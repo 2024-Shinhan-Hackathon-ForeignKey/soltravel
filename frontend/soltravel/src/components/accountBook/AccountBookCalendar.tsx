@@ -110,12 +110,12 @@ const AccountBookCalendar = ({ accountNo }: Props) => {
             <div className="text-xs text-left font-semibold">
               <p className="text-[#FF5F5F]">
                 {monthlyTransaction[date.getDate()] && monthlyTransaction[date.getDate()].totalExpenditure !== 0
-                  ? `- ${monthlyTransaction[date.getDate()].totalExpenditure.toFixed(2)}`
+                  ? `- ${monthlyTransaction[date.getDate()].totalExpenditure.toFixed(1)}`
                   : ""}
               </p>
               <p className="text-[#0471E9]">
                 {monthlyTransaction[date.getDate()] && monthlyTransaction[date.getDate()].totalIncome !== 0
-                  ? `+ ${monthlyTransaction[date.getDate()].totalIncome.toFixed(2)}`
+                  ? `+ ${monthlyTransaction[date.getDate()].totalIncome.toFixed(1)}`
                   : ""}
               </p>
             </div>
