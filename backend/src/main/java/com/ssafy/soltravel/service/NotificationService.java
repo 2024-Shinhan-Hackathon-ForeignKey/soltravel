@@ -136,11 +136,15 @@ public class NotificationService {
 
 
     for(String uId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
-      LogUtil.info("for userId", uId);
       Long userId = Long.valueOf(uId.substring(8, uId.length()));
+      LogUtil.info("for userId", userId);
+
       SseEmitter sseEmitterReceiver = getEmitter(userId);
 
+
       if (sseEmitterReceiver != null) {
+        LogUtil.info("for SseEmitter", sseEmitterReceiver.toString());
+
         try {
           sseEmitterReceiver.send(SseEmitter.event().name("all").data("notify!!!!!!"));
         } catch (Exception e) {
