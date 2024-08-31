@@ -98,12 +98,7 @@ const MainMeetingAccount = ({ index, account, foreignAccount }: Props) => {
             </div>
             <hr />
             {foreignAccount && (
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/foreignaccount");
-                }}
-                className="rounded-md flex justify-between">
+              <div className="rounded-md flex justify-between">
                 <div className="flex flex-col">
                   <p className="text-sm font-bold">올인원 외화모임통장</p>
                   <p className="text-sm text-zinc-500">{formatAccountNumber(foreignAccount.accountNo)}</p>
