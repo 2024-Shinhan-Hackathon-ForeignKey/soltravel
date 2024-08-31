@@ -71,7 +71,6 @@ const MainPage = () => {
         dispatch(editForeingAccountList(foreignResponse));
       } catch (error) {
         console.error("Error fetching data:", error);
-        alert("계좌 조회에 실패했습니다.");
       }
     };
 
