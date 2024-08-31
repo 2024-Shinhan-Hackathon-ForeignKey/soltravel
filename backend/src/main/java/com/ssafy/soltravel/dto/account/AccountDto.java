@@ -57,5 +57,5 @@ public class AccountDto {
     private String updatedAt;
 
     @Schema(description = "희망 환율", example = "1390.04")
-    private float preferenceExchange;
+    private Float preferenceExchange;
 }

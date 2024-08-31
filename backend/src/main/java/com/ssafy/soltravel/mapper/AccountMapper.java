@@ -39,7 +39,7 @@ public class AccountMapper {
             .currency(currencyDto)
             .createdAt(String.valueOf(generalAccount.getCreatedAt()))
             .updatedAt(String.valueOf(generalAccount.getUpdatedAt()))
-            .preferenceExchange(generalAccount.getPreferenceRate())
+            .preferenceExchange(generalAccount.getPreferenceRate() == null ? 0.0f : generalAccount.getPreferenceRate())
             .build();
 
         return accountDto;

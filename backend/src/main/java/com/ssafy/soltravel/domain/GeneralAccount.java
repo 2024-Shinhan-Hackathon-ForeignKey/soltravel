@@ -80,5 +80,5 @@ public class GeneralAccount {
     @JsonIgnore
     private ForeignAccount foreignAccount;
 
-    private float preferenceRate;
+    private Float preferenceRate;
 }
