@@ -104,9 +104,7 @@ const AccountBookInputModal = ({ accountNo, isModalOpen, setIsModalOpen, getAcco
     };
 
     try {
-      console.log("이게 맞지", data);
       const response = await accountBookApi.createAccountBook(data);
-      console.log("등록요청데이터", response.data);
       setIsModalOpen(false);
       getAccountBookInfo();
       document.getElementById("input-modal")?.click();

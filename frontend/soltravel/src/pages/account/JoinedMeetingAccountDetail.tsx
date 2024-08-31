@@ -42,7 +42,7 @@ const getAccountTypeFromIconName = (iconName: string) => {
     case "job":
       return "직장";
     default:
-      return "기본";
+      return "여행";
   }
 };
 
@@ -94,6 +94,7 @@ const getIcon = (iconName: string) => {
     const fetchData = async () => {
       try {
         const response = await accountApi.fetchForeignMeetingAccount(numberId);
+        console.log(response);
         setSelectedForeignAccount(response);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -135,9 +136,10 @@ const getIcon = (iconName: string) => {
     return <p>계좌 정보를 불러오는 중입니다...</p>;
   }
 
+
   return (
     <>
-      {joinedAccountList.length > 0 && foreignAccountList.length > 0 && (
+      {joinedAccountList.length > 0 && selectedForeignAccount && (
         <div className="w-full h-full pb-16 bg-[#EFEFF5]">
           <div className="p-5 flex flex-col bg-[#c3d8eb]">
             <div className="mb-12 flex space-x-2 items-center justify-start">
