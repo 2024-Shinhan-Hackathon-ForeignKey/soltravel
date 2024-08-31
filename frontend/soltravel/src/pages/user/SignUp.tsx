@@ -89,6 +89,10 @@ const SignUp = () => {
           console.log("SSE connection opened:", event);
         };
 
+        eventSource.addEventListener("all", function(event){
+          console.log("all: ",event.data);
+        })
+
         eventSource.addEventListener("Exchange", function (event) {
           const data = JSON.parse(event.data);
           console.log("Exchange notification received:", data);
