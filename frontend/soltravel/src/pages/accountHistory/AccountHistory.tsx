@@ -65,9 +65,9 @@ const AccountHistory: React.FC = () => {
           orderByType: 'DESC'
         };
 
-        const history = account.currency.currencyName !== 'KRW'
-          ? await accountHistoryApi.ForeignAccountHistoryInfo(accountNo, historyRequest)
-          : await accountHistoryApi.AccountHistoryInfo(accountNo, historyRequest);
+        const history = account.currency.currencyCode === 'KRW'
+          ? await accountHistoryApi.AccountHistoryInfo(accountNo, historyRequest)
+          : await accountHistoryApi.ForeignAccountHistoryInfo(accountNo, historyRequest);
 
         setTransactions(history);
 
@@ -157,7 +157,7 @@ const AccountHistory: React.FC = () => {
             <div className='flex items-center'>
               <span className='mr-2'>잔액보기</span>
               <button
-                className={`w-12 h-6 rounded-full ${showBalance ? 'bg-blue-500' : 'bg-gray-300'}`}
+                className={`w-12 h-6 rounded-full ${showBalance ? 'bg-[#0046FF]' : 'bg-gray-300'}`}
                 onClick={() => setShowBalance(!showBalance)}
               >
                 <div className={`w-5 h-5 rounded-full bg-white transform transition-transform ${showBalance ? 'translate-x-6' : 'translate-x-1'}`} />

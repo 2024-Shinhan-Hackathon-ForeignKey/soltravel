@@ -140,7 +140,7 @@ const Transaction: React.FC = () => {
        </div>
         <div className="mb-6 p-4 bg-white rounded-lg shadow">
           <h2 className="mb-4 text-lg font-semibold">입금 계좌 선택</h2>
-          <div className='mb-2'> 모임 통장 </div>
+          <div className='mb-2'> 올인원모임통장 </div>
           <select
             className="mb-4 p-2 w-full border rounded"
             value={selectedGroupAccount?.id || ''}

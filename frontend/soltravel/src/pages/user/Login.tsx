@@ -26,7 +26,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error creating user:", error);
-      alert("로그인 에러");
+      alert("아이디 또는 비밀번호가 틀렸습니다.");
     }
   };
 
