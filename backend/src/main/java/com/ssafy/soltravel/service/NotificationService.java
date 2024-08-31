@@ -135,9 +135,10 @@ public class NotificationService {
   public void notifyAllUser(){
 
 
-    for(String userId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
-      LogUtil.info("for userId", userId);
-      SseEmitter sseEmitterReceiver = getEmitter(Long.parseLong(userId));
+    for(String uId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
+      LogUtil.info("for userId", uId);
+      Long userId = Long.valueOf(uId.substring(8, uId.length()));
+      SseEmitter sseEmitterReceiver = getEmitter(userId);
 
       if (sseEmitterReceiver != null) {
         try {
