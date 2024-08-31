@@ -66,6 +66,7 @@ const MeetingAccountList = () => {
             </div>
           ) : (
             <div>
+              <p className="mb-3 font-bold">내가 개설한 모임통장</p>
               <p className="text-sm">개설된 모임 통장이 없어요</p>
             </div>
           )}
