@@ -21,6 +21,7 @@ interface InputState {
 const SignUp = () => {
   const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [inputs, setInputs] = useState<InputState>({
     file: null,
@@ -39,7 +40,6 @@ const SignUp = () => {
     return `${birthday.slice(0, 4)}-${birthday.slice(4, 6)}-${birthday.slice(6, 8)}`;
   };
 
-
   const fetchVerifySmsCode = async () => {
     try {
       const formattedValue = inputs.phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
@@ -48,7 +48,7 @@ const SignUp = () => {
       if (response.status === 200) {
         console.log("휴대폰 인증이 성공적으로 완료되었습니다!");
         return true;
-      }else{
+      } else {
         alert("인증번호를 다시 확인해주세요");
         return false;
       }
@@ -60,11 +60,11 @@ const SignUp = () => {
 
   const handleSignUp = async () => {
 
-    // 인증 코드 검증
-    const isCodeVerified = await fetchVerifySmsCode();
+    // // 인증 코드 검증
+    // const isCodeVerified = await fetchVerifySmsCode();
   
-    if (!isCodeVerified) 
-      return;
+    // if (!isCodeVerified) 
+    //   return;
 
     const formData = new FormData();
 
@@ -84,44 +84,76 @@ const SignUp = () => {
       if (response.status === 200) {
         console.log("회원가입이 성공적으로 완료되었습니다!");
 
-        //SSE연결 설정
-        const sseUrl = `http://3.107.138.21:8080/api/v1/notification/subscribe/${response.data}`; // response.data를 통해 사용자 ID를 가져옵니다.
+        const sseUrl = `https://soltravel.shop/api/v1/notification/subscribe/${response.data}`; // response.data를 통해 사용자 ID를 가져옵니다.
         const eventSource = new EventSource(sseUrl);
-  
+
         eventSource.onopen = function (event) {
           console.log("SSE connection opened:", event);
         };
-  
+
         eventSource.addEventListener("Exchange", function (event) {
           const data = JSON.parse(event.data);
           console.log("Exchange notification received:", data);
           // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
         });
-  
+
         eventSource.addEventListener("Settlement", function (event) {
           const data = JSON.parse(event.data);
           console.log("Settlement notification received:", data);
           // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
         });
-  
+
         eventSource.addEventListener("Transaction", function (event) {
           const data = JSON.parse(event.data);
           console.log("Transaction notification received:", data);
           // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
         });
-  
+
         eventSource.onerror = function (event) {
           console.error("Error occurred in SSE connection:", event);
           eventSource.close(); // 오류 발생 시 SSE 연결 닫기
         };
 
-
-        navigate("/login");
       }
     } catch (error) {
       console.error("Error creating user:", error);
       alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
+  };
+
+  //SSE연결 설정
+  const handleSSE = async () => {
+    const sseUrl = `https://soltravel.shop/api/v1/notification/subscribe/31`; // response.data를 통해 사용자 ID를 가져옵니다.
+    const eventSource = new EventSource(sseUrl);
+
+    eventSource.onopen = function (event) {
+      console.log("SSE connection opened:", event);
+    };
+
+    eventSource.addEventListener("Exchange", function (event) {
+      const data = JSON.parse(event.data);
+      console.log("Exchange notification received:", data);
+      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+    });
+
+    eventSource.addEventListener("Settlement", function (event) {
+      const data = JSON.parse(event.data);
+      console.log("Settlement notification received:", data);
+      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+    });
+
+    eventSource.addEventListener("Transaction", function (event) {
+      const data = JSON.parse(event.data);
+      console.log("Transaction notification received:", data);
+      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+    });
+
+    eventSource.onerror = function (event) {
+      console.error("Error occurred in SSE connection:", event);
+      eventSource.close(); // 오류 발생 시 SSE 연결 닫기
+    };
+
+    // navigate("/login");
   };
 
   return (
@@ -147,6 +179,13 @@ const SignUp = () => {
             }}
             className="text-[#0046FF] font-bold">
             로그인
+          </button>
+          <button
+            onClick={() => {
+              handleSSE();
+            }}
+            className="text-[#0046FF] font-bold">
+            SSE 테스트 버튼
           </button>
         </div>
       </div>

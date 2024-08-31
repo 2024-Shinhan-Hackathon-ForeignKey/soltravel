@@ -84,7 +84,7 @@ public class CashHistoryService {
       String accountNo, String startDate, String endDate
   ) {
     LocalDateTime start = DateUtil.getLocalDateTime(startDate);
-    LocalDateTime end = DateUtil.getLocalDateTime(endDate);
+    LocalDateTime end = DateUtil.getNextLocalDateTime(endDate);
 
     List<CashHistory> histories = cashHistoryRepository.findAllByForeignAccountAndPeriod(
       accountNo, start, end

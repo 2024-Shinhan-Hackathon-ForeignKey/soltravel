@@ -1,15 +1,14 @@
 import React from "react";
-import { useParams } from "react-router";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 import { useNavigate } from "react-router";
 import { AccountInfo } from "../../types/account";
 
 interface Props {
+  isLeader: boolean;
   account: AccountInfo | null;
   foreignAccount: AccountInfo | null;
 }
-const AccountDetail = ({ account, foreignAccount }: Props) => {
+
+const AccountDetail = ({ isLeader, account, foreignAccount }: Props) => {
   const navigate = useNavigate();
 
   // 숫자를 세 자리마다 쉼표로 구분하여 표시
@@ -24,7 +23,7 @@ const AccountDetail = ({ account, foreignAccount }: Props) => {
 
   return (
     <>
-      {account && foreignAccount && (
+      {account && (
         <div>
           <p className="text-sm mb-3 font-bold">일반모임통장</p>
           <div className="w-full mb-8 py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
@@ -59,9 +58,12 @@ const AccountDetail = ({ account, foreignAccount }: Props) => {
               </div>
             </div>
           </div>
+        </div>
+      )}
 
+      {foreignAccount && (
+        <div>
           <p className="text-sm mb-3 font-bold">외화모임통장</p>
-
           <div className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
             <div className="rounded-md flex justify-between mb-3">
               <div className="flex flex-col">

@@ -59,6 +59,11 @@ const MainPage = () => {
     });
   };
 
+  // 숫자를 세 자리마다 쉼표로 구분하여 표시
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("ko-KR").format(amount);
+  };
+
   const formatAccountNumber = (accountNo: string) => {
     // 계좌번호를 각 4자리씩 나누고 '-'로 연결
     return accountNo.replace(/(\d{3})(\d{4})(\d{4})(\d{5})/, "$1-$2-$3-$4");
@@ -78,7 +83,6 @@ const MainPage = () => {
         dispatch(editForeingAccountList(foreignResponse));
       } catch (error) {
         console.error("Error fetching data:", error);
-        alert("계좌 조회에 실패했습니다.");
       }
     };
 
@@ -126,8 +130,8 @@ const MainPage = () => {
                   <p className="text-sm text-zinc-500">입출금 {formatAccountNumber(accountList[0].accountNo)}</p>
                 </div>
               </div>
-              <div className="flex items-center text-right">
-                <p className="text-[1.3rem] font-semibold">{accountList[0].balance.toLocaleString()}</p>
+              <div className="flex items-center">
+                <p className="text-[1.3rem] font-semibold">{formatCurrency(accountList[0].balance)}</p>
                 <p className="text-[1rem]">원</p>
               </div>
               <hr />

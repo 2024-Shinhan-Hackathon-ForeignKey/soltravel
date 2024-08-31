@@ -1,18 +1,36 @@
 import { useNavigate } from "react-router";
-import { IoHome } from "react-icons/io5";
 import { PiAirplaneTiltFill } from "react-icons/pi";
 import { FaUserFriends, FaBriefcase, FaHeart } from "react-icons/fa"; // 필요한 추가 아이콘 임포트
-import { useDispatch, useSelector } from "react-redux";
+import { IoSchool } from "react-icons/io5";
+import { IoHome } from "react-icons/io5";
 import { AccountInfo } from "../../types/account";
+import { useEffect, useState } from "react";
+import { accountApi } from "../../api/account";
 
 interface Props {
   index: number;
   account: AccountInfo;
-  foreignAccount: AccountInfo;
+  accountId: number;
 }
 
-const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
+const JoinedMeetingAccount = ({ index, account, accountId }: Props) => {
   const navigate = useNavigate();
+  const [foreignAccount, setForeignAccount] = useState<AccountInfo | undefined>(undefined);
+
+  useEffect(() => {
+    // 특정 외화모임통장 조회
+    const fetchData = async () => {
+      try {
+        const response = await accountApi.fetchForeignMeetingAccount(accountId);
+        setForeignAccount(response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("계좌 조회에 실패했습니다.");
+      }
+    };
+
+    fetchData();
+  }, [accountId]);
 
   // 숫자를 세 자리마다 쉼표로 구분하여 표시
   const formatCurrency = (amount: number) => {
@@ -34,15 +52,15 @@ const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
       job: "bg-[#95DBC1]",
       default: "bg-[#638ee4]", // 기본 배경색
     };
-  
+
     // 해당 아이콘의 배경색을 가져오고, 없으면 기본값 사용
     const backgroundClass = iconBackgrounds[iconName] || iconBackgrounds.default;
-  
+
     const containerClasses = `w-6 h-6 ${backgroundClass} rounded-full flex justify-center items-center text-white`;
     const iconClasses = "w-4 h-4"; // 아이콘 자체 크기를 줄이기 위한 클래스
-  
+
     let IconComponent;
-  
+
     switch (iconName) {
       case "airPlane":
         IconComponent = <PiAirplaneTiltFill className={iconClasses} />;
@@ -63,26 +81,20 @@ const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
         IconComponent = <PiAirplaneTiltFill className={iconClasses} />;
         break;
     }
-  
-    return (
-      <span className={containerClasses}>
-        {IconComponent}
-      </span>
-    );
+
+    return <span className={containerClasses}>{IconComponent}</span>;
   };
-  
 
   return (
     <div
       key={index}
       onClick={() => {
-        console.log(account.iconName);
-        navigate(`/meetingaccount/${index}`);
+        navigate(`/joinedmeetingaccount/${accountId}`);
       }}
       className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center space-x-1 mb-1">
-        {getIcon(account.iconName)}
+        <div className="flex items-center space-x-[7px] mb-1">
+          {getIcon(account.iconName)}
           <p className="font-bold">{account.groupName}</p>
         </div>
         <div className="rounded-md flex justify-between">
@@ -102,18 +114,22 @@ const MeetingAccount = ({ index, account, foreignAccount }: Props) => {
             navigate("/foreignaccount");
           }}
           className="rounded-md flex justify-between">
-          <div className="flex flex-col">
-            <p className="text-sm font-bold">올인원 외화모임통장</p>
-            <p className="text-sm text-zinc-500">{formatAccountNumber(foreignAccount.accountNo)}</p>
-          </div>
-          <div className="flex items-center space-x-[0.1rem]">
-            <p className="text-[1.3rem] font-semibold">{formatCurrency(foreignAccount.balance)}</p>
-            <p className="text-[1rem]">{foreignAccount.currency.currencyCode}</p>
-          </div>
+          {foreignAccount && (
+            <>
+              <div className="flex flex-col">
+                <p className="text-sm font-bold">올인원 외화모임통장</p>
+                <p className="text-sm text-zinc-500">{formatAccountNumber(foreignAccount.accountNo)}</p>
+              </div>
+              <div className="flex items-center space-x-[0.1rem]">
+                <p className="text-[1.3rem] font-semibold">{formatCurrency(foreignAccount.balance)}</p>
+                <p className="text-[1rem]">{foreignAccount.currency.currencyCode}</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default MeetingAccount;
+export default JoinedMeetingAccount;
