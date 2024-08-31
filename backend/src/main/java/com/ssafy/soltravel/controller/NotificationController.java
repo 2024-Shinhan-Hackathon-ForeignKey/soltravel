@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,5 +34,15 @@ public class NotificationController {
   public SseEmitter subscribe(@Parameter(description = "사용자의 userId", example = "1")@PathVariable Long userId) {
 
     return notificationService.subscribe(userId);
+  }
+
+  @GetMapping("/sendAll")
+  @Operation(summary = "전체 사용자에게 메세지 전송", description = "테스트용 메서드", responses = {
+      @ApiResponse(responseCode = "200", description = "전송 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
+      @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.", content = @Content),
+      @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
+  public ResponseEntity<?> subscribe() {
+    notificationService.notifyAllUser();
+    return ResponseEntity.ok().build();
   }
 }
