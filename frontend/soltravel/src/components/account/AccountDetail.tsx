@@ -11,6 +11,10 @@ interface Props {
 const AccountDetail = ({ isLeader, account, foreignAccount }: Props) => {
   const navigate = useNavigate();
 
+  const navigateSettlement = () => {
+    navigate(`/settlement`)
+  }
+
   // 숫자를 세 자리마다 쉼표로 구분하여 표시
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR").format(amount);
@@ -117,7 +121,10 @@ const AccountDetail = ({ isLeader, account, foreignAccount }: Props) => {
           </div>
 
           <div className="fixed bottom-2 left-1 right-1 p-4">
-            <button className="w-full h-12 rounded-md bg-[#0046FF] text-white text-sm font-bold">
+            <button
+            className="w-full h-12 rounded-md bg-[#0046FF] text-white text-sm font-bold"
+            onClick={navigateSettlement}
+            >
               정산하기
             </button>
           </div>
