@@ -229,7 +229,7 @@
 ![가계부상세내역조회](https://github.com/user-attachments/assets/5c07b592-bb10-4933-86cd-9aec800d8990)
 
 - 영수증으로 가계부 추가
-- 
+
 ![영수증으로가계부추가](https://github.com/user-attachments/assets/f27e904b-8114-4577-a624-934ed0d1921c)
 
 ## :+1: 멤버
