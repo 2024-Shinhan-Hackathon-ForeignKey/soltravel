@@ -39,6 +39,7 @@ public class AccountMapper {
             .currency(currencyDto)
             .createdAt(String.valueOf(generalAccount.getCreatedAt()))
             .updatedAt(String.valueOf(generalAccount.getUpdatedAt()))
+            .preferenceExchange(generalAccount.getPreferenceRate())
             .build();
 
         return accountDto;
@@ -113,6 +114,7 @@ public class AccountMapper {
         generalAccount.setUser(user);
         generalAccount.setAccountType(requestDto.getAccountType());
         generalAccount.setAccountPassword(requestDto.getAccountPassword());
+        generalAccount.setPreferenceRate(requestDto.getExchangeRate());
 
         if(generalAccount.getAccountType().equals(AccountType.INDIVIDUAL)) {
             generalAccount.setAccountName("신한은행 일반 개인통장");
