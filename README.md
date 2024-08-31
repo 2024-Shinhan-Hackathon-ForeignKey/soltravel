@@ -149,13 +149,13 @@
 - 프론트엔드(React) 빌드 및 실행
 1. 프로젝트 종속성 설치:
 **cd frontend
-npm install   # 또는 yarn install**
+npm install 또는 yarn install**
 2. 개발 모드에서 실행:
-**npm start     # 또는 yarn start**
+**npm start 또는 yarn start**
 이 명령어는 React 개발 서버를 시작하며, 일반적으로 http://localhost:3000에서 실행됨
 3. 프로덕션 빌드:
-**npm run build  # 또는 yarn build**
-이 명령어는 build/ 디렉토리에 정적 파일을 생성합니다. 이 파일들은 Spring Boot 애플리케이션에 통합될 수 있습니다.
+**npm run build 또는 yarn build**
+이 명령어는 build/ 디렉토리에 정적 파일을 생성합니다. 이 파일들은 Spring Boot 애플리케이션에 통합될 수 있음.
 
 - 백엔드(Spring) 빌드 및 실행
 1. 프로젝트 종속성 설치 및 빌드:
@@ -166,8 +166,6 @@ cd build/libs
 java -jar soltravel-0.0.1-SNAPSHOT.jar
 이 명령어는 Spiring 개발 서버를 시작하며, 일반적으로 http://localhost:8080에서 실행됨
 
-
-**npm run build  # 또는 yarn build**
 ## :tv: 구현 화면(사용 플로우)
 
 #### :one: 회원가입 및 로그인
