@@ -23,6 +23,18 @@ const MainPage = () => {
   const foreignAccountList = useSelector((state: RootState) => state.account.foreignAccountList);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRateInfo[]>([]);
 
+  const navigateTransfermation = () => {
+    navigate("/transaction")
+  }
+
+  const navigateAccountBook = () => {
+    navigate("/accountbookdetail")
+  }
+
+  const navigateExchangeRate = () => {
+    navigate("/exchangerate")
+  }
+
   // 환율 받아오기
   const handleExchangeRatesUpdate = (rates: ExchangeRateInfo[]) => {
     setExchangeRates(rates);
@@ -102,26 +114,31 @@ const MainPage = () => {
 
         {/* 입출금 통장 있을 시 표시 */}
         {accountList && accountList.length > 0 && (
-          <div
+          <div className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
+            <div 
+            className="flex flex-col space-y-3"
             onClick={() => {
-              navigate("/myaccount");
-            }}
-            className="w-full py-5 px-5 flex flex-col rounded-xl bg-white shadow-md">
-            <div className="flex flex-col space-y-3">
+              navigate(`/accounthistory/${accountList[0].accountNo}`);
+            }}>
               <div className="flex justify-between items-center">
                 <div className="flex flex-col">
                   <p className="font-bold">올인원머니통장</p>
                   <p className="text-sm text-zinc-500">입출금 {formatAccountNumber(accountList[0].accountNo)}</p>
                 </div>
               </div>
-              <div className="flex items-center">
-                <p className="text-[1.3rem] font-semibold">{accountList[0].balance}</p>
+              <div className="flex items-center text-right">
+                <p className="text-[1.3rem] font-semibold">{accountList[0].balance.toLocaleString()}</p>
                 <p className="text-[1rem]">원</p>
               </div>
               <hr />
             </div>
             <div className="flex justify-end mt-3">
-              <button className="h-8 w-14 rounded-3xl bg-[#0046FF] font-bold text-white text-sm">이체</button>
+              <button
+              className="h-8 w-14 rounded-3xl bg-[#0046FF] font-bold text-white text-sm"
+              onClick={navigateTransfermation}
+              >
+                이체
+              </button>
             </div>
           </div>
         )}
@@ -144,7 +161,10 @@ const MainPage = () => {
           )}
 
           {/* 환율 표시 */}
-          <div className="w-full p-6 flex flex-col space-y-2 rounded-xl bg-white shadow-md">
+          <div
+          className="w-full p-6 flex flex-col space-y-2 rounded-xl bg-white shadow-md"
+          onClick={navigateExchangeRate}
+          >
             <div className="flex items-center space-x-1">
               <p className="text-md font-bold flex justify-start">환율</p>
               <IoIosArrowForward className="text-[#565656]" />
@@ -181,10 +201,11 @@ const MainPage = () => {
               onClick={(e) => {
                 navigate("/exchange");
                 e.stopPropagation();
+                navigate("/exchange")
               }}
               className="h-10 rounded-md bg-[#EAEAEA] font-bold text-sm">
               환전신청
-            </button>{" "}
+            </button>
           </div>
         </div>
 
@@ -197,7 +218,10 @@ const MainPage = () => {
         </div>
 
         {/* 가계부 */}
-        <div className="w-full p-6 flex flex-col space-y-3 rounded-xl bg-blue-500 shadow-md">
+        <div
+        className="w-full p-6 flex flex-col space-y-3 rounded-xl bg-blue-500 shadow-md"
+        onClick={navigateAccountBook}
+        >
           <div className="flex items-center space-x-1">
             <p className="text-md text-white font-bold flex justify-start">가계부</p>
             <IoIosArrowForward className="text-white" />
