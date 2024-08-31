@@ -115,7 +115,7 @@ const SignUp = () => {
           console.error("Error occurred in SSE connection:", event);
           eventSource.close(); // 오류 발생 시 SSE 연결 닫기
         };
-
+        navigate("/login");
       }
     } catch (error) {
       console.error("Error creating user:", error);
@@ -123,40 +123,6 @@ const SignUp = () => {
     }
   };
 
-  //SSE연결 설정
-  const handleSSE = async () => {
-    const sseUrl = `https://soltravel.shop/api/v1/notification/subscribe/31`; // response.data를 통해 사용자 ID를 가져옵니다.
-    const eventSource = new EventSource(sseUrl);
-
-    eventSource.onopen = function (event) {
-      console.log("SSE connection opened:", event);
-    };
-
-    eventSource.addEventListener("Exchange", function (event) {
-      const data = JSON.parse(event.data);
-      console.log("Exchange notification received:", data);
-      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
-    });
-
-    eventSource.addEventListener("Settlement", function (event) {
-      const data = JSON.parse(event.data);
-      console.log("Settlement notification received:", data);
-      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
-    });
-
-    eventSource.addEventListener("Transaction", function (event) {
-      const data = JSON.parse(event.data);
-      console.log("Transaction notification received:", data);
-      // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
-    });
-
-    eventSource.onerror = function (event) {
-      console.error("Error occurred in SSE connection:", event);
-      eventSource.close(); // 오류 발생 시 SSE 연결 닫기
-    };
-
-    // navigate("/login");
-  };
 
   return (
     <div className="w-full min-h-screen p-5 bg-[#EFEFF5]">
@@ -181,13 +147,6 @@ const SignUp = () => {
             }}
             className="text-[#0046FF] font-bold">
             로그인
-          </button>
-          <button
-            onClick={() => {
-              handleSSE();
-            }}
-            className="text-[#0046FF] font-bold">
-            SSE 테스트 버튼
           </button>
         </div>
       </div>
