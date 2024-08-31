@@ -79,8 +79,6 @@ const SignUp = () => {
 
     try {
       const response = await userApi.fetchSignUp(formData);
-      // 두 번째 API 호출: 알림 구독 (백에서 시도한답니다)
-      // const notificationResponse = await userApi.fetchNotificationSubscribe();
       if (response.status === 200) {
         console.log("회원가입이 성공적으로 완료되었습니다!");
 

@@ -42,7 +42,7 @@ const MeetingAccountDetail = () => {
       case "job":
         return "직장";
       default:
-        return "기본";
+        return "여행";
     }
   }
 
