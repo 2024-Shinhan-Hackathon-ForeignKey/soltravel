@@ -148,8 +148,8 @@
 #### - 프로젝트 종속성 설치:
 - 프론트엔드(React) 빌드 및 실행
 1. 프로젝트 종속성 설치:
-**cd frontend
-npm install 또는 yarn install**
+**cd frontend/soltravel로 이동**
+**npm install 또는 yarn install**
 2. 개발 모드에서 실행:
 **npm start 또는 yarn start**
 이 명령어는 React 개발 서버를 시작하며, 일반적으로 http://localhost:3000에서 실행됨
@@ -159,11 +159,11 @@ npm install 또는 yarn install**
 
 - 백엔드(Spring) 빌드 및 실행
 1. 프로젝트 종속성 설치 및 빌드:
-**cd backend
-./gradlew build**
+**cd backend**
+**./gradlew build**
 2. 개발 모드에서 실행:
-cd build/libs
-java -jar soltravel-0.0.1-SNAPSHOT.jar
+**cd build/libs**
+**java -jar soltravel-0.0.1-SNAPSHOT.jar**
 이 명령어는 Spiring 개발 서버를 시작하며, 일반적으로 http://localhost:8080에서 실행됨
 
 ## :tv: 구현 화면(사용 플로우)
