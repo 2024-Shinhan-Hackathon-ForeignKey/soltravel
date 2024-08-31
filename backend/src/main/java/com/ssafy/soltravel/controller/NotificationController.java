@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ public class NotificationController {
   /**
    * 메시지 알림 구독
    */
-  @GetMapping("/subscribe/{userId}")
+  @GetMapping(value = "/subscribe/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "메시지 알림 구독", description = "특정 사용자의 메시지 알림을 구독합니다. SSE를 통해 실시간 알림을 수신합니다.", responses = {
       @ApiResponse(responseCode = "200", description = "성공적으로 알림을 구독했습니다.", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
       @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.", content = @Content),
@@ -36,7 +37,7 @@ public class NotificationController {
     return notificationService.subscribe(userId);
   }
 
-  @GetMapping("/sendAll")
+  @GetMapping(value = "/sendAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "전체 사용자에게 메세지 전송", description = "테스트용 메서드", responses = {
       @ApiResponse(responseCode = "200", description = "전송 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),
       @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.", content = @Content),
