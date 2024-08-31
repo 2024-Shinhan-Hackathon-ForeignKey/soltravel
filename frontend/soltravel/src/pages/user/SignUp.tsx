@@ -111,7 +111,7 @@ const SignUp = () => {
           console.error("Error occurred in SSE connection:", event);
           eventSource.close(); // 오류 발생 시 SSE 연결 닫기
         };
-
+        navigate("/login");
       }
     } catch (error) {
       console.error("Error creating user:", error);
@@ -177,13 +177,6 @@ const SignUp = () => {
             }}
             className="text-[#0046FF] font-bold">
             로그인
-          </button>
-          <button
-            onClick={() => {
-              handleSSE();
-            }}
-            className="text-[#0046FF] font-bold">
-            SSE 테스트 버튼
           </button>
         </div>
       </div>
