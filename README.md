@@ -5,6 +5,7 @@
 ![image (4)](https://github.com/user-attachments/assets/d201950a-8c4a-4cff-8a2a-994b9cdcfc72)
 
 - **배포 링크 : [SolShin](https://soltravel.shop/login)**
+- 모바일 기반의 어플리케이션이기 때문에 구글 개발툴을 통해 모바일 환경에서 사용을 권장합니다.
 
 ## :calendar: 기간
 
@@ -186,11 +187,11 @@
 
 #### :seven: 정산 기능
 
-이미지
+![정산하기](https://github.com/user-attachments/assets/bee1614b-6011-41e3-8bac-13a3b63f7625)
 
 #### :eight: 이체 기록 확인
 
-이미지
+![일반모임통장이체내역](https://github.com/user-attachments/assets/e36540f8-7775-4bfe-a87a-5891fce1c3d6)
 
 #### :nine: 가계부 기능
 
