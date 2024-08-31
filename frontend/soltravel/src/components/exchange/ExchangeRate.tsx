@@ -76,7 +76,7 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
             <span className="text-[#0046FF] font-bold">{selectedCurrency.exchangeRate.toFixed(2)}원</span>
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            최소 환전액: {selectedCurrency.exchangeMin.toLocaleString()}원
+            최소 환전액: {selectedCurrency.exchangeMin.toLocaleString()} {selectedCurrency.currencyCode}
           </div>
           <div className="text-xs text-gray-400 mt-1">
             갱신 시간: {new Date(selectedCurrency.created).toLocaleString()}

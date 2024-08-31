@@ -130,4 +130,23 @@ public class NotificationService {
       }
     }
   }
+
+
+  public void notifyAllUser(){
+
+
+    for(String userId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
+      LogUtil.info("for userId", userId);
+      SseEmitter sseEmitterReceiver = getEmitter(Long.parseLong(userId));
+
+      if (sseEmitterReceiver != null) {
+        try {
+          sseEmitterReceiver.send(SseEmitter.event().name("all").data("notify!!!!!!"));
+        } catch (Exception e) {
+          redisTemplate.delete(EMITTER_PREFIX + userId);
+        }
+      }
+    }
+
+  }
 }
