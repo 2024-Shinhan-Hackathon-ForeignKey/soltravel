@@ -115,6 +115,12 @@ const SignUp = () => {
           console.error("Error occurred in SSE connection:", event);
           eventSource.close(); // 오류 발생 시 SSE 연결 닫기
         };
+
+        eventSource.close = function() {
+          console.log("SSE connection closed");
+          // 재연결 로직을 추가할 수 있습니다.
+        };
+        
         navigate("/login");
       }
     } catch (error) {

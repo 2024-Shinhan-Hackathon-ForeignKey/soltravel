@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class NotificationController {
       @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
   public ResponseEntity<?> subscribe() {
     notificationService.notifyAllUser();
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_EVENT_STREAM_VALUE).build();
   }
 }
