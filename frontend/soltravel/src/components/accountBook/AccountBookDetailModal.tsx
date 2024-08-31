@@ -25,13 +25,14 @@ const AccountBookDetailModal = ({ accountNo, isModalOpen, setIsModalOpen, select
 
   // 수입과 지출 합계 계산
   const totalIncome = dayHistoryDetail
-    .filter((item) => item.transactionType === "G")
+    .filter((item) => item.transactionType === "G" || item.transactionType === "1")
     .reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
   const totalExpenditure = dayHistoryDetail
     .filter((item) => item.transactionType === "P")
     .reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
+  console.log(dayHistoryDetail);
   return (
     <>
       <input type="checkbox" id="detail-modal" className="modal-toggle" checked={isModalOpen} readOnly />
@@ -54,7 +55,11 @@ const AccountBookDetailModal = ({ accountNo, isModalOpen, setIsModalOpen, select
                 <div key={index} className="flex flex-col space-y-4">
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col justify-center">
-                      <p className="font-bold">{item.store}</p>
+                      {item.transactionType === "1" ? (
+                        <p className="font-bold">모임통장 이체</p>
+                      ) : (
+                        <p className="font-bold">{item.store}</p>
+                      )}
                       <p className="text-sm">{format(parseISO(item.transactionAt), "HH:mm:ss")}</p>
                     </div>
                     <p className="text-lg font-bold flex justify-end">
