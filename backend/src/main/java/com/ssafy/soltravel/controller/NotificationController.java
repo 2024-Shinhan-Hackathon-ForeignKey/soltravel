@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,8 +49,11 @@ public class NotificationController {
       @ApiResponse(responseCode = "404", description = "해당 사용자를 찾을 수 없습니다.", content = @Content),
       @ApiResponse(responseCode = "500", description = "서버 오류입니다.", content = @Content)})
   public ResponseEntity<?> subscribe() {
+
     notificationService.notifyAllUser();
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_EVENT_STREAM_VALUE).build();
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("X-Accel-Buffering", "no");
+
+    return new ResponseEntity<>("연결 완료", headers, HttpStatus.OK);
   }
 }
