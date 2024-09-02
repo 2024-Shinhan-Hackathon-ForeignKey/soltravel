@@ -13,6 +13,7 @@ import "swiper/css/pagination";
 import "swiper/css";
 import ExchangeRate from '../components/exchange/ExchangeRate';
 import { ExchangeRateInfo } from '../types/exchange';
+import { userApi } from "../api/user";
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -68,6 +69,56 @@ const MainPage = () => {
     // 계좌번호를 각 4자리씩 나누고 '-'로 연결
     return accountNo.replace(/(\d{3})(\d{4})(\d{4})(\d{5})/, "$1-$2-$3-$4");
   };
+
+  const subscribe = async () => {
+    try {
+      if (localStorage.getItem("userId") != null) {
+        console.log("회원가입이 성공적으로 완료되었습니다!");
+
+        const sseUrl = `https://soltravelshop/api/v1/notification/subscribe/${localStorage.getItem("userId")}`;
+        const eventSource = new EventSource(sseUrl);
+
+        eventSource.onopen = function (event) {
+          console.log("SSE connection opened:", event);
+        };
+
+        eventSource.addEventListener("all", function(event){
+          console.log("all: ",event.data);
+        })
+
+        eventSource.addEventListener("Exchange", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Exchange notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+
+        eventSource.addEventListener("Settlement", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Settlement notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+
+        eventSource.addEventListener("Transaction", function (event) {
+          const data = JSON.parse(event.data);
+          console.log("Transaction notification received:", data);
+          // 알림 메시지를 화면에 표시하거나, 다른 UI 업데이트를 수행
+        });
+
+        eventSource.onerror = function (event) {
+          console.error("Error occurred in SSE connection:", event);
+          eventSource.close(); // 오류 발생 시 SSE 연결 닫기
+        };
+
+        eventSource.close = function() {
+          console.log("SSE connection closed");
+          // 재연결 로직을 추가할 수 있습니다.
+        };
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+      alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -256,7 +307,8 @@ const MainPage = () => {
             </div>
           </div>
 
-          <div className="w-full h-40 p-5 rounded-xl bg-white shadow-md flex flex-col items-start space-y-8">
+          <div className="w-full h-40 p-5 rounded-xl bg-white shadow-md flex flex-col items-start space-y-8"
+          onClick={subscribe}>
             <img className="w-12" src="/assets/creditCardIcon.png" alt="카드아이콘" />
             <div>
               <p className="font-bold">카드 신청하기</p>

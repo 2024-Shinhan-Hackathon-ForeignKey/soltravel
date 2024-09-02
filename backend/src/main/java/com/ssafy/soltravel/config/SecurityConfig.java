@@ -42,7 +42,7 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/api/v1/user/join/test"),
                         new AntPathRequestMatcher("/api/v1/swagger-ui/**"),
                         new AntPathRequestMatcher("/api/v1/v3/api-docs/**"),
-                        new AntPathRequestMatcher("/api/v1/notification/subscribe/**")
+                        new AntPathRequestMatcher("/api/v1/notification/**")
                     ).permitAll()
                     .anyRequest().authenticated()
                 //.anyRequest().authenticated()

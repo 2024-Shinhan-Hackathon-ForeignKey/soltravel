@@ -37,7 +37,11 @@ public class NotificationController {
 
     return notificationService.subscribe(userId);
   }
-
+  
+  
+/*
+* 테스트용 알람 보내기 메서드 
+*/
   @GetMapping(value = "/sendAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   @Operation(summary = "전체 사용자에게 메세지 전송", description = "테스트용 메서드", responses = {
       @ApiResponse(responseCode = "200", description = "전송 성공", content = @Content(schema = @Schema(implementation = SseEmitter.class))),

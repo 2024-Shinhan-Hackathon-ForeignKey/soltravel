@@ -33,11 +33,13 @@ public class NotificationService {
    */
   public SseEmitter subscribe(long userId) {
 
+    // 로깅
     LogUtil.info("알림구독요청",userId);
-    //sseEmitter 객체 생성
+
+    // sseEmitter 객체 생성
     SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
 
-    //연결
+    // 연결
     try {
       sseEmitter.send(SseEmitter.event().name("connect"));
     } catch (IOException e) {
