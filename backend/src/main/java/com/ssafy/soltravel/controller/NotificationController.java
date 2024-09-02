@@ -53,6 +53,9 @@ public class NotificationController {
     notificationService.notifyAllUser();
     HttpHeaders headers = new HttpHeaders();
     headers.set("X-Accel-Buffering", "no");
+    headers.setContentType(MediaType.TEXT_EVENT_STREAM);
+    headers.set("Content-Type", "text/event-stream; charset=utf-8");
+    headers.set("Cache-Control", "no-cache");
 
     return new ResponseEntity<>("연결 완료", headers, HttpStatus.OK);
   }
