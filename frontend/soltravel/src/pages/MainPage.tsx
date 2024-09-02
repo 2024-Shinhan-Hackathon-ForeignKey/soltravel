@@ -73,10 +73,14 @@ const MainPage = () => {
   const subscribe = async () => {
     try {
       if (localStorage.getItem("userId") != null) {
-        console.log("회원가입이 성공적으로 완료되었습니다!");
+        const sseUrl = `https://soltravel.shop/api/v1/notification/subscribe/${localStorage.getItem("userId")}`;
+        console.log(sseUrl);
 
-        const sseUrl = `https://soltravelshop/api/v1/notification/subscribe/${localStorage.getItem("userId")}`;
         const eventSource = new EventSource(sseUrl);
+
+        eventSource.onmessage = (event) => {
+          console.log(event.data);
+        }
 
         eventSource.onopen = function (event) {
           console.log("SSE connection opened:", event);
