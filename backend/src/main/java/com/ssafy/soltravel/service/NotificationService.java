@@ -1,21 +1,19 @@
 package com.ssafy.soltravel.service;
 
-import com.ssafy.soltravel.dto.notification.ExchangeNotificationDto;
 import com.ssafy.soltravel.dto.exchange.ExchangeResponseDto;
+import com.ssafy.soltravel.dto.notification.ExchangeNotificationDto;
 import com.ssafy.soltravel.dto.notification.TransactionNotificationDto;
 import com.ssafy.soltravel.dto.settlement.SettlementResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.util.LogUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @Service
@@ -34,7 +32,7 @@ public class NotificationService {
   public SseEmitter subscribe(long userId) {
 
     // 로깅
-    LogUtil.info("알림구독요청",userId);
+    LogUtil.info("알림구독요청", userId);
 
     // sseEmitter 객체 생성
     SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
@@ -68,11 +66,11 @@ public class NotificationService {
    */
   public void notifyExchangeMessage(ExchangeResponseDto exchangeResponseDto) {
 
-    String accountNo=exchangeResponseDto.getAccountInfoDto().getAccountNo();
+    String accountNo = exchangeResponseDto.getAccountInfoDto().getAccountNo();
 
-    List<Long> participants=accountService.findUserIdsByGeneralAccountId(exchangeResponseDto.getAccountInfoDto().getAccountId());
+    List<Long> participants = accountService.findUserIdsByGeneralAccountId(exchangeResponseDto.getAccountInfoDto().getAccountId());
 
-    for(long userId : participants) {
+    for (long userId : participants) {
 
       SseEmitter sseEmitterReceiver = getEmitter(userId);
 
@@ -126,7 +124,8 @@ public class NotificationService {
     if (sseEmitterReceiver != null) {
       //알림 전송
       try {
-        sseEmitterReceiver.send(SseEmitter.event().name("Transaction").data(transactionNotificationDto));
+//        sseEmitterReceiver.send(SseEmitter.event().name("Transaction").data(transactionNotificationDto));
+        sseEmitterReceiver.send("data: Hello, SSE!\n\n");
       } catch (Exception e) {
         redisTemplate.delete(EMITTER_PREFIX + userId);
       }
@@ -134,15 +133,13 @@ public class NotificationService {
   }
 
 
-  public void notifyAllUser(){
+  public void notifyAllUser() {
 
-
-    for(String uId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
+    for (String uId : redisTemplate.keys(EMITTER_PREFIX + "*")) {
       Long userId = Long.valueOf(uId.substring(8, uId.length()));
       LogUtil.info("for userId", userId);
 
       SseEmitter sseEmitterReceiver = getEmitter(userId);
-
 
       if (sseEmitterReceiver != null) {
         LogUtil.info("for SseEmitter", sseEmitterReceiver.toString());
