@@ -76,15 +76,17 @@ const MainPage = () => {
         const sseUrl = `https://soltravel.shop/api/v1/notification/subscribe/${localStorage.getItem("userId")}`;
         console.log(sseUrl);
 
-        const eventSource = new EventSource(sseUrl);
-
-        eventSource.onmessage = (event) => {
-          console.log(event.data);
-        }
+        const eventSource = new EventSource(sseUrl, {
+          withCredentials: true
+        });
 
         eventSource.onopen = function (event) {
           console.log("SSE connection opened:", event);
         };
+
+        eventSource.onmessage = (event) => {
+          console.log(event.data);
+        }
 
         eventSource.addEventListener("all", function(event){
           console.log("all: ",event.data);

@@ -6,15 +6,13 @@ import com.ssafy.soltravel.dto.notification.TransactionNotificationDto;
 import com.ssafy.soltravel.dto.settlement.SettlementResponseDto;
 import com.ssafy.soltravel.service.account.AccountService;
 import com.ssafy.soltravel.util.LogUtil;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationService {
 
   private final AccountService accountService;
+  // private final RedisTemplate<String, SseEmitter> redisTemplate; // RedisTemplate을 사용하여 Redis에 접근
 
   // ConcurrentHashMap을 사용하여 SseEmitter를 저장
   private final Map<Long, SseEmitter> emitterMap = new ConcurrentHashMap<>();
-
-  // RedisTemplate을 사용하여 Redis에 접근
-  private final RedisTemplate<String, SseEmitter> redisTemplate;
 
   // Redis에서 구독 정보의 키에 사용할 접두사
   private static final String EMITTER_PREFIX = "EMITTER_";
@@ -53,26 +49,20 @@ public class NotificationService {
       e.printStackTrace();
     }
 
-    // Redis에 저장
-    // redisTemplate.opsForValue().set(EMITTER_PREFIX + userId, sseEmitter, 2400, TimeUnit.HOURS); // 24시간 동안 유효
+    // HashMap에 저장
     emitterMap.put(userId, sseEmitter);
 
-    /*sseEmitter.onCompletion(() -> redisTemplate.delete(EMITTER_PREFIX + userId));  // sseEmitter 연결 완료 시 제거
-    sseEmitter.onTimeout(() -> redisTemplate.delete(EMITTER_PREFIX + userId));    // sseEmitter 연결 타임아웃 시 제거
-    sseEmitter.onError((e) -> redisTemplate.delete(EMITTER_PREFIX + userId));    // sseEmitter 연결 오류 시 제거*/
-
-    sseEmitter.onCompletion(() -> emitterMap.remove(userId));
-    sseEmitter.onTimeout(() -> emitterMap.remove(userId));
-    sseEmitter.onError((e) -> emitterMap.remove(userId));
+    sseEmitter.onCompletion(() -> emitterMap.remove(userId));  // sseEmitter 연결 완료 시 제거
+    sseEmitter.onTimeout(() -> emitterMap.remove(userId));    // sseEmitter 연결 타임아웃 시 제거
+    sseEmitter.onError((e) -> emitterMap.remove(userId));    // sseEmitter 연결 오류 시 제거
 
     return sseEmitter;
   }
 
   /**
-   * Redis에서 SseEmitter 가져오기
+   * HashMap에서 SseEmitter 가져오기
    */
   private SseEmitter getEmitter(long userId) {
-//    return redisTemplate.opsForValue().get(EMITTER_PREFIX + userId);
     return emitterMap.get(userId);
   }
 
@@ -81,11 +71,11 @@ public class NotificationService {
    */
   public void notifyExchangeMessage(ExchangeResponseDto exchangeResponseDto) {
 
-    String accountNo=exchangeResponseDto.getAccountInfoDto().getAccountNo();
+    String accountNo = exchangeResponseDto.getAccountInfoDto().getAccountNo();
 
-    List<Long> participants=accountService.findUserIdsByGeneralAccountId(exchangeResponseDto.getAccountInfoDto().getAccountId());
+    List<Long> participants = accountService.findUserIdsByGeneralAccountId(exchangeResponseDto.getAccountInfoDto().getAccountId());
 
-    for(long userId : participants) {
+    for (long userId : participants) {
 
       SseEmitter sseEmitterReceiver = getEmitter(userId);
 
@@ -102,7 +92,7 @@ public class NotificationService {
           );
           sseEmitterReceiver.send(SseEmitter.event().name("Exchange").data(dto));
         } catch (Exception e) {
-          redisTemplate.delete(EMITTER_PREFIX + userId);
+          emitterMap.remove(userId);
         }
       }
     }
@@ -122,7 +112,7 @@ public class NotificationService {
       try {
         sseEmitterReceiver.send(SseEmitter.event().name("Settlement").data(settlementResponseDto));
       } catch (Exception e) {
-        redisTemplate.delete(EMITTER_PREFIX + userId);
+        emitterMap.remove(userId);
       }
     }
   }
@@ -141,22 +131,20 @@ public class NotificationService {
       try {
         sseEmitterReceiver.send(SseEmitter.event().name("Transaction").data(transactionNotificationDto));
       } catch (Exception e) {
-        redisTemplate.delete(EMITTER_PREFIX + userId);
+        emitterMap.remove(userId);
       }
     }
   }
 
+  /**
+   * 모든 사용자에게 알림
+   */
+  public void notifyAllUser() {
 
-  public void notifyAllUser(){
-
-//    for(String uId: redisTemplate.keys(EMITTER_PREFIX + "*")) {
-    //      Long userId = Long.valueOf(uId.substring(8, uId.length()));
-
-    for(Long userId: emitterMap.keySet()) {
-      LogUtil.info("for userId", String.valueOf(userId));
+    for (Long userId : emitterMap.keySet()) {
+      LogUtil.info("for userId", userId);
 
       SseEmitter sseEmitterReceiver = getEmitter(userId);
-
 
       if (sseEmitterReceiver != null) {
         LogUtil.info("for SseEmitter", sseEmitterReceiver.toString());
@@ -165,10 +153,8 @@ public class NotificationService {
           sseEmitterReceiver.send(SseEmitter.event().name("all").data("notify!!!!!!"));
         } catch (Exception e) {
           emitterMap.remove(userId);
-//          redisTemplate.delete(EMITTER_PREFIX + userId);
         }
       }
     }
-
   }
 }
